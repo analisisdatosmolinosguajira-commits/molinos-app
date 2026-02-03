@@ -1,158 +1,343 @@
 import React, { useState, useEffect } from 'react';
-import { Droplet, Search, Filter, Plus, Wrench, Wind, MapPin } from 'lucide-react';
-import StatusBadge from '../../components/ui/StatusBadge';
+import { Plus, RefreshCw, Droplet, Settings, Wrench } from 'lucide-react';
+import PumpSearchFilters from '../../components/pump/PumpSearchFilters';
+import PumpTable from '../../components/pump/PumpTable';
+import PumpFormModal from '../../components/pump/PumpFormModal';
+import ConfirmDeleteModal from '../../components/modals/ConfirmDeleteModal';
+import Pagination from '../../components/ui/Pagination';
 import PumpDetail from './PumpDetail';
 import { PumpService } from '../../services/pumps';
 
 export default function BombasPage() {
+    // State
     const [pumps, setPumps] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedPumpId, setSelectedPumpId] = useState(null);
+    const [filteredPumps, setFilteredPumps] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // View state
+    const [selectedPumpId, setSelectedPumpId] = useState(null);
+
+    // Modal state
+    const [showFormModal, setShowFormModal] = useState(false);
+    const [editingPump, setEditingPump] = useState(null);
+    const [deleteModal, setDeleteModal] = useState({ open: false, pump: null });
+
+    // Filter state
+    const [filters, setFilters] = useState({
+        search: '',
+        status: '',
+        type: '',
+        location: ''
+    });
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 20;
+
+    // Load pumps on mount
     useEffect(() => {
-        async function loadPumps() {
-            try {
-                setLoading(true);
-                const data = await PumpService.getPumps();
-                setPumps(data || []);
-            } catch (err) {
-                console.error("Error loading pumps:", err);
-                setError("No se pudieron cargar las bombas.");
-            } finally {
-                setLoading(false);
-            }
-        }
         loadPumps();
     }, []);
 
-    // Toggle Detail View
+    // Apply filters when pumps or filters change
+    useEffect(() => {
+        applyFilters();
+    }, [pumps, filters]);
+
+    const loadPumps = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const data = await PumpService.getAllPumps();
+            setPumps(data || []);
+        } catch (err) {
+            console.error('Error loading pumps:', err);
+            setError(err.message || 'Error al cargar las bombas');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const applyFilters = () => {
+        let result = [...pumps];
+
+        // Search filter
+        if (filters.search) {
+            const searchLower = filters.search.toLowerCase();
+            result = result.filter(p =>
+                (p.serial_number || '').toLowerCase().includes(searchLower) ||
+                (p.model || '').toLowerCase().includes(searchLower) ||
+                (p.type || '').toLowerCase().includes(searchLower)
+            );
+        }
+
+        // Status filter
+        if (filters.status) {
+            result = result.filter(p => p.status === filters.status);
+        }
+
+        // Type filter
+        if (filters.type) {
+            result = result.filter(p => p.type === filters.type);
+        }
+
+        // Location filter
+        if (filters.location) {
+            if (filters.location === 'installed') {
+                result = result.filter(p => p.status === 'instalada');
+            } else if (filters.location === 'storage') {
+                result = result.filter(p => p.status === 'almacenada' || p.status === 'en_reparacion');
+            }
+        }
+
+        setFilteredPumps(result);
+        setCurrentPage(1); // Reset to first page on filter change
+    };
+
+    const handleFilterChange = (newFilters) => {
+        setFilters(newFilters);
+    };
+
+    const handleAddPump = () => {
+        setEditingPump(null);
+        setShowFormModal(true);
+    };
+
+    const handleEditPump = (pump) => {
+        setEditingPump(pump);
+        setShowFormModal(true);
+    };
+
+    const handleDeletePump = async (pump) => {
+        // Check for dependencies
+        const dependencies = [];
+
+        // Check if installed
+        if (pump.status === 'instalada') {
+            dependencies.push('Bomba actualmente instalada en un molino');
+        }
+
+        // Could check for MO history
+        // dependencies.push('2 órdenes de manufactura');
+
+        setDeleteModal({
+            open: true,
+            pump: pump,
+            itemName: pump.serial_number,
+            dependencies
+        });
+    };
+
+    const confirmDelete = async () => {
+        try {
+            await PumpService.deletePump(deleteModal.pump.pump_id);
+
+            // Show success message
+            console.log('Bomba eliminada exitosamente');
+
+            // Reload pumps
+            await loadPumps();
+
+            setDeleteModal({ open: false, pump: null });
+        } catch (error) {
+            console.error('Error deleting pump:', error);
+            alert(`Error al eliminar bomba: ${error.message}`);
+        }
+    };
+
+    const handleFormSuccess = async () => {
+        await loadPumps();
+    };
+
+    // KPI calculations
+    const kpis = {
+        installed: pumps.filter(p => p.status === 'instalada').length,
+        storage: pumps.filter(p => p.status === 'almacenada').length,
+        maintenance: pumps.filter(p => p.status === 'en_reparacion' || p.status === 'dañada').length,
+        total: pumps.length
+    };
+
+    // Pagination calculations
+    const totalPages = Math.ceil(filteredPumps.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedPumps = filteredPumps.slice(startIndex, endIndex);
+
+    // Detail view
     if (selectedPumpId) {
         return <PumpDetail pumpId={selectedPumpId} onBack={() => setSelectedPumpId(null)} />;
     }
 
-    if (loading) return <div className="p-8 text-center text-slate-500">Cargando inventario...</div>;
-    if (error) return (
-        <div className="p-8 text-center text-red-500">
-            <p className="font-bold">No se pudieron cargar las bombas.</p>
-            <p className="text-sm mt-2 font-mono bg-red-50 p-2 rounded inline-block text-red-700">
-                {typeof error === 'object' ? JSON.stringify(error) : error}
-            </p>
-        </div>
-    );
-
-    // Filter
-    const filteredPumps = pumps.filter(p =>
-        (p.serial_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (p.model || '').toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Error view
+    if (error && !loading) {
+        return (
+            <div className="p-8 text-center">
+                <div className="bg-red-50 border border-red-200 rounded-2xl p-6 max-w-md mx-auto">
+                    <p className="font-bold text-red-900">Error cargando bombas</p>
+                    <p className="text-sm mt-2 text-red-700">{error}</p>
+                    <button
+                        onClick={loadPumps}
+                        className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    >
+                        Reintentar
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="space-y-8 animate-slide-up">
+        <div className="space-y-6 animate-slide-up">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Gestión de Bombas</h1>
-                    <p className="text-slate-500 mt-1">Inventario y estado de equipos de bombeo</p>
+                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+                        ⚙️ Gestión de Bombas
+                    </h1>
+                    <p className="text-slate-500 mt-1">
+                        Inventario, estado y trazabilidad de equipos de bombeo
+                    </p>
                 </div>
-                <button className="bg-brand-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-brand-700 shadow-lg shadow-brand-500/30 transition-all font-medium">
-                    <Plus size={20} />
-                    Nueva Bomba
-                </button>
+                <div className="flex gap-3">
+                    <button
+                        onClick={loadPumps}
+                        disabled={loading}
+                        className="px-4 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors flex items-center gap-2 font-medium disabled:opacity-50"
+                    >
+                        <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+                        Actualizar
+                    </button>
+                    <button
+                        onClick={handleAddPump}
+                        className="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-600/30 transition-all font-bold flex items-center gap-2"
+                    >
+                        <Plus size={20} />
+                        Registrar Bomba
+                    </button>
+                </div>
             </div>
 
-            {/* Kpi Mini */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-4">
-                    <div className="p-3 bg-green-100 text-green-600 rounded-lg"><Droplet size={24} /></div>
-                    <div>
-                        <p className="text-2xl font-bold text-slate-800">{pumps.filter(p => p.status === 'instalada').length}</p>
-                        <p className="text-xs text-slate-500 font-medium uppercase">Instaladas</p>
+            {/* KPI Cards */}
+            {!loading && (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-2xl font-bold text-slate-900">{kpis.total}</p>
+                                <p className="text-xs text-slate-500 font-medium uppercase mt-1">
+                                    Total Registradas
+                                </p>
+                            </div>
+                            <div className="p-3 bg-slate-100 text-slate-600 rounded-xl">
+                                <Settings size={24} />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-2xl font-bold text-green-600">{kpis.installed}</p>
+                                <p className="text-xs text-slate-500 font-medium uppercase mt-1">
+                                    Instaladas
+                                </p>
+                            </div>
+                            <div className="p-3 bg-green-100 text-green-600 rounded-xl">
+                                <Droplet size={24} />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-2xl font-bold text-blue-600">{kpis.storage}</p>
+                                <p className="text-xs text-slate-500 font-medium uppercase mt-1">
+                                    En Almacén
+                                </p>
+                            </div>
+                            <div className="p-3 bg-blue-100 text-blue-600 rounded-xl">
+                                <Settings size={24} />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-2xl font-bold text-yellow-600">{kpis.maintenance}</p>
+                                <p className="text-xs text-slate-500 font-medium uppercase mt-1">
+                                    En Taller/Dañadas
+                                </p>
+                            </div>
+                            <div className="p-3 bg-yellow-100 text-yellow-600 rounded-xl">
+                                <Wrench size={24} />
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-4">
-                    <div className="p-3 bg-blue-100 text-blue-600 rounded-lg"><Filter size={24} /></div>
-                    <div>
-                        <p className="text-2xl font-bold text-slate-800">{pumps.filter(p => p.status === 'almacenada' || p.status === 'nueva').length}</p>
-                        <p className="text-xs text-slate-500 font-medium uppercase">En Almacén</p>
-                    </div>
+            )}
+
+            {/* Search & Filters */}
+            <PumpSearchFilters onFilterChange={handleFilterChange} />
+
+            {/* Results Count */}
+            {!loading && (
+                <div className="flex items-center justify-between px-2">
+                    <p className="text-sm text-slate-600">
+                        {filteredPumps.length === pumps.length ? (
+                            <span>
+                                <span className="font-bold text-slate-900">{pumps.length}</span> bomba(s) registrada(s)
+                            </span>
+                        ) : (
+                            <span>
+                                <span className="font-bold text-slate-900">{filteredPumps.length}</span> de{' '}
+                                <span className="font-bold text-slate-900">{pumps.length}</span> bomba(s)
+                            </span>
+                        )}
+                    </p>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-4">
-                    <div className="p-3 bg-amber-100 text-amber-600 rounded-lg"><Wrench size={24} /></div>
-                    <div>
-                        <p className="text-2xl font-bold text-slate-800">{pumps.filter(p => p.status === 'en_reparacion' || p.status === 'descartada').length}</p>
-                        <p className="text-xs text-slate-500 font-medium uppercase">En Taller/Dañadas</p>
-                    </div>
-                </div>
-            </div>
+            )}
 
             {/* Table */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                    <h2 className="font-bold text-slate-700">Inventario Completo</h2>
-                    <div className="flex gap-2">
-                        <input
-                            className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-brand-300"
-                            placeholder="Buscar serial..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                </div>
+            <PumpTable
+                pumps={paginatedPumps}
+                onEdit={handleEditPump}
+                onDelete={handleDeletePump}
+                loading={loading}
+            />
 
-                <table className="w-full text-sm text-left">
-                    <thead className="bg-slate-50 text-slate-500 font-medium border-b border-slate-100">
-                        <tr>
-                            <th className="px-6 py-4">Serial / Modelo</th>
-                            <th className="px-6 py-4">Estado</th>
-                            <th className="px-6 py-4">Ubicación Actual</th>
-                            <th className="px-6 py-4">Detalles Salud</th>
-                            <th className="px-6 py-4 text-right">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                        {filteredPumps.map(pump => (
-                            <tr key={pump.pump_id} className="hover:bg-slate-50/50 transition-colors group">
-                                <td className="px-6 py-4">
-                                    <p className="font-bold text-slate-800">{pump.serial_number}</p>
-                                    <p className="text-xs text-slate-500">{pump.model}</p>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <StatusBadge status={pump.status} size="sm" />
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-2">
-                                        {pump.status === 'instalada' ? <Wind size={14} className="text-slate-400" /> : <MapPin size={14} className="text-slate-400" />}
-                                        <span className={pump.status === 'instalada' ? 'font-medium text-brand-600' : 'text-slate-600'}>
-                                            {/* Logic to show joined mill name would likely need a standard join in service, 
-                                                currently assuming status or simple location field if available.
-                                                Service does join mill_pump -> mill(name).
-                                                We need to find the active installation from the joined mill_pump array.
-                                            */}
-                                            {pump.mill_pump?.find(mp => !mp.removal_date)?.mill?.name || pump.storage_location || 'Sin Ubicación'}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span className="capitalize text-slate-600">{pump.condition || 'N/A'}</span>
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                    <button
-                                        onClick={() => setSelectedPumpId(pump.pump_id)}
-                                        className="text-brand-600 font-medium hover:underline opacity-100 transition-opacity"
-                                    >
-                                        Ver Ficha
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                {filteredPumps.length === 0 && (
-                    <div className="p-8 text-center text-slate-500">No se encontraron bombas.</div>
-                )}
-            </div>
+            {/* Pagination */}
+            {!loading && filteredPumps.length > 0 && (
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalItems={filteredPumps.length}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={setCurrentPage}
+                />
+            )}
+
+            {/* Modals */}
+            <PumpFormModal
+                isOpen={showFormModal}
+                onClose={() => {
+                    setShowFormModal(false);
+                    setEditingPump(null);
+                }}
+                onSuccess={handleFormSuccess}
+                pumpData={editingPump}
+            />
+
+            <ConfirmDeleteModal
+                isOpen={deleteModal.open}
+                onClose={() => setDeleteModal({ open: false, pump: null })}
+                onConfirm={confirmDelete}
+                itemName={deleteModal.itemName}
+                itemType="bomba"
+                dependencies={deleteModal.dependencies}
+            />
         </div>
     );
 }

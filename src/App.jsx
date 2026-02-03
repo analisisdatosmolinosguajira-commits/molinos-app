@@ -8,12 +8,18 @@ import VisitasPage from './pages/operations/VisitasPage';
 import VisitDetail from './pages/operations/VisitDetail';
 import OrdenesPage from './pages/operations/OrdenesPage';
 import DiagnosticosPage from './pages/operations/DiagnosticosPage';
+import NewDiagnosisPage from './pages/operations/NewDiagnosisPage';
 import ConcertacionesPage from './pages/operations/ConcertacionesPage';
+import InstallPumpPage from './pages/operations/InstallPumpPage';
 import PersonnelPage from './pages/operations/PersonnelPage';
 import InventoryPage from './pages/inventory/InventoryPage';
 import ReportsPage from './pages/reports/ReportsPage';
 import CommunitiesPage from './pages/admin/CommunitiesPage';
 import FabricationPage from './pages/fabrication/FabricationPage';
+import MillDetail from './pages/assets/MillDetail';
+import PumpDetail from './pages/assets/PumpDetail';
+import RLSTestPage from './pages/test/RLSTestPage';
+import MigrationsTestPage from './pages/test/MigrationsTestPage';
 
 function App() {
   return (
@@ -29,12 +35,16 @@ function App() {
 
           <Route path="ordenes" element={<OrdenesPage />} />
           <Route path="diagnosticos" element={<DiagnosticosPage />} />
+          <Route path="diagnosticos/new" element={<NewDiagnosisPage />} />
+          <Route path="operations/install-pump" element={<InstallPumpPage />} />
           <Route path="concertaciones" element={<ConcertacionesPage />} />
           <Route path="cuadrillas" element={<PersonnelPage />} />
 
           {/* Assets */}
           <Route path="molinos" element={<MolinosPage />} />
+          <Route path="molinos/:id" element={<MillDetail />} />
           <Route path="bombas" element={<BombasPage />} />
+          <Route path="bombas/:id" element={<PumpDetail />} />
 
           {/* Workshop */}
           <Route path="inventario" element={<InventoryPage />} />
@@ -42,6 +52,10 @@ function App() {
 
           {/* Management */}
           <Route path="reportes" element={<ReportsPage />} />
+
+          {/* Test / Development */}
+          <Route path="test/rls" element={<RLSTestPage />} />
+          <Route path="test/migrations" element={<MigrationsTestPage />} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

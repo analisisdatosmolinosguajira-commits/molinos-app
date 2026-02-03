@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Settings, History, Activity, Wrench, AlertTriangle, CheckCircle, Package } from 'lucide-react';
 import StatusBadge from '../../components/ui/StatusBadge';
 import { PumpService } from '../../services/pumps';
 
-export default function PumpDetail({ pumpId, onBack }) {
+export default function PumpDetail() {
+    const { id: pumpId } = useParams();
+    const navigate = useNavigate();
+
     const [pump, setPump] = useState(null);
     const [timeline, setTimeline] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -38,7 +42,7 @@ export default function PumpDetail({ pumpId, onBack }) {
     return (
         <div className="space-y-6 animate-slide-up">
             {/* Header / Nav */}
-            <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-brand-600 transition-colors mb-4">
+            <button onClick={() => navigate('/bombas')} className="flex items-center gap-2 text-slate-500 hover:text-brand-600 transition-colors mb-4">
                 <ArrowLeft size={18} />
                 Volver
             </button>
@@ -54,8 +58,8 @@ export default function PumpDetail({ pumpId, onBack }) {
                         <p className="text-slate-500 font-mono">SN: {pump.serial_number}</p>
                         <div className="flex gap-2 mt-2">
                             <span className={`px-2 py-1 rounded text-xs font-bold uppercase border ${pump.status === 'IN_STOCK' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                                    pump.status === 'INSTALLED' ? 'bg-green-50 text-green-700 border-green-200' :
-                                        'bg-slate-100 text-slate-600 border-slate-200'
+                                pump.status === 'INSTALLED' ? 'bg-green-50 text-green-700 border-green-200' :
+                                    'bg-slate-100 text-slate-600 border-slate-200'
                                 }`}>
                                 {pump.status?.replace('_', ' ')}
                             </span>

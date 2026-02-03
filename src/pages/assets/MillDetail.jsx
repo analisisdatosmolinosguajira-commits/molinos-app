@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, MapPin, Wind, Droplet, ClipboardList, History, Wrench, Settings, AlertTriangle, Activity, Users, FileText
 } from 'lucide-react';
 import StatusBadge from '../../components/ui/StatusBadge';
 import { MillService } from '../../services/mills';
+import MillFormModal from '../../components/mill/MillFormModal';
+import NewDiagnosisButton from '../../components/actions/NewDiagnosisButton';
+import FailureReportModal from '../../components/mill/FailureReportModal';
 
-export default function MillDetail({ millId, onBack }) {
+export default function MillDetail() {
+    const { id: millId } = useParams();
+    const navigate = useNavigate();
+
     const [mill, setMill] = useState(null);
     const [lifeRecord, setLifeRecord] = useState([]);
     const [reliability, setReliability] = useState(null);
@@ -14,6 +21,7 @@ export default function MillDetail({ millId, onBack }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('life_record');
+    const [isFailureModalOpen, setIsFailureModalOpen] = useState(false);
 
     useEffect(() => {
         async function loadMillData() {
@@ -24,7 +32,7 @@ export default function MillDetail({ millId, onBack }) {
                 setMill(millData);
 
                 // 2. Installed Pump
-                const pump = millData.mill_pump?.find(p => p.status === 'INSTALLED' || !p.removal_date);
+                const pump = millData.mill_pump?.find(p => p.status === 'INSTALLED' || !p.removed_date);
                 setInstalledPump(pump);
 
                 // 3. Advanced Metrics (Parallel Fetch)
@@ -58,10 +66,15 @@ export default function MillDetail({ millId, onBack }) {
     return (
         <div className="space-y-6 animate-slide-up">
             {/* Header / Nav */}
-            <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-brand-600 transition-colors mb-4">
+            <button onClick={() => navigate('/molinos')} className="flex items-center gap-2 text-slate-500 hover:text-brand-600 transition-colors mb-4">
                 <ArrowLeft size={18} />
                 Volver al listado
             </button>
+
+            {/* Header Actions */}
+            <div className="flex justify-end mb-4">
+                <NewDiagnosisButton millId={millId} />
+            </div>
 
             {/* SUPER HERO CARD: Operational & Social Context */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 relative overflow-hidden">
@@ -96,7 +109,10 @@ export default function MillDetail({ millId, onBack }) {
 
                     {/* Quick Actions */}
                     <div className="flex flex-col gap-2 w-full md:w-auto">
-                        <button className="px-6 py-2 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 shadow-lg shadow-brand-500/30 transition-colors flex items-center justify-center gap-2">
+                        <button
+                            className="px-6 py-2 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 shadow-lg shadow-brand-500/30 transition-colors flex items-center justify-center gap-2"
+                            onClick={() => setIsFailureModalOpen(true)}
+                        >
                             <FileText size={18} /> Reportar Falla
                         </button>
                         <button className="px-6 py-2 bg-white border border-slate-200 text-slate-700 font-medium rounded-xl hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
@@ -149,7 +165,7 @@ export default function MillDetail({ millId, onBack }) {
                         <tab.icon size={18} />
                         {tab.label}
                     </button>
-                ))}
+                ))};
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -161,15 +177,23 @@ export default function MillDetail({ millId, onBack }) {
                             <h3 className="text-lg font-bold text-slate-800 mb-4">Línea de Vida (Life Record)</h3>
                             <div className="relative pl-8 space-y-8 before:absolute before:left-3 before:top-2 before:bottom-0 before:w-0.5 before:bg-slate-200 h-[600px] overflow-y-auto pr-4 custom-scrollbar">
                                 {lifeRecord.map(event => (
-                                    <div key={event.id} className="relative animate-fade-in group">
-                                        <div className={`absolute -left-[29px] w-6 h-6 rounded-full border-4 border-white shadow-sm flex items-center justify-center transition-transform group-hover:scale-110 
+                                    <div
+                                        key={event.id}
+                                        className="relative animate-fade-in group cursor-pointer"
+                                        onClick={() => {
+                                            // Future: Open detail modal or navigate
+                                            if (event.type === 'WORK_ORDER') navigate(`/ordenes/${event.id.replace('wo-', '')}`);
+                                            else if (event.type === 'DIAGNOSIS') navigate(`/diagnosticos/${event.id.replace('dia-', '')}`);
+                                        }}
+                                    >
+                                        <div className={`absolute -left-[29px] w-6 h-6 rounded-full border-4 border-white shadow-sm flex items-center justify-center transition-transform group-hover:scale-110
                                             ${event.type === 'WORK_ORDER' ? 'bg-brand-500' : event.type === 'DIAGNOSIS' ? 'bg-purple-500' : 'bg-orange-500'}`}>
                                         </div>
 
-                                        <div className="bg-white rounded-xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-shadow">
+                                        <div className="bg-white rounded-xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-all hover:border-brand-200 group-hover:translate-x-1">
                                             <div className="flex justify-between items-start mb-2">
                                                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{new Date(event.date).toLocaleDateString()}</span>
-                                                <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-full border 
+                                                <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-full border
                                                     ${event.type === 'WORK_ORDER' ? 'bg-blue-50 text-blue-600 border-blue-100' :
                                                         event.type === 'DIAGNOSIS' ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-orange-50 text-orange-600 border-orange-100'}`}>
                                                     {event.type}
@@ -177,6 +201,10 @@ export default function MillDetail({ millId, onBack }) {
                                             </div>
                                             <h4 className="font-bold text-slate-800">{event.title}</h4>
                                             <p className="text-sm text-slate-500 mt-1">{event.subtitle}</p>
+
+                                            <div className="mt-3 flex items-center text-xs text-brand-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                                                Ver detalles completeto →
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -216,7 +244,10 @@ export default function MillDetail({ millId, onBack }) {
                                 ) : (
                                     <div className="text-center py-8 bg-slate-50 rounded-xl border border-dashed border-slate-200">
                                         <p className="text-slate-500 mb-4">No hay bomba instalada.</p>
-                                        <button className="px-4 py-2 bg-brand-600 text-white font-medium rounded-lg shadow-lg shadow-brand-500/20 hover:bg-brand-700">
+                                        <button
+                                            onClick={() => navigate(`/operations/install-pump?action=install&mill_id=${millId}`)}
+                                            className="px-4 py-2 bg-brand-600 text-white font-medium rounded-lg shadow-lg shadow-brand-500/20 hover:bg-brand-700"
+                                        >
                                             Instalar Bomba
                                         </button>
                                     </div>
@@ -247,6 +278,14 @@ export default function MillDetail({ millId, onBack }) {
                     </div>
                 </div>
             </div>
+            {mill && (
+                <FailureReportModal
+                    isOpen={isFailureModalOpen}
+                    onClose={() => setIsFailureModalOpen(false)}
+                    millId={millId}
+                    millName={mill.name}
+                />
+            )}
         </div>
     );
 }
