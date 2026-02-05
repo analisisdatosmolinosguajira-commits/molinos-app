@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-    ArrowLeft, MapPin, Wind, Droplet, ClipboardList, History, Wrench, Settings, AlertTriangle, Activity, Users, FileText
+    ArrowLeft, MapPin, Wind, Droplet, ClipboardList, History, Wrench, Settings, AlertTriangle, Activity, Users, FileText, BarChart3
 } from 'lucide-react';
 import StatusBadge from '../../components/ui/StatusBadge';
 import { MillService } from '../../services/mills';
 import MillFormModal from '../../components/mill/MillFormModal';
 import NewDiagnosisButton from '../../components/actions/NewDiagnosisButton';
 import FailureReportModal from '../../components/mill/FailureReportModal';
+import ComponentMatrix from '../../components/mill/ComponentMatrix';
+import SocialInfoSection from '../../components/mill/SocialInfoSection';
+import MillAnalytics from '../../components/mill/MillAnalytics';
+import FailureHistoryTimeline from '../../components/mill/FailureHistoryTimeline';
 
 export default function MillDetail() {
     const { id: millId } = useParams();
@@ -22,6 +26,14 @@ export default function MillDetail() {
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('life_record');
     const [isFailureModalOpen, setIsFailureModalOpen] = useState(false);
+
+    // New state for enhanced features
+    const [componentData, setComponentData] = useState([]);
+    const [componentLoading, setComponentLoading] = useState(false);
+    const [socialData, setSocialData] = useState(null);
+    const [socialLoading, setSocialLoading] = useState(false);
+    const [analyticsData, setAnalyticsData] = useState(null);
+    const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
     useEffect(() => {
         async function loadMillData() {
@@ -45,6 +57,39 @@ export default function MillDetail() {
                 setLifeRecord(record);
                 setReliability(relMetrics);
                 setSocial(socStatus);
+
+                // 4. Fetch component matrix data
+                setComponentLoading(true);
+                try {
+                    const components = await MillService.getComponentMatrix(millId);
+                    setComponentData(components);
+                } catch (compError) {
+                    console.error('Error loading components:', compError);
+                } finally {
+                    setComponentLoading(false);
+                }
+
+                // 5. Fetch social information
+                setSocialLoading(true);
+                try {
+                    const socialInfo = await MillService.getSocialInfo(millId);
+                    setSocialData(socialInfo);
+                } catch (socialError) {
+                    console.error('Error loading social info:', socialError);
+                } finally {
+                    setSocialLoading(false);
+                }
+
+                // 6. Fetch analytics data
+                setAnalyticsLoading(true);
+                try {
+                    const analytics = await MillService.getMillAnalytics(millId);
+                    setAnalyticsData(analytics);
+                } catch (analyticsError) {
+                    console.error('Error loading analytics:', analyticsError);
+                } finally {
+                    setAnalyticsLoading(false);
+                }
 
             } catch (err) {
                 console.error("Error loading mill:", err);
@@ -71,10 +116,7 @@ export default function MillDetail() {
                 Volver al listado
             </button>
 
-            {/* Header Actions */}
-            <div className="flex justify-end mb-4">
-                <NewDiagnosisButton millId={millId} />
-            </div>
+
 
             {/* SUPER HERO CARD: Operational & Social Context */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 relative overflow-hidden">
@@ -128,7 +170,7 @@ export default function MillDetail() {
                     <div className="p-3 bg-blue-50 text-blue-600 rounded-full"><Activity size={20} /></div>
                     <div>
                         <p className="text-xs font-bold text-slate-400 uppercase">Tiempo en Servicio</p>
-                        <p className="text-lg font-bold text-slate-800">{reliability?.daysSinceLastIntervention || 0} Días <span className="text-xs font-normal text-slate-400">sin fallas</span></p>
+                        <p className="text-lg font-bold text-slate-800">{reliability?.daysSinceInstallation || 0} Días <span className="text-xs font-normal text-slate-400">en operación</span></p>
                     </div>
                 </div>
                 <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-4">
@@ -151,6 +193,9 @@ export default function MillDetail() {
             <div className="flex gap-6 border-b border-slate-200">
                 {[
                     { id: 'life_record', label: 'Línea de Vida', icon: History },
+                    { id: 'component_matrix', label: 'Matriz de Componentes', icon: Settings },
+                    { id: 'social_info', label: 'Información Social', icon: Users },
+                    { id: 'analytics', label: 'Analíticas', icon: BarChart3 },
                     { id: 'components', label: 'Bomba y Componentes', icon: Wrench },
                     { id: 'specs', label: 'Ficha Técnica', icon: ClipboardList }
                 ].map(tab => (
@@ -165,7 +210,7 @@ export default function MillDetail() {
                         <tab.icon size={18} />
                         {tab.label}
                     </button>
-                ))};
+                ))}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -215,6 +260,68 @@ export default function MillDetail() {
                                     </div>
                                 )}
                             </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'component_matrix' && (
+                        <div className="space-y-6">
+                            <h3 className="text-lg font-bold text-slate-800 mb-4">Matriz de Estado de Componentes</h3>
+                            {componentLoading ? (
+                                <div className="text-center py-12 bg-slate-50 rounded-xl">
+                                    <div className="animate-spin w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                                    <p className="text-slate-500">Cargando componentes...</p>
+                                </div>
+                            ) : (
+                                <ComponentMatrix components={componentData} />
+                            )}
+                        </div>
+                    )}
+
+                    {activeTab === 'social_info' && (
+                        <div className="space-y-6">
+                            <h3 className="text-lg font-bold text-slate-800 mb-4">Información Social</h3>
+                            {socialLoading ? (
+                                <div className="text-center py-12 bg-slate-50 rounded-xl">
+                                    <div className="animate-spin w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                                    <p className="text-slate-500">Cargando información social...</p>
+                                </div>
+                            ) : (
+                                <SocialInfoSection
+                                    socialData={socialData}
+                                    onRefresh={async () => {
+                                        setSocialLoading(true);
+                                        try {
+                                            const refreshedData = await MillService.getSocialInfo(id);
+                                            setSocialData(refreshedData);
+                                        } catch (error) {
+                                            console.error('Error refreshing social data:', error);
+                                        } finally {
+                                            setSocialLoading(false);
+                                        }
+                                    }}
+                                />
+                            )}
+                        </div>
+                    )}
+
+                    {activeTab === 'analytics' && (
+                        <div className="space-y-6">
+                            <h3 className="text-lg font-bold text-slate-800 mb-4">Analíticas y Métricas</h3>
+                            {analyticsLoading ? (
+                                <div className="text-center py-12 bg-slate-50 rounded-xl">
+                                    <div className="animate-spin w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                                    <p className="text-slate-500">Cargando analíticas...</p>
+                                </div>
+                            ) : (
+                                <>
+                                    <MillAnalytics analyticsData={analyticsData} />
+
+                                    {/* Failure History Timeline */}
+                                    <div className="mt-8">
+                                        <FailureHistoryTimeline millId={millId} />
+                                    </div>
+                                </>
+                            )}
                         </div>
                     )}
 
