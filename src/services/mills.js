@@ -543,6 +543,20 @@ export const MillService = {
         }
     },
 
+    async generateMillReport(millId) {
+        try {
+            const { data, error } = await supabase.functions.invoke('generate-mill-report', {
+                body: { millId }
+            });
+
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('Error generating report:', error);
+            throw error;
+        }
+    },
+
     /**
      * Create a new social situation for a community
      */

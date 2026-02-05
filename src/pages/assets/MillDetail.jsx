@@ -12,6 +12,7 @@ import ComponentMatrix from '../../components/mill/ComponentMatrix';
 import SocialInfoSection from '../../components/mill/SocialInfoSection';
 import MillAnalytics from '../../components/mill/MillAnalytics';
 import FailureHistoryTimeline from '../../components/mill/FailureHistoryTimeline';
+import TechSpecsTab from '../../components/mill/TechSpecsTab';
 
 export default function MillDetail() {
     const { id: millId } = useParams();
@@ -361,6 +362,15 @@ export default function MillDetail() {
                                 )}
                             </div>
                         </div>
+                    )}
+
+                    {activeTab === 'specs' && (
+                        <TechSpecsTab
+                            millId={millId}
+                            millCode={mill?.code}
+                            components={componentData}
+                            loading={componentLoading}
+                        />
                     )}
                 </div>
 
