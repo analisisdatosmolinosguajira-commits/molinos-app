@@ -66,18 +66,32 @@ const MemberModal = ({ isOpen, onClose, onSave, initialMember = null }) => {
 
     useEffect(() => {
         const timer = setTimeout(async () => {
-            if (searchQuery.length >= 2 && step === 1) {
-                setLoading(true);
-                try {
-                    const results = await CommunityService.searchPeople(searchQuery);
-                    setSearchResults(results);
-                } catch (error) {
-                    console.error(error);
-                } finally {
-                    setLoading(false);
+            if (step === 1) {
+                if (searchQuery.length >= 2) {
+                    setLoading(true);
+                    try {
+                        const results = await CommunityService.searchPeople(searchQuery);
+                        setSearchResults(results);
+                    } catch (error) {
+                        console.error(error);
+                    } finally {
+                        setLoading(false);
+                    }
+                } else if (searchQuery.length === 0) {
+                    // Load unassigned people by default
+                    setLoading(true);
+                    try {
+                        const results = await CommunityService.getUnassignedPeople();
+                        setSearchResults(results);
+                    } catch (error) {
+                        console.error(error);
+                    } finally {
+                        setLoading(false);
+                    }
+                } else {
+                    // 1 char - too short for search, not empty for default
+                    setSearchResults([]);
                 }
-            } else {
-                setSearchResults([]);
             }
         }, 300);
 
@@ -147,6 +161,11 @@ const MemberModal = ({ isOpen, onClose, onSave, initialMember = null }) => {
                                     </div>
                                 ) : searchResults.length > 0 ? (
                                     <div className="divide-y divide-slate-100">
+                                        {searchQuery.length === 0 && (
+                                            <div className="px-3 py-2 bg-slate-50 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                                                Personas sin comunidad asignada
+                                            </div>
+                                        )}
                                         {searchResults.map(person => (
                                             <button
                                                 key={person.person_id}

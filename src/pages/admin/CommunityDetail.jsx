@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import StatusBadge from '../../components/ui/StatusBadge';
 
-const CommunityDetail = ({ community, onAddMember, onRemoveMember, onUpdateMember, onClose }) => {
+const CommunityDetail = ({ community, onAddMember, onRemoveMember, onUpdateMember, onClose, onAssignMill, onUnlinkMill }) => {
     const [activeTab, setActiveTab] = useState('general'); // general, members, history
 
     if (!community) return null;
@@ -75,7 +75,7 @@ const CommunityDetail = ({ community, onAddMember, onRemoveMember, onUpdateMembe
                                 <Factory size={16} /> Molino Asignado
                             </h3>
                             {community.mill ? (
-                                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-4">
+                                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-4 relaltive group">
                                     <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
                                         <Factory size={24} />
                                     </div>
@@ -90,12 +90,24 @@ const CommunityDetail = ({ community, onAddMember, onRemoveMember, onUpdateMembe
                                             <span className="bg-blue-200/50 px-2 py-1 rounded">Instalado: 2024</span>
                                         </div>
                                     </div>
+                                    <button
+                                        onClick={() => onUnlinkMill(community.mill.mill_id)}
+                                        className="absolute top-4 right-4 p-2 bg-white text-red-500 rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50"
+                                        title="Desvincular Molino"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
                                 </div>
                             ) : (
                                 <div className="border-2 border-dashed border-slate-200 rounded-xl p-6 text-center text-slate-400">
                                     <Factory size={32} className="mx-auto mb-2 opacity-50" />
                                     <p>No hay molino asignado</p>
-                                    <button className="text-indigo-600 text-sm font-medium mt-2 hover:underline">Asignar Molino</button>
+                                    <button
+                                        onClick={onAssignMill}
+                                        className="text-indigo-600 text-sm font-medium mt-2 hover:underline"
+                                    >
+                                        Asignar Molino
+                                    </button>
                                 </div>
                             )}
                         </section>

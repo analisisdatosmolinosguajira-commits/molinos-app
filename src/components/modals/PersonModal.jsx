@@ -72,21 +72,18 @@ const PersonModal = ({ isOpen, onClose, onSave, personToEdit = null, communities
         setError(null);
 
         try {
-            // Logic: If assigning to community, Global Role MUST be 'Miembro de Comunidad'
+            // Logic: If assigning to community, Global Role MUST be 'Miembro de Comunidad' (handled by service via role_id)
             const isAssigning = (assignmentData.communityId && assignmentData.roleId);
             const finalData = {
-                ...formData,
-                role: isAssigning ? 'Miembro de Comunidad' : formData.specialty // Map specialty to role if not community member
+                ...formData
+                // role: ... is removed. Service handles role_id.
             };
 
             let result;
             // 1. Save Person Data
             if (personToEdit) {
-                // For updates, we might want to preserve existing role unless explicitly changing assignment logic?
-                // User requirement: "que esa persona tenga especificamente un rol..." 
-                // Let's enforce it if we are assigning/updating assignment.
+                // For updates, we process the update. Service filters out invalid fields.
                 const updateData = { ...finalData };
-                if (isAssigning) updateData.role = 'Miembro de Comunidad';
 
                 result = await PeopleService.updatePerson(personToEdit.person_id || personToEdit.id, updateData);
 
@@ -275,7 +272,7 @@ const PersonModal = ({ isOpen, onClose, onSave, personToEdit = null, communities
                                             disabled={!assignmentData.communityId}
                                         >
                                             <option value="">-- Seleccionar Rol --</option>
-                                            {roles.map(r => (
+                                            {Array.isArray(roles) && roles.map(r => (
                                                 <option key={r.role_id} value={r.role_id}>{r.name}</option>
                                             ))}
                                         </select>

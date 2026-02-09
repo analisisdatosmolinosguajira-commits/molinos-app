@@ -6,7 +6,7 @@ export const VisitService = {
 
         // 1. Diagnoses
         const diagnosesPromise = supabase
-            .from('diagnosis_visit')
+            .from('diagnosis')
             .select(`
                 *,
                 mill (code, name, community_name),
@@ -153,7 +153,7 @@ export const VisitService = {
                         work_order (*)
                     ),
                     movement_diagnosis (
-                        diagnosis_visit (*)
+                        diagnosis (*)
                     ),
                     movement_gps_point (
                         latitude, longitude, recorded_at
@@ -178,7 +178,7 @@ export const VisitService = {
                     id: mp.person?.person_id
                 })) || [],
                 workOrders: data.movement_work_order?.map(mwo => mwo.work_order).filter(Boolean) || [],
-                diagnoses: data.movement_diagnosis?.map(md => md.diagnosis_visit).filter(Boolean) || [],
+                diagnoses: data.movement_diagnosis?.map(md => md.diagnosis).filter(Boolean) || [],
                 gpsPoints: data.movement_gps_point || [],
                 title: `Desplazamiento: ${data.objective?.toUpperCase()}`,
                 description: data.notes
@@ -187,7 +187,7 @@ export const VisitService = {
 
         if (prefix === 'dia') {
             const { data, error } = await supabase
-                .from('diagnosis_visit')
+                .from('diagnosis')
                 // Fetch crew with members
                 .select(`
                     *, 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, MapPin, Wind, Droplet, ClipboardList, History, Wrench, Settings, AlertTriangle, Activity, Users, FileText, BarChart3
@@ -27,6 +27,7 @@ export default function MillDetail() {
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('life_record');
     const [isFailureModalOpen, setIsFailureModalOpen] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
 
     // New state for enhanced features
     const [componentData, setComponentData] = useState([]);
@@ -36,74 +37,80 @@ export default function MillDetail() {
     const [analyticsData, setAnalyticsData] = useState(null);
     const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
-    useEffect(() => {
-        async function loadMillData() {
-            try {
-                setLoading(true);
-                // 1. Core Data
-                const millData = await MillService.getMillById(millId);
-                setMill(millData);
+    const loadMillData = useCallback(async (showFullLoading = true) => {
+        try {
+            if (showFullLoading) setLoading(true);
 
-                // 2. Installed Pump
-                const pump = millData.mill_pump?.find(p => p.status === 'INSTALLED' || !p.removed_date);
-                setInstalledPump(pump);
+            // 1. Core Data
+            const millData = await MillService.getMillById(millId);
+            setMill(millData);
 
-                // 3. Advanced Metrics (Parallel Fetch)
-                const [record, relMetrics, socStatus] = await Promise.all([
-                    MillService.getLifeRecord(millId),
-                    MillService.getReliabilityMetrics(millId),
-                    MillService.getSocialStatus(millId)
-                ]);
+            // 2. Installed Pump
+            const pump = millData.mill_pump?.find(p => p.status === 'INSTALLED' || !p.removed_date);
+            setInstalledPump(pump);
 
-                setLifeRecord(record);
-                setReliability(relMetrics);
-                setSocial(socStatus);
+            // 3. Advanced Metrics (Parallel Fetch)
+            const [record, relMetrics, socStatus] = await Promise.all([
+                MillService.getLifeRecord(millId),
+                MillService.getReliabilityMetrics(millId),
+                MillService.getSocialStatus(millId)
+            ]);
 
-                // 4. Fetch component matrix data
-                setComponentLoading(true);
-                try {
-                    const components = await MillService.getComponentMatrix(millId);
-                    setComponentData(components);
-                } catch (compError) {
-                    console.error('Error loading components:', compError);
-                } finally {
-                    setComponentLoading(false);
-                }
+            setLifeRecord(record);
+            setReliability(relMetrics);
+            setSocial(socStatus);
 
-                // 5. Fetch social information
-                setSocialLoading(true);
-                try {
-                    const socialInfo = await MillService.getSocialInfo(millId);
-                    setSocialData(socialInfo);
-                } catch (socialError) {
-                    console.error('Error loading social info:', socialError);
-                } finally {
-                    setSocialLoading(false);
-                }
-
-                // 6. Fetch analytics data
-                setAnalyticsLoading(true);
-                try {
-                    const analytics = await MillService.getMillAnalytics(millId);
-                    setAnalyticsData(analytics);
-                } catch (analyticsError) {
-                    console.error('Error loading analytics:', analyticsError);
-                } finally {
-                    setAnalyticsLoading(false);
-                }
-
-            } catch (err) {
-                console.error("Error loading mill:", err);
-                setError("No se pudo cargar la información completa del molino.");
-            } finally {
-                setLoading(false);
+            // 4. Process component matrix data
+            if (millData.mill_components) {
+                const transformed = millData.mill_components.map(comp => ({
+                    component_id: comp.id,
+                    component_name: comp.mill_component?.name || 'Unknown',
+                    component_code: comp.mill_component?.code || '',
+                    status: comp.status || 'FUNCIONAL',
+                    event_date: comp.installed_date || new Date().toISOString(),
+                    wear: MillService.calculateWear(comp.status),
+                    history: []
+                }));
+                setComponentData(transformed);
+            } else {
+                setComponentData([]);
             }
-        }
 
-        if (millId) {
-            loadMillData();
+            // 5. Fetch social information
+            setSocialLoading(true);
+            try {
+                const socialInfo = await MillService.getSocialInfo(millId);
+                setSocialData(socialInfo);
+            } catch (socialError) {
+                console.error('Error loading social info:', socialError);
+            } finally {
+                setSocialLoading(false);
+            }
+
+            // 6. Fetch analytics data
+            setAnalyticsLoading(true);
+            try {
+                const analytics = await MillService.getMillAnalytics(millId);
+                setAnalyticsData(analytics);
+            } catch (analyticsError) {
+                console.error('Error loading analytics:', analyticsError);
+            } finally {
+                setAnalyticsLoading(false);
+            }
+
+        } catch (err) {
+            console.error("Error loading mill:", err);
+            setError("No se pudo cargar la información completa del molino.");
+        } finally {
+            if (showFullLoading) setLoading(false);
         }
     }, [millId]);
+
+    useEffect(() => {
+        if (millId) {
+            loadMillData(true);
+        }
+    }, [millId, loadMillData]);
 
     if (loading) return <div className="p-8 text-center text-slate-500">Cargando ecosistema del molino...</div>;
     if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
@@ -158,8 +165,11 @@ export default function MillDetail() {
                         >
                             <FileText size={18} /> Reportar Falla
                         </button>
-                        <button className="px-6 py-2 bg-white border border-slate-200 text-slate-700 font-medium rounded-xl hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
-                            <Activity size={18} /> Nuevo Diagnóstico
+                        <button
+                            className="px-6 py-2 bg-white border border-slate-200 text-slate-700 font-medium rounded-xl hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
+                            onClick={() => setShowEditModal(true)}
+                        >
+                            <Settings size={18} /> Editar Molino
                         </button>
                     </div>
                 </div>
@@ -266,14 +276,46 @@ export default function MillDetail() {
 
                     {activeTab === 'component_matrix' && (
                         <div className="space-y-6">
-                            <h3 className="text-lg font-bold text-slate-800 mb-4">Matriz de Estado de Componentes</h3>
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-lg font-bold text-slate-800">Matriz de Estado de Componentes</h3>
+                                <button
+                                    onClick={() => setShowEditModal(true)}
+                                    className="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
+                                >
+                                    <Settings size={18} />
+                                    Gestionar Componentes
+                                </button>
+                            </div>
+
                             {componentLoading ? (
                                 <div className="text-center py-12 bg-slate-50 rounded-xl">
                                     <div className="animate-spin w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full mx-auto mb-4"></div>
                                     <p className="text-slate-500">Cargando componentes...</p>
                                 </div>
+                            ) : componentData && componentData.length > 0 ? (
+                                <>
+                                    <ComponentMatrix components={componentData} />
+                                    <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                        <p className="text-sm text-blue-800">
+                                            💡 <strong>Tip:</strong> Para agregar, editar o eliminar componentes de este molino,
+                                            haz click en "Gestionar Componentes" arriba.
+                                        </p>
+                                    </div>
+                                </>
                             ) : (
-                                <ComponentMatrix components={componentData} />
+                                <div className="text-center py-12 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                                    <div className="text-6xl mb-4">📦</div>
+                                    <p className="text-slate-600 font-medium mb-2">No hay componentes instalados</p>
+                                    <p className="text-slate-400 text-sm mb-4">
+                                        Este molino aún no tiene componentes registrados.
+                                    </p>
+                                    <button
+                                        onClick={() => setShowEditModal(true)}
+                                        className="px-6 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors"
+                                    >
+                                        Agregar Componentes
+                                    </button>
+                                </div>
                             )}
                         </div>
                     )}
@@ -292,7 +334,7 @@ export default function MillDetail() {
                                     onRefresh={async () => {
                                         setSocialLoading(true);
                                         try {
-                                            const refreshedData = await MillService.getSocialInfo(id);
+                                            const refreshedData = await MillService.getSocialInfo(millId);
                                             setSocialData(refreshedData);
                                         } catch (error) {
                                             console.error('Error refreshing social data:', error);
@@ -345,7 +387,10 @@ export default function MillDetail() {
                                             <p className="text-sm text-slate-500">Serial: {installedPump.serial_number || 'N/A'}</p>
                                         </div>
                                         <StatusBadge status={installedPump.status} size="sm" />
-                                        <button className="text-sm font-semibold text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg border border-transparent hover:border-red-100 transition-colors">
+                                        <button
+                                            onClick={() => navigate(`/ordenes?action=new&mill_id=${millId}&pump_action=uninstall&pump_target=${installedPump.pump_id}`)}
+                                            className="text-sm font-semibold text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg border border-transparent hover:border-red-100 transition-colors"
+                                        >
                                             Desinstalar
                                         </button>
                                     </div>
@@ -353,7 +398,7 @@ export default function MillDetail() {
                                     <div className="text-center py-8 bg-slate-50 rounded-xl border border-dashed border-slate-200">
                                         <p className="text-slate-500 mb-4">No hay bomba instalada.</p>
                                         <button
-                                            onClick={() => navigate(`/operations/install-pump?action=install&mill_id=${millId}`)}
+                                            onClick={() => navigate(`/ordenes?action=new&mill_id=${millId}&pump_action=install`)}
                                             className="px-4 py-2 bg-brand-600 text-white font-medium rounded-lg shadow-lg shadow-brand-500/20 hover:bg-brand-700"
                                         >
                                             Instalar Bomba
@@ -395,6 +440,19 @@ export default function MillDetail() {
                     </div>
                 </div>
             </div>
+
+            {mill && showEditModal && (
+                <MillFormModal
+                    isOpen={showEditModal}
+                    onClose={() => setShowEditModal(false)}
+                    millData={mill}
+                    onSuccess={() => {
+                        loadMillData(false); // Refresh data without full page loader
+                        setShowEditModal(false);
+                    }}
+                />
+            )}
+
             {mill && (
                 <FailureReportModal
                     isOpen={isFailureModalOpen}

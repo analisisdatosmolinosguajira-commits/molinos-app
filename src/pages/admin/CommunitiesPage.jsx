@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Search, Plus, Users, MapPin, Factory,
+    Search, Plus, Users, MapPin, Factory, Trash2,
     ChevronRight, Home, Edit2, User, Phone, FileText, Briefcase, Shield
 } from 'lucide-react';
 import { CommunityService } from '../../services/communities';
@@ -10,6 +10,8 @@ import CreateCommunityModal from '../../components/modals/CreateCommunityModal';
 
 import { PeopleService } from '../../services/people';
 import PersonModal from '../../components/modals/PersonModal';
+
+import MillSelectorModal from '../../components/modals/MillSelectorModal';
 
 const CommunitiesPage = () => {
     // View State
@@ -35,8 +37,12 @@ const CommunitiesPage = () => {
     const [isMemberModalOpen, setMemberModalOpen] = useState(false);
     const [isCreateModalOpen, setCreateModalOpen] = useState(false);
     const [isPersonModalOpen, setPersonModalOpen] = useState(false); // For People View
+    const [isMillModalOpen, setMillModalOpen] = useState(false); // For Mill Association
+
     const [editingMember, setEditingMember] = useState(null);
     const [editingPerson, setEditingPerson] = useState(null); // For Person Modal
+    const [editingCommunity, setEditingCommunity] = useState(null); // For Community Edit
+
     const [selectedPerson, setSelectedPerson] = useState(null); // For Detail View
 
     useEffect(() => {
@@ -121,17 +127,75 @@ const CommunitiesPage = () => {
             setLoadingDetail(false);
         }
     };
-    // Handlers
-    const handleCreateCommunity = async (data) => {
+
+    // Community CRUD Handlers
+    const handleSaveCommunity = async (data) => {
         try {
-            await CommunityService.createCommunity(data);
+            if (editingCommunity) {
+                await CommunityService.updateCommunity(editingCommunity.community_id, data);
+            } else {
+                await CommunityService.createCommunity(data);
+            }
             loadCommunities();
+            // If editing current selection, reload detail
+            if (editingCommunity && selectedId === editingCommunity.community_id) {
+                loadDetail(selectedId);
+            }
         } catch (error) {
             console.error(error);
-            alert("Error al crear comunidad");
+            alert("Error al guardar comunidad");
         }
     };
 
+    const handleEditCommunity = (e, community) => {
+        e.stopPropagation();
+        setEditingCommunity(community);
+        setCreateModalOpen(true);
+    };
+
+    const handleDeleteCommunity = async (e, id) => {
+        e.stopPropagation();
+        if (!confirm("¿Eliminar esta comunidad? Se eliminarán también sus historiales.")) return;
+        try {
+            await CommunityService.deleteCommunity(id);
+            if (selectedId === id) setSelectedId(null);
+            loadCommunities();
+        } catch (error) {
+            console.error(error);
+            alert("Error al eliminar comunidad");
+        }
+    };
+
+    // Mill Association Handlers
+    const handleAssignMill = () => {
+        setMillModalOpen(true);
+    };
+
+    const handleMillSelected = async (millId) => {
+        try {
+            await CommunityService.associateMill(selectedId, millId);
+            setMillModalOpen(false);
+            loadDetail(selectedId);
+            loadCommunities(); // Refresh list to show mill icon
+        } catch (error) {
+            console.error(error);
+            alert("Error al asociar molino");
+        }
+    };
+
+    const handleUnlinkMill = async (millId) => {
+        if (!confirm("¿Desvincular molino de esta comunidad?")) return;
+        try {
+            await CommunityService.disassociateMill(millId);
+            loadDetail(selectedId);
+            loadCommunities();
+        } catch (error) {
+            console.error(error);
+            alert("Error al desvincular molino");
+        }
+    };
+
+    // Member Handlers
     const handleAddMember = () => {
         setEditingMember(null);
         setMemberModalOpen(true);
@@ -243,6 +307,7 @@ const CommunitiesPage = () => {
                             className="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-xl shadow-sm transition-all hover:scale-105 flex-shrink-0"
                             onClick={() => {
                                 if (activeView === 'communities') {
+                                    setEditingCommunity(null);
                                     setCreateModalOpen(true);
                                 } else {
                                     setEditingPerson(null);
@@ -277,9 +342,11 @@ const CommunitiesPage = () => {
                                         <h4 className={`font-semibold text-sm ${selectedId === comm.community_id ? 'text-indigo-900' : 'text-slate-700'}`}>
                                             {comm.name}
                                         </h4>
-                                        <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-mono">
-                                            ID: {comm.community_id}
-                                        </span>
+                                        <div className="flex items-center gap-1">
+                                            <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-mono">
+                                                ID: {comm.community_id}
+                                            </span>
+                                        </div>
                                     </div>
 
                                     <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
@@ -290,7 +357,7 @@ const CommunitiesPage = () => {
                                     <div className="flex items-center gap-3 mt-3">
                                         <div className="flex items-center gap-1 text-xs text-slate-400 bg-slate-100/50 px-2 py-1 rounded">
                                             <Users size={12} />
-                                            <span>{comm.memberCount} Miebros</span>
+                                            <span>{comm.memberCount} Miembros</span>
                                         </div>
                                         {comm.mill && (
                                             <div className="flex items-center gap-1 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-100">
@@ -300,9 +367,21 @@ const CommunitiesPage = () => {
                                         )}
                                     </div>
 
-                                    <ChevronRight className={`absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity 
-                                        ${selectedId === comm.community_id ? 'opacity-100 text-indigo-400' : ''}
-                                    `} size={16} />
+                                    {/* Action Buttons */}
+                                    <div className="absolute right-2 top-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button
+                                            onClick={(e) => handleEditCommunity(e, comm)}
+                                            className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                        >
+                                            <Edit2 size={14} />
+                                        </button>
+                                        <button
+                                            onClick={(e) => handleDeleteCommunity(e, comm.community_id)}
+                                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
 
@@ -360,7 +439,7 @@ const CommunitiesPage = () => {
             </div>
 
             {/* Detail View (Only for Communities) */}
-            <div className={`flex-1 bg-slate-50 h-full relative transition-transform duration-300 w-full absolute md:static 
+            <div className={`flex-1 bg-slate-50 h-full relative transition-transform duration-300 w-full absolute md:static
                  ${selectedId ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
             `}>
                 {loadingDetail ? (
@@ -378,6 +457,8 @@ const CommunitiesPage = () => {
                             onAddMember={handleAddMember}
                             onRemoveMember={handleRemoveMember}
                             onUpdateMember={handleUpdateMember}
+                            onAssignMill={handleAssignMill}
+                            onUnlinkMill={handleUnlinkMill}
                         />
                     ) : (
                         <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center bg-slate-50/50">
@@ -519,7 +600,8 @@ const CommunitiesPage = () => {
             <CreateCommunityModal
                 isOpen={isCreateModalOpen}
                 onClose={() => setCreateModalOpen(false)}
-                onSave={handleCreateCommunity}
+                onSave={handleSaveCommunity}
+                initialData={editingCommunity}
             />
             <PersonModal
                 isOpen={isPersonModalOpen}
@@ -527,7 +609,14 @@ const CommunitiesPage = () => {
                 onSave={handleSavePerson}
                 personToEdit={editingPerson}
                 communities={communities}
-            />        </div>
+            />
+            {isMillModalOpen && (
+                <MillSelectorModal
+                    onSelect={handleMillSelected}
+                    onClose={() => setMillModalOpen(false)}
+                />
+            )}
+        </div>
     );
 };
 

@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase } from './supabase.js';
 
 export const MillService = {
     // Get all mills with community and installed pump info
@@ -11,13 +11,23 @@ export const MillService = {
                     community_id,
                     name
                 ),
-                installed_pump:mill_pump!mill_id (
+                installed_pump:mill_pump (
+                    id,
                     pump_id,
                     removed_date,
-                    pump:pump_id (
+                    pump (
                         pump_id,
                         serial_number,
+                        model,
                         status
+                    )
+                ),
+                mill_components:mill_has_component (
+                    id,
+                    component_id,
+                    mill_component (
+                        code,
+                        name
                     )
                 )
             `)
@@ -32,7 +42,9 @@ export const MillService = {
                 ...mill,
                 community_name: mill.community?.name,
                 has_pump: !!activePump,
-                active_pump: activePump || null
+                active_pump: activePump || null,
+                components_count: mill.mill_components?.length || 0,
+                components: mill.mill_components || []
             };
         });
     },
@@ -47,14 +59,43 @@ export const MillService = {
             .select(`
                 *,
                 community!fk_mill_community (*),
-                mill_pump (*)
+                mill_pump (
+                    *,
+                    pump (
+                        serial_number,
+                        model,
+                        status
+                    )
+                ),
+                mill_components:mill_has_component (
+                    id,
+                    component_id,
+                    status,
+                    installed_date,
+                    mill_component (
+                        component_id,
+                        code,
+                        name
+                    )
+                )
             `)
             .eq('mill_id', id)
             .single();
+
         if (error) throw error;
-        // Add computed community_name for consistency
+
+        // Add computed fields for consistency
         if (data) {
             data.community_name = data.community?.name;
+            // Flatten pump details into mill_pump entries for frontend compatibility
+            if (data.mill_pump) {
+                data.mill_pump = data.mill_pump.map(mp => ({
+                    ...mp,
+                    model: mp.pump?.model,
+                    serial_number: mp.pump?.serial_number,
+                    pump_status: mp.pump?.status
+                }));
+            }
         }
         return data;
     },
@@ -70,8 +111,80 @@ export const MillService = {
     },
 
     async getMillComponents(millId) {
-        // Table mill_has_component doesn't exist yet, return empty for now to avoid 400
-        return [];
+        const { data, error } = await supabase
+            .from('mill_has_component')
+            .select(`
+                *,
+                mill_component (
+                    component_id,
+                    code,
+                    name
+                )
+            `)
+            .eq('mill_id', millId)
+            .order('installed_date', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching mill components:', error);
+            throw error;
+        }
+
+        return data || [];
+    },
+
+    async getComponentMatrix(millId) {
+        // Ensure millId is a number mainly for safety, though Supabase handles strings usually
+        const id = Number(millId);
+
+        // Get components using the same successful query pattern as getAllMills
+        const { data, error } = await supabase
+            .from('mill_has_component')
+            .select(`
+                *,
+                mill_component (
+                    component_id,
+                    code,
+                    name
+                )
+            `)
+            .eq('mill_id', id)
+            .order('installed_date', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching component matrix:', error);
+            return [];
+        }
+
+        console.log('📦 Component Matrix raw data (Unified Logic):', data);
+
+        // Transform to format expected by ComponentMatrix component
+        const transformed = (data || []).map(comp => ({
+            component_id: comp.id,
+            component_name: comp.mill_component?.name || 'Unknown',
+            component_code: comp.mill_component?.code || '',
+            status: comp.status || 'FUNCIONAL',
+            event_date: comp.installed_date || new Date().toISOString(),
+            wear: this.calculateWear(comp.status),
+            history: [] // TODO: Implement component history
+        }));
+
+        console.log('✅ Component Matrix transformed (Unified Logic):', transformed);
+
+        return transformed;
+    },
+
+    calculateWear(status) {
+        // Map status to wear percentage
+        const statusToWear = {
+            'FUNCIONAL': 10,
+            'INSTALADO': 10,
+            'REQUIERE_REVISION': 30,
+            'EN_MANTENIMIENTO': 60,
+            'DANADO': 90,
+            'REQUIERE_CAMBIO': 100,
+            'DESGASTADO': 60
+        };
+        return statusToWear[status] || 10;
     },
 
     async getLifeRecord(millId) {
@@ -89,8 +202,14 @@ export const MillService = {
 
         // 3. Fetch Diagnosis Visits
         const { data: diagnosisVisits } = await supabase
-            .from('diagnosis_visit')
+            .from('diagnosis')
             .select('*')
+            .eq('mill_id', millId);
+
+        // 4. Fetch Pump Events (Repairs, Maintenance, etc)
+        const { data: specializedEvents } = await supabase
+            .from('pump_event')
+            .select('*, pump(model, serial_number)')
             .eq('mill_id', millId);
 
         // Normalize Work Orders
@@ -109,20 +228,19 @@ export const MillService = {
             id: `dia-${d.diagnosis_id}`,
             date: d.scheduled_date || d.created_at,
             type: 'DIAGNOSIS',
-            priority: d.type === 'emergencia' ? 'ALTA' : 'MEDIA',
+            priority: d.diagnosis_type === 'emergencia' ? 'ALTA' : 'MEDIA',
             status: d.status,
-            title: `Diagnóstico ${d.type}`,
+            title: `Diagnóstico ${d.diagnosis_type}`,
             subtitle: d.notes ? d.notes.substring(0, 50) + (d.notes.length > 50 ? '...' : '') : `Estado: ${d.status}`
         }));
 
-        // Normalize Pump Events
+        // Normalize Pump History (Install/Remove from mill_pump)
         const historyEvents = [];
         (pumpEvents || []).forEach(pe => {
-            // Installation (using created_at as proxy for installation if removed_date is null or we want to show when it was linked)
-            // Ideally we'd have installation_date, but we use created_at of the record
+            // Installation
             if (pe.created_at) {
                 historyEvents.push({
-                    id: `inst-${pe.mill_pump_id}`,
+                    id: `inst-${pe.id}`,
                     date: pe.created_at,
                     type: 'INSTALLATION',
                     title: `Instalación de Bomba`,
@@ -133,7 +251,7 @@ export const MillService = {
             // Removal
             if (pe.removed_date) {
                 historyEvents.push({
-                    id: `rem-${pe.mill_pump_id}`,
+                    id: `rem-${pe.id}`,
                     date: pe.removed_date,
                     type: 'REMOVAL',
                     title: `Desinstalación de Bomba`,
@@ -142,7 +260,17 @@ export const MillService = {
             }
         });
 
-        const allEvents = [...woEvents, ...diagnosisEvents, ...historyEvents];
+        // Normalize Specialized Pump Events (REPAIR, MAINTENANCE)
+        const specializedTimelineEvents = (specializedEvents || []).map(se => ({
+            id: `evt-${se.event_id}`,
+            date: se.event_date,
+            type: se.event_type, // 'REPAIR', 'MAINTENANCE'
+            title: se.event_type === 'REPAIR' ? 'Reparación de Bomba' : 'Evento de Bomba',
+            subtitle: `Modelo: ${se.pump?.model} - SN: ${se.pump?.serial_number || 'N/A'}`,
+            notes: se.notes
+        }));
+
+        const allEvents = [...woEvents, ...diagnosisEvents, ...historyEvents, ...specializedTimelineEvents];
 
         // Sort by date descending
         return allEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -408,9 +536,9 @@ export const MillService = {
                             conditions,
                             notes,
                             status,
-                            diagnosis_visit:diagnosis_id (
+                            diagnosis:diagnosis_id (
                                 diagnosis_id,
-                                type,
+                                diagnosis_type,
                                 notes
                             )
                         `)
@@ -662,27 +790,26 @@ export const MillService = {
 
             // 2. Fetch component issues from diagnosis visits
             let diagnosisQuery = supabase
-                .from('diagnosis_visit')
+                .from('diagnosis')
                 .select(`
                     diagnosis_id,
-                    visit_date,
                     scheduled_date,
-                    type,
-                    diagnosis_component(
+                    diagnosis_type,
+                    diagnosis_component_status(
                         component_id,
-                        component_status,
+                        status,
                         observation,
-                        component(name)
+                        mill_component:component_id(name)
                     )
                 `)
                 .eq('mill_id', millId)
-                .order('visit_date', { ascending: false });
+                .order('scheduled_date', { ascending: false });
 
             if (filters.startDate) {
-                diagnosisQuery = diagnosisQuery.gte('visit_date', filters.startDate);
+                diagnosisQuery = diagnosisQuery.gte('scheduled_date', filters.startDate);
             }
             if (filters.endDate) {
-                diagnosisQuery = diagnosisQuery.lte('visit_date', filters.endDate);
+                diagnosisQuery = diagnosisQuery.lte('scheduled_date', filters.endDate);
             }
 
             const { data: diagnoses, error: diagError } = await diagnosisQuery;
@@ -690,8 +817,8 @@ export const MillService = {
 
             // Transform diagnosis component issues into timeline events
             diagnoses?.forEach(diagnosis => {
-                const problemComponents = diagnosis.diagnosis_component?.filter(dc =>
-                    ['DANADO', 'REQUIERE_CAMBIO', 'DESGASTADO'].includes(dc.component_status)
+                const problemComponents = diagnosis.diagnosis_component_status?.filter(dc =>
+                    ['DANADO', 'REQUIERE_CAMBIO', 'DESGASTADO'].includes(dc.status)
                 ) || [];
 
                 problemComponents.forEach(dc => {
@@ -704,42 +831,81 @@ export const MillService = {
                     events.push({
                         id: `diag-${diagnosis.diagnosis_id}-comp-${dc.component_id}`,
                         type: 'component_issue',
-                        date: diagnosis.visit_date || diagnosis.scheduled_date,
-                        title: `Problema en ${dc.component?.name || 'Componente'}`,
-                        description: dc.observation || `Estado: ${dc.component_status}`,
-                        severity: severityMap[dc.component_status] || 'media',
-                        status: dc.component_status,
+                        date: diagnosis.scheduled_date,
+                        title: `Problema en ${dc.mill_component?.name || 'Componente'}`,
+                        description: dc.observation || `Estado: ${dc.status}`,
+                        severity: severityMap[dc.status] || 'media',
+                        status: dc.status,
                         metadata: {
                             diagnosis_id: diagnosis.diagnosis_id,
                             component_id: dc.component_id,
-                            component_name: dc.component?.name,
-                            component_status: dc.component_status,
-                            diagnosis_type: diagnosis.type
+                            component_name: dc.mill_component?.name,
+                            component_status: dc.status,
+                            diagnosis_type: diagnosis.diagnosis_type
                         }
                     });
                 });
             });
 
-            // 3. Sort all events by date (newest first)
+            // 3. Fetch user submitted failure reports
+            let reportQuery = supabase
+                .from('failure_report')
+                .select('*')
+                .eq('mill_id', millId)
+                .order('created_at', { ascending: false });
+
+            if (filters.startDate) {
+                reportQuery = reportQuery.gte('created_at', filters.startDate);
+            }
+            if (filters.endDate) {
+                reportQuery = reportQuery.lte('created_at', filters.endDate);
+            }
+
+            const { data: reports, error: reportError } = await reportQuery;
+            if (reportError) throw reportError;
+
+            // Transform reports into timeline events
+            reports?.forEach((report) => {
+                events.push({
+                    id: `rep-${report.report_id}`,
+                    type: 'failure_report',
+                    date: report.created_at,
+                    scheduledDate: null,
+                    title: `Reporte de Falla: ${report.reported_by_name || 'Usuario'}`,
+                    description: report.description,
+                    severity: (report.priority || 'MEDIA').toLowerCase(),
+                    status: report.status,
+                    metadata: {
+                        report_id: report.report_id,
+                        reported_by: report.reported_by_name,
+                        priority: report.priority
+                    }
+                });
+            });
+
+            // 4. Sort all events by date (newest first)
             events.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            // 4. Apply type filter if provided
+            // 5. Apply type filter if provided
             let filteredEvents = events;
             if (filters.type) {
                 if (filters.type === 'work_orders') {
                     filteredEvents = events.filter(e => e.type === 'work_order');
                 } else if (filters.type === 'component_issues') {
                     filteredEvents = events.filter(e => e.type === 'component_issue');
+                } else if (filters.type === 'failure_reports') {
+                    filteredEvents = events.filter(e => e.type === 'failure_report');
                 }
             }
 
-            // 5. Apply search filter if provided
+            // 6. Apply search filter if provided
             if (filters.search) {
                 const searchLower = filters.search.toLowerCase();
                 filteredEvents = filteredEvents.filter(e =>
                     e.title.toLowerCase().includes(searchLower) ||
                     e.description.toLowerCase().includes(searchLower) ||
-                    e.metadata?.component_name?.toLowerCase().includes(searchLower)
+                    e.metadata?.component_name?.toLowerCase().includes(searchLower) ||
+                    e.metadata?.reported_by?.toLowerCase().includes(searchLower)
                 );
             }
 
@@ -747,7 +913,8 @@ export const MillService = {
                 events: filteredEvents,
                 total: filteredEvents.length,
                 workOrderCount: filteredEvents.filter(e => e.type === 'work_order').length,
-                componentIssueCount: filteredEvents.filter(e => e.type === 'component_issue').length
+                componentIssueCount: filteredEvents.filter(e => e.type === 'component_issue').length,
+                failureReportCount: filteredEvents.filter(e => e.type === 'failure_report').length
             };
         } catch (error) {
             console.error('Error fetching failure history:', error);

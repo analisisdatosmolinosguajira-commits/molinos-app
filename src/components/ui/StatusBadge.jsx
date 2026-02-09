@@ -23,6 +23,10 @@ const statusStyles = {
     active: 'bg-purple-100 text-purple-700 border-purple-200',
     firmada: 'bg-purple-100 text-purple-700 border-purple-200',
     signed: 'bg-purple-100 text-purple-700 border-purple-200',
+    pendiente: 'bg-slate-100 text-slate-600 border-slate-200',
+    en_proceso: 'bg-blue-100 text-blue-700 border-blue-200',
+    finalizada: 'bg-green-100 text-green-700 border-green-200',
+    cancelada: 'bg-red-50 text-red-700 border-red-200',
 
     // DB Values - Work Orders (English)
     pending: 'bg-blue-50 text-blue-700 border-blue-200',
@@ -45,11 +49,7 @@ const statusStyles = {
     available: 'bg-blue-50 text-blue-700 border-blue-200',
     en_reparacion: 'bg-amber-50 text-amber-700 border-amber-200',
     descartada: 'bg-red-50 text-red-700 border-red-200',
-    discarded: 'bg-red-50 text-red-700 border-red-200',
-
-    // DB Values - Concertations
-    pendiente: 'bg-slate-100 text-slate-600 border-slate-200',
-    finalizada: 'bg-purple-100 text-purple-700 border-purple-200'
+    discarded: 'bg-red-50 text-red-700 border-red-200'
 };
 
 const labels = {
@@ -96,7 +96,8 @@ const labels = {
     discarded: 'Descartada',
 
     pendiente: 'Pendiente',
-    finalizada: 'Finalizada'
+    finalizada: 'Finalizada',
+    cancelada: 'Cancelada'
 };
 
 export default function StatusBadge({ status, size = 'md', className = '' }) {

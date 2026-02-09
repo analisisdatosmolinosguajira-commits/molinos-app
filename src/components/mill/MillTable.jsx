@@ -81,6 +81,9 @@ const MillTable = ({ mills, onEdit, onDelete, loading }) => {
                                 Bomba
                             </th>
                             <th className="px-6 py-4 text-center text-xs font-bold text-slate-600 uppercase tracking-wider">
+                                Componentes
+                            </th>
+                            <th className="px-6 py-4 text-center text-xs font-bold text-slate-600 uppercase tracking-wider">
                                 Acciones
                             </th>
                         </tr>
@@ -124,6 +127,33 @@ const MillTable = ({ mills, onEdit, onDelete, loading }) => {
                                         <span className="inline-flex items-center justify-center w-6 h-6 bg-slate-100 text-slate-300 rounded-full text-sm">
                                             ✗
                                         </span>
+                                    )}
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                    {mill.components_count > 0 ? (
+                                        <div className="relative group">
+                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 cursor-help">
+                                                {mill.components_count}
+                                            </span>
+                                            {/* Tooltip */}
+                                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-10">
+                                                <div className="bg-slate-900 text-white text-xs rounded-lg py-2 px-3 shadow-lg max-w-xs">
+                                                    <div className="font-semibold mb-1">Componentes instalados:</div>
+                                                    <ul className="space-y-1">
+                                                        {mill.components.map((comp, idx) => (
+                                                            <li key={idx} className="text-slate-200">
+                                                                • {comp.mill_component?.code} - {comp.mill_component?.name}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                                                        <div className="border-4 border-transparent border-t-slate-900"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <span className="text-slate-400 text-sm">-</span>
                                     )}
                                 </td>
                                 <td className="px-6 py-4">

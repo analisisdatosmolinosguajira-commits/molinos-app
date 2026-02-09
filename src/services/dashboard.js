@@ -11,7 +11,7 @@ export const DashboardService = {
         // Diagnosis Visits: Check 'scheduled' or 'pendiente'
         // Since we didn't see the exact value in the previous query, being safe with multiple checks or assuming standard
         const { count: diagnosticosPendientes } = await supabase
-            .from('diagnosis_visit')
+            .from('diagnosis')
             .select('*', { count: 'exact', head: true })
             .in('status', ['SCHEDULED', 'scheduled', 'PENDING', 'pending']);
 

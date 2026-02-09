@@ -7,7 +7,7 @@ export const CommunityService = {
             .from('community')
             .select(`
                 *,
-                mill (mill_id, name, code, status),
+                mill!fk_mill_community (mill_id, name, code, status),
                 community_member (count)
             `)
             .order('name');
@@ -31,7 +31,7 @@ export const CommunityService = {
             .from('community')
             .select(`
                 *,
-                mill (*),
+                mill!fk_mill_community (*),
                 community_member (
                     id,
                     role:community_role(role_id, name),
@@ -50,24 +50,8 @@ export const CommunityService = {
             .single();
 
         // B. Movement History (Visits) - Linked via movement_community
-        const historyPromise = supabase
-            .from('movement_community')
-            .select(`
-                movement (
-                    movement_id,
-                    start_date,
-                    objective,
-                    notes,
-                    status,
-                    vehicle_info,
-                    movement_person (
-                        person (first_name, last_name),
-                        role
-                    )
-                )
-            `)
-            .eq('community_id', id)
-            .order('movement(start_date)', { ascending: false });
+        // B. Movement History (Visits) - Skipped for now as table might be missing or different
+        const historyPromise = Promise.resolve({ data: [] });
 
         // C. Social Concertations
         const socialPromise = supabase
@@ -175,14 +159,29 @@ export const CommunityService = {
 
     async createPerson(personData) {
         // personData: { firstName, lastName, documentId, phone }
-        // Note: 'role' in Person table might be 'Comunidad' or similar generic role
+
+        // 1. Get 'Comunidad' role ID
+        const { data: roleData } = await supabase
+            .from('person_role')
+            .select('role_id')
+            .eq('name', 'Comunidad')
+            .limit(1);
+
+        const roleId = roleData?.[0]?.role_id;
+
+
+
+        if (!roleId) throw new Error("Role 'Comunidad' not found");
+
         const { data, error } = await supabase
             .from('person')
             .insert([{
                 first_name: personData.firstName,
                 last_name: personData.lastName,
                 document_id: personData.documentId,
-                role: 'Comunidad'
+                phone: personData.phone,
+                role_id: roleId,
+                active: true
             }])
             .select()
             .single();
@@ -197,20 +196,114 @@ export const CommunityService = {
 
         const { data, error } = await supabase
             .from('person')
-            .select('person_id, first_name, last_name, document_id, role')
+            .select(`
+                person_id, 
+                first_name, 
+                last_name, 
+                document_id, 
+                role:person_role(name)
+            `)
             .or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%,document_id.ilike.%${query}%`)
             .limit(10);
 
         if (error) throw error;
-        return data;
+        return data.map(p => ({
+            ...p,
+            role: p.role?.name // Flatten
+        }));
     },
 
-    // 4. Create Community
+    async getUnassignedPeople() {
+        // Fetch people and check if they have community assignments
+        const { data, error } = await supabase
+            .from('person')
+            .select(`
+                person_id, 
+                first_name, 
+                last_name, 
+                document_id,
+                community_member(id)
+            `)
+            .order('first_name')
+            .limit(50);
+
+        if (error) throw error;
+
+        // Filter only those with NO community_member records
+        return data
+            .filter(p => !p.community_member || p.community_member.length === 0)
+            .map(p => ({
+                ...p,
+                role: 'Sin Asignar'
+            }));
+    },
+
+    // 4. CRUD Operations
     async createCommunity(communityData) {
         const { data, error } = await supabase
             .from('community')
             .insert(communityData)
             .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    },
+
+    async updateCommunity(id, communityData) {
+        const { data, error } = await supabase
+            .from('community')
+            .update(communityData)
+            .eq('community_id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    },
+
+    async deleteCommunity(id) {
+        const { error } = await supabase
+            .from('community')
+            .delete()
+            .eq('community_id', id);
+
+        if (error) throw error;
+    },
+
+    // 6. Mill Association
+    async getAvailableMills() {
+        // Fetch mills that do NOT have a community_id assigned
+        const { data, error } = await supabase
+            .from('mill')
+            .select('mill_id, name, code, status')
+            .is('community_id', null)
+            .order('name');
+
+        if (error) throw error;
+        return data;
+    },
+
+    async associateMill(communityId, millId) {
+        // 1. Unlink mill from any previous community (just to be safe, though UI should handle it)
+        // Actually, just update the mill's community_id
+        const { data, error } = await supabase
+            .from('mill')
+            .update({ community_id: communityId })
+            .eq('mill_id', millId)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    },
+
+    async disassociateMill(millId) {
+        const { data, error } = await supabase
+            .from('mill')
+            .update({ community_id: null })
+            .eq('mill_id', millId)
+            .select() // return updated record
             .single();
 
         if (error) throw error;

@@ -155,7 +155,7 @@ const MigrationsTestPage = () => {
     const testDiagnosisComponentStatus = async () => {
         try {
             const { data: diagnosis } = await supabase
-                .from('diagnosis_visit')
+                .from('diagnosis')
                 .select('diagnosis_id')
                 .limit(1)
                 .single();
@@ -201,7 +201,7 @@ const MigrationsTestPage = () => {
 
     const testDiagnosisComponentInvalidStatus = async () => {
         try {
-            const { data: diagnosis } = await supabase.from('diagnosis_visit').select('diagnosis_id').limit(1).single();
+            const { data: diagnosis } = await supabase.from('diagnosis').select('diagnosis_id').limit(1).single();
             const { data: component } = await supabase.from('mill_component').select('component_id').limit(1).single();
 
             const { error } = await supabase

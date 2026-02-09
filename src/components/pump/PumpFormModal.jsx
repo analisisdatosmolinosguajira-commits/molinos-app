@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, Loader, Settings, Wrench, Activity } from 'lucide-react';
+import { X, Loader, Settings, Wrench, Activity, Package, Calendar, MapPin } from 'lucide-react';
 import { PumpService } from '../../services/pumps';
+import { supabase } from '../../services/supabase';
 
 /**
  * Create/Edit Pump Modal
@@ -14,6 +15,7 @@ import { PumpService } from '../../services/pumps';
 const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
     const isEdit = !!pumpData;
     const [loading, setLoading] = useState(false);
+    const [suppliers, setSuppliers] = useState([]);
     const [formData, setFormData] = useState({
         serial_number: '',
         model: '',
@@ -22,12 +24,17 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
         capacity: '',
         status: 'almacenada',
         origin: '',
+        supplier_id: '',
+        manufacture_date: '',
+        storage_location: '',
+        manufacturing_order_id: '',
         notes: ''
     });
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
         if (isOpen) {
+            loadSuppliers();
             if (pumpData) {
                 // Populate form with existing data
                 setFormData({
@@ -38,6 +45,10 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
                     capacity: pumpData.capacity || '',
                     status: pumpData.status || 'almacenada',
                     origin: pumpData.origin || '',
+                    supplier_id: pumpData.supplier_id || '',
+                    manufacture_date: pumpData.manufacture_date || '',
+                    storage_location: pumpData.storage_location || '',
+                    manufacturing_order_id: pumpData.manufacturing_order_id || '',
                     notes: pumpData.notes || ''
                 });
             } else {
@@ -50,12 +61,30 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
                     capacity: '',
                     status: 'almacenada',
                     origin: '',
+                    supplier_id: '',
+                    manufacture_date: '',
+                    storage_location: '',
+                    manufacturing_order_id: '',
                     notes: ''
                 });
             }
             setErrors({});
         }
     }, [isOpen, pumpData]);
+
+    const loadSuppliers = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('supplier')
+                .select('supplier_id, name')
+                .order('name');
+
+            if (error) throw error;
+            setSuppliers(data || []);
+        } catch (error) {
+            console.error('Error loading suppliers:', error);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -100,13 +129,16 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
         try {
             // Prepare data
             const dataToSave = {
-                ...formData,
-                max_depth: formData.max_depth ? parseFloat(formData.max_depth) : null,
-                capacity: formData.capacity ? parseFloat(formData.capacity) : null,
+                serial_number: formData.serial_number.trim(),
                 model: formData.model || null,
-                type: formData.type || null,
                 origin: formData.origin || null,
-                notes: formData.notes || null
+                status: formData.status,
+                notes: formData.notes || null,
+                // Nuevos campos
+                supplier_id: formData.supplier_id ? parseInt(formData.supplier_id) : null,
+                manufacture_date: formData.manufacture_date || null,
+                storage_location: formData.storage_location || null,
+                manufacturing_order_id: formData.manufacturing_order_id ? parseInt(formData.manufacturing_order_id) : null
             };
 
             if (isEdit) {
@@ -264,7 +296,93 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
                         </div>
                     </div>
 
-                    {/* Section 2: Technical Specs */}
+                    {/* Section 2: Origen y Adquisición */}
+                    <div className="bg-slate-50 p-6 rounded-xl space-y-4">
+                        <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                            <Package size={20} className="text-purple-500" />
+                            Origen y Adquisición
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Supplier */}
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                    Proveedor
+                                </label>
+                                <select
+                                    name="supplier_id"
+                                    value={formData.supplier_id}
+                                    onChange={handleChange}
+                                    disabled={loading}
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                    <option value="">Seleccionar proveedor...</option>
+                                    {suppliers.map(s => (
+                                        <option key={s.supplier_id} value={s.supplier_id}>
+                                            {s.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <p className="text-xs text-slate-500 mt-1">Opcional - Si fue comprada o donada</p>
+                            </div>
+
+                            {/* Manufacture Date */}
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1">
+                                    <Calendar size={14} />
+                                    Fecha de Fabricación
+                                </label>
+                                <input
+                                    type="date"
+                                    name="manufacture_date"
+                                    value={formData.manufacture_date}
+                                    onChange={handleChange}
+                                    max={new Date().toISOString().split('T')[0]}
+                                    disabled={loading}
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
+
+                            {/* Manufacturing Order ID */}
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                    Orden de Fabricación
+                                </label>
+                                <input
+                                    type="number"
+                                    name="manufacturing_order_id"
+                                    value={formData.manufacturing_order_id}
+                                    onChange={handleChange}
+                                    placeholder="ID de la orden"
+                                    min="1"
+                                    disabled={loading}
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                                <p className="text-xs text-slate-500 mt-1">Opcional - Solo si fue fabricada en taller</p>
+                            </div>
+
+                            {/* Storage Location - solo si está almacenada */}
+                            {formData.status === 'almacenada' && (
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1">
+                                        <MapPin size={14} />
+                                        Ubicación de Almacenamiento
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="storage_location"
+                                        value={formData.storage_location}
+                                        onChange={handleChange}
+                                        placeholder="Ej: Estante A3, Bodega Principal"
+                                        disabled={loading}
+                                        className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                    <p className="text-xs text-slate-500 mt-1">Ubicación física en el almacén</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Section 3: Technical Specs */}
                     <div className="bg-slate-50 p-6 rounded-xl space-y-4">
                         <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
                             <Wrench size={20} className="text-orange-500" />

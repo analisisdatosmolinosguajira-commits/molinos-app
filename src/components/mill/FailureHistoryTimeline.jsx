@@ -43,7 +43,8 @@ const FailureHistoryTimeline = ({ millId }) => {
 
     const typeConfig = {
         work_order: { icon: Wrench, label: 'Falla / Work Order', color: 'text-blue-600', bg: 'bg-blue-50' },
-        component_issue: { icon: AlertTriangle, label: 'Problema de Componente', color: 'text-amber-600', bg: 'bg-amber-50' }
+        component_issue: { icon: AlertTriangle, label: 'Problema de Componente', color: 'text-amber-600', bg: 'bg-amber-50' },
+        failure_report: { icon: AlertTriangle, label: 'Reporte Manual', color: 'text-purple-600', bg: 'bg-purple-50' }
     };
 
     const clearFilters = () => {
@@ -87,8 +88,9 @@ const FailureHistoryTimeline = ({ millId }) => {
                         className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                     >
                         <option value="all">Todos ({history?.total || 0})</option>
-                        <option value="work_orders">🔧 Fallas ({history?.workOrderCount || 0})</option>
+                        <option value="work_orders">🔧 OTs ({history?.workOrderCount || 0})</option>
                         <option value="component_issues">⚠️ Componentes ({history?.componentIssueCount || 0})</option>
+                        <option value="failure_reports">📝 Reportes ({history?.failureReportCount || 0})</option>
                     </select>
 
                     {/* Search */}
