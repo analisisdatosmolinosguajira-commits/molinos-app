@@ -4,9 +4,20 @@ import {
     Phone, Award, Trash2, Edit2, Plus
 } from 'lucide-react';
 import StatusBadge from '../../components/ui/StatusBadge';
+import SocialInfoSection from '../../components/social/SocialInfoSection';
+import { CommunityService } from '../../services/communities';
 
-const CommunityDetail = ({ community, onAddMember, onRemoveMember, onUpdateMember, onClose, onAssignMill, onUnlinkMill }) => {
-    const [activeTab, setActiveTab] = useState('general'); // general, members, history
+const CommunityDetail = ({
+    community,
+    onAddMember,
+    onRemoveMember,
+    onUpdateMember,
+    onClose,
+    onAssignMill,
+    onUnlinkMill,
+    onSocialUpdate
+}) => {
+    const [activeTab, setActiveTab] = useState('general'); // general, members, history, social_info
 
     if (!community) return null;
 
@@ -59,6 +70,19 @@ const CommunityDetail = ({ community, onAddMember, onRemoveMember, onUpdateMembe
                         `}
                     >
                         Historial de Visitas
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('social_info')}
+                        className={`pb-3 text-sm font-medium transition-colors border-b-2 flex items-center gap-2
+                            ${activeTab === 'social_info' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-700'}
+                        `}
+                    >
+                        Situaciones Sociales
+                        {community.activeSituations?.length > 0 && (
+                            <span className="bg-amber-100 text-amber-600 px-1.5 rounded-full text-[10px] font-bold ring-1 ring-amber-200 animate-pulse">
+                                {community.activeSituations.length}
+                            </span>
+                        )}
                     </button>
                 </div>
             </div>
@@ -232,6 +256,22 @@ const CommunityDetail = ({ community, onAddMember, onRemoveMember, onUpdateMembe
                             </div>
                         )}
                     </div>
+                )}
+
+                {/* TAB: SOCIAL INFO */}
+                {activeTab === 'social_info' && (
+                    <SocialInfoSection
+                        socialData={{
+                            ...community,
+                            community_name: community.name,
+                            concertations: community.visits?.filter(v => v.type === 'SOCIAL') || []
+                        }}
+                        onRefresh={onSocialUpdate}
+                        service={CommunityService}
+                        hideHeader={true}
+                        hideMembers={true}
+                        hideConcertations={true}
+                    />
                 )}
 
             </div>

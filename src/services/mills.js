@@ -332,25 +332,38 @@ export const MillService = {
      */
     async getSocialStatus(millId) {
         try {
-            // Get communities associated with this mill
-            const { data: millCommunities } = await supabase
+            // 1. Get direct community link from mill table
+            const { data: millData } = await supabase
+                .from('mill')
+                .select('community_id')
+                .eq('mill_id', millId)
+                .single();
+
+            // 2. Get communities from junction table
+            const { data: junctionCommunities } = await supabase
                 .from('mill_community')
                 .select('community_id')
                 .eq('mill_id', millId);
 
-            if (!millCommunities || millCommunities.length === 0) {
+            // Collect all unique community IDs
+            const communityIds = new Set();
+            if (millData?.community_id) communityIds.add(millData.community_id);
+            if (junctionCommunities) {
+                junctionCommunities.forEach(mc => communityIds.add(mc.community_id));
+            }
+
+            if (communityIds.size === 0) {
                 return {
                     status: 'PENDIENTE',
                     count: 0
                 };
             }
 
-            // Get all concertations for these communities
-            const communityIds = millCommunities.map(mc => mc.community_id);
+            // 3. Get all concertations for these communities
             const { data: concertations } = await supabase
                 .from('community_concertation')
                 .select('status, community_id')
-                .in('community_id', communityIds);
+                .in('community_id', Array.from(communityIds));
 
             if (!concertations || concertations.length === 0) {
                 return {
@@ -480,8 +493,15 @@ export const MillService = {
      */
     async getSocialInfo(millId) {
         try {
-            // 1. Get ALL communities associated with this mill
-            const { data: millCommunities, error: mcError } = await supabase
+            // 0. Get the mill itself to check for a direct community_id
+            const { data: millData } = await supabase
+                .from('mill')
+                .select('community_id, community:community!fk_mill_community (*)')
+                .eq('mill_id', millId)
+                .single();
+
+            // 1. Get ALL communities associated with this mill via junction table
+            const { data: junctionCommunities, error: mcError } = await supabase
                 .from('mill_community')
                 .select(`
                     *,
@@ -491,7 +511,28 @@ export const MillService = {
 
             if (mcError) throw mcError;
 
-            if (!millCommunities || millCommunities.length === 0) {
+            // Combine both sources
+            const allCommunityWrappers = [];
+
+            // Add direct link if exists
+            if (millData?.community) {
+                allCommunityWrappers.push({
+                    community: millData.community,
+                    relationship_type: 'primary',
+                    community_id: millData.community_id
+                });
+            }
+
+            // Add junction links (avoid duplicates)
+            if (junctionCommunities) {
+                junctionCommunities.forEach(mc => {
+                    if (!allCommunityWrappers.some(w => w.community.community_id === mc.community.community_id)) {
+                        allCommunityWrappers.push(mc);
+                    }
+                });
+            }
+
+            if (allCommunityWrappers.length === 0) {
                 return {
                     communities: [],
                     hasNoCommunity: true,
@@ -501,7 +542,7 @@ export const MillService = {
 
             // 2. For each community, fetch members, concertations, and social situations
             const enrichedCommunities = await Promise.all(
-                millCommunities.map(async (mc) => {
+                allCommunityWrappers.map(async (mc) => {
                     const communityId = mc.community.community_id;
 
                     // Fetch members

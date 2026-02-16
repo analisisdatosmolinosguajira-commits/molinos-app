@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, AlertTriangle, Eye, Edit3 } from 'lucide-react';
 import UpdateSituationModal from './UpdateSituationModal';
 
-const AllSituationsModal = ({ isOpen, onClose, situations, onUpdate }) => {
+const AllSituationsModal = ({ isOpen, onClose, situations, onUpdate, service = null }) => {
     const [selectedSituation, setSelectedSituation] = useState(null);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [filter, setFilter] = useState('all'); // 'all', 'active', 'monitoring', 'resolved'
@@ -83,8 +83,8 @@ const AllSituationsModal = ({ isOpen, onClose, situations, onUpdate }) => {
                                     key={filterOption.value}
                                     onClick={() => setFilter(filterOption.value)}
                                     className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${filter === filterOption.value
-                                            ? 'bg-brand-500 text-white'
-                                            : 'bg-white border border-slate-300 text-slate-600 hover:border-brand-300'
+                                        ? 'bg-brand-500 text-white'
+                                        : 'bg-white border border-slate-300 text-slate-600 hover:border-brand-300'
                                         }`}
                                 >
                                     {filterOption.label}
@@ -185,6 +185,7 @@ const AllSituationsModal = ({ isOpen, onClose, situations, onUpdate }) => {
                 }}
                 situation={selectedSituation}
                 onSuccess={handleUpdateSuccess}
+                service={service}
             />
         </>
     );

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, CheckCircle, Eye, Edit3 } from 'lucide-react';
 import { MillService } from '../../services/mills';
 
-const UpdateSituationModal = ({ isOpen, onClose, situation, onSuccess }) => {
+const UpdateSituationModal = ({ isOpen, onClose, situation, onSuccess, service = null }) => {
     const [formData, setFormData] = useState({
         status: situation?.status || 'active',
         resolution_notes: situation?.resolution_notes || '',
@@ -32,7 +32,11 @@ const UpdateSituationModal = ({ isOpen, onClose, situation, onSuccess }) => {
                 updates.resolution_notes = formData.resolution_notes;
             }
 
-            await MillService.updateSocialSituation(situation.situation_id, updates);
+            if (service && service.updateSocialSituation) {
+                await service.updateSocialSituation(situation.situation_id, updates);
+            } else {
+                await MillService.updateSocialSituation(situation.situation_id, updates);
+            }
             onSuccess?.();
             onClose();
         } catch (err) {
@@ -110,8 +114,8 @@ const UpdateSituationModal = ({ isOpen, onClose, situation, onSuccess }) => {
                                     type="button"
                                     onClick={() => setFormData({ ...formData, status: status.value })}
                                     className={`p-4 border-2 rounded-xl transition-all ${formData.status === status.value
-                                            ? `${status.color} border-current`
-                                            : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                                        ? `${status.color} border-current`
+                                        : 'border-slate-200 text-slate-600 hover:border-slate-300'
                                         }`}
                                 >
                                     <div className="text-2xl mb-2">{status.icon}</div>

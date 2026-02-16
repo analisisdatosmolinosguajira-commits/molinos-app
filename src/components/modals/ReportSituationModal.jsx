@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, AlertTriangle } from 'lucide-react';
 import { MillService } from '../../services/mills';
 
-const ReportSituationModal = ({ isOpen, onClose, communityId, communityName, onSuccess }) => {
+const ReportSituationModal = ({ isOpen, onClose, communityId, communityName, onSuccess, service = null }) => {
     const [formData, setFormData] = useState({
         type: 'access_issue',
         title: '',
@@ -35,7 +35,11 @@ const ReportSituationModal = ({ isOpen, onClose, communityId, communityName, onS
         setError(null);
 
         try {
-            await MillService.createSocialSituation(communityId, formData);
+            if (service && service.createSocialSituation) {
+                await service.createSocialSituation(communityId, formData);
+            } else {
+                await MillService.createSocialSituation(communityId, formData);
+            }
             onSuccess?.();
             onClose();
         } catch (err) {
@@ -88,8 +92,8 @@ const ReportSituationModal = ({ isOpen, onClose, communityId, communityName, onS
                                     type="button"
                                     onClick={() => setFormData({ ...formData, type: type.value })}
                                     className={`p-4 border-2 rounded-xl transition-all ${formData.type === type.value
-                                            ? 'border-brand-500 bg-brand-50'
-                                            : 'border-slate-200 hover:border-brand-300'
+                                        ? 'border-brand-500 bg-brand-50'
+                                        : 'border-slate-200 hover:border-brand-300'
                                         }`}
                                 >
                                     <div className="text-2xl mb-1">{type.icon}</div>
@@ -141,8 +145,8 @@ const ReportSituationModal = ({ isOpen, onClose, communityId, communityName, onS
                                     type="button"
                                     onClick={() => setFormData({ ...formData, severity: level.value })}
                                     className={`px-4 py-3 border-2 rounded-lg font-bold text-sm transition-all ${formData.severity === level.value
-                                            ? level.color + ' border-current'
-                                            : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                                        ? level.color + ' border-current'
+                                        : 'border-slate-200 text-slate-600 hover:border-slate-300'
                                         }`}
                                 >
                                     {level.label}

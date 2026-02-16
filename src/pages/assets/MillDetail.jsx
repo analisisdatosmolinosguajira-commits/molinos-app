@@ -9,7 +9,7 @@ import MillFormModal from '../../components/mill/MillFormModal';
 import NewDiagnosisButton from '../../components/actions/NewDiagnosisButton';
 import FailureReportModal from '../../components/mill/FailureReportModal';
 import ComponentMatrix from '../../components/mill/ComponentMatrix';
-import SocialInfoSection from '../../components/mill/SocialInfoSection';
+import SocialInfoSection from '../../components/social/SocialInfoSection';
 import MillAnalytics from '../../components/mill/MillAnalytics';
 import FailureHistoryTimeline from '../../components/mill/FailureHistoryTimeline';
 import TechSpecsTab from '../../components/mill/TechSpecsTab';

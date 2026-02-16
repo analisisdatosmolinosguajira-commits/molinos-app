@@ -60,10 +60,18 @@ export const CommunityService = {
             .eq('community_id', id)
             .order('meeting_date', { ascending: false });
 
-        const [communityRes, historyRes, socialRes] = await Promise.all([
+        // D. Social Situations
+        const situationsPromise = supabase
+            .from('community_social_situation')
+            .select('*')
+            .eq('community_id', id)
+            .order('created_at', { ascending: false });
+
+        const [communityRes, historyRes, socialRes, situationsRes] = await Promise.all([
             communityPromise,
             historyPromise,
-            socialPromise
+            socialPromise,
+            situationsPromise
         ]);
 
         if (communityRes.error) throw communityRes.error;
@@ -101,11 +109,17 @@ export const CommunityService = {
 
         const visits = [...movements, ...socials].sort((a, b) => new Date(b.date) - new Date(a.date));
 
+        // Situations logic
+        const allSituations = situationsRes.data || [];
+        const activeSituations = allSituations.filter(s => s.status === 'active');
+
         return {
             ...communityRes.data,
             mill: communityRes.data.mill?.[0] || null,
             members,
-            visits
+            visits,
+            allSituations,
+            activeSituations
         };
     },
 
@@ -304,6 +318,41 @@ export const CommunityService = {
             .update({ community_id: null })
             .eq('mill_id', millId)
             .select() // return updated record
+            .single();
+
+        if (error) throw error;
+        return data;
+    },
+
+    // 7. Social Situations
+    async createSocialSituation(communityId, situationData) {
+        const { data, error } = await supabase
+            .from('community_social_situation')
+            .insert([{
+                community_id: communityId,
+                type: situationData.type,
+                title: situationData.title,
+                description: situationData.description,
+                severity: situationData.severity,
+                status: 'active',
+                start_date: situationData.start_date
+            }])
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    },
+
+    async updateSocialSituation(situationId, updates) {
+        const { data, error } = await supabase
+            .from('community_social_situation')
+            .update({
+                ...updates,
+                updated_at: new Date().toISOString()
+            })
+            .eq('situation_id', situationId)
+            .select()
             .single();
 
         if (error) throw error;

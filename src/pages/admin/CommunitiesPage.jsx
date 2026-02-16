@@ -459,6 +459,7 @@ const CommunitiesPage = () => {
                             onUpdateMember={handleUpdateMember}
                             onAssignMill={handleAssignMill}
                             onUnlinkMill={handleUnlinkMill}
+                            onSocialUpdate={() => loadDetail(selectedId)}
                         />
                     ) : (
                         <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center bg-slate-50/50">
