@@ -25,6 +25,11 @@ export default function NewDiagnosisPage() {
                 <p className="text-slate-500 text-lg mb-8 max-w-md mx-auto">
                     Módulo de creación de diagnósticos para el Molino #{millId}
                 </p>
+                {searchParams.get('activity_id') && (
+                    <div className="mb-6 p-2 bg-blue-50 text-blue-700 rounded-lg text-sm inline-block border border-blue-200">
+                        Vinculado a Actividad #{searchParams.get('activity_id')}
+                    </div>
+                )}
                 <div className="p-4 bg-yellow-50 text-yellow-800 rounded-xl border border-yellow-200 inline-block">
                     🚧 Funcionalidad en construcción
                 </div>

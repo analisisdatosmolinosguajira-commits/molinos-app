@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Save, Users, FileText, Play, CheckCircle, Trash2, Plus, Download } from 'lucide-react';
 import { ConcertationService } from '../../services/concertations';
 import { MillService } from '../../services/mills';
@@ -12,6 +13,7 @@ export default function ConcertationForm({ concertationId, onBack }) {
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState(null);
+    const [searchParams] = useSearchParams();
 
     // Data Sources
     const [communities, setCommunities] = useState([]);
@@ -33,7 +35,9 @@ export default function ConcertationForm({ concertationId, onBack }) {
         notes: '',
         closing_note: '',
         act_url: '',
-        conclusions: ''
+        act_url: '',
+        conclusions: '',
+        related_activity_id: null
     });
 
     // Participants State
@@ -57,6 +61,13 @@ export default function ConcertationForm({ concertationId, onBack }) {
             loadCommunityMembers(formData.community_id);
         }
     }, [formData.community_id]);
+
+    useEffect(() => {
+        const activityId = searchParams.get('activity_id');
+        if (activityId && !isEditing) {
+            setFormData(prev => ({ ...prev, related_activity_id: parseInt(activityId) }));
+        }
+    }, []);
 
     async function loadInitialData() {
         try {

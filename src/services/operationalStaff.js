@@ -94,6 +94,24 @@ export const OperationalStaffService = {
     },
 
     async deleteStaffMember(personId) {
+        // 1. Delete crew assignments (history)
+        const { error: crewError } = await supabase
+            .from('crew_member')
+            .delete()
+            .eq('person_id', personId);
+
+        if (crewError) throw crewError;
+
+        // 2. Unassign from planned activities (set responsible to null)
+        // or delete if strict ownership is required, but usually we just unassign
+        const { error: activityError } = await supabase
+            .from('planned_activity')
+            .update({ responsible_person_id: null })
+            .eq('responsible_person_id', personId);
+
+        if (activityError) throw activityError;
+
+        // 3. Delete the person
         const { error } = await supabase
             .from('person')
             .delete()
@@ -130,5 +148,184 @@ export const OperationalStaffService = {
 
         if (error) throw error;
         return data;
+    },
+
+    // Availability and planning functions
+    async getStaffAvailability(personId, startDate, endDate) {
+        // Get person's planned activities in date range
+        const { data: activities, error } = await supabase
+            .from('planned_activity')
+            .select(`
+                activity_id,
+                title,
+                planned_start_week,
+                planned_end_week,
+                status
+            `)
+            .eq('responsible_person_id', personId)
+            .gte('planned_start_week', startDate)
+            .lte('planned_end_week', endDate)
+            .order('planned_start_week');
+
+        if (error) throw error;
+
+        return {
+            personId,
+            dateRange: { start: startDate, end: endDate },
+            plannedActivities: activities || [],
+            isAvailable: (activities || []).length === 0
+        };
+    },
+
+    async getStaffAssignmentHistory(personId) {
+        // Get all crew assignments
+        const { data: crewHistory, error: crewError } = await supabase
+            .from('crew_member')
+            .select(`
+                crew_member_id,
+                role_in_crew,
+                start_date,
+                end_date,
+                crew (crew_id, name)
+            `)
+            .eq('person_id', personId)
+            .order('start_date', { ascending: false });
+
+        if (crewError) throw crewError;
+
+        // Get all planned activities they're responsible for
+        const { data: activities, error: actError } = await supabase
+            .from('planned_activity')
+            .select(`
+                activity_id,
+                title,
+                status,
+                planned_start_week,
+                planned_end_week,
+                actual_start_date,
+                actual_end_date,
+                activity_type (name)
+            `)
+            .eq('responsible_person_id', personId)
+            .order('planned_start_week', { ascending: false });
+
+        if (actError) throw actError;
+
+        return {
+            personId,
+            crewAssignments: crewHistory || [],
+            activityHistory: activities || []
+        };
+    },
+
+    /**
+     * Get staff member with current assignments to crews and activities
+     * @param {number} personId - Person ID
+     */
+    async getStaffWithAssignments(personId) {
+        // Get person base data
+        const { data: person, error: personError } = await supabase
+            .from('person')
+            .select(`
+                *,
+                person_role (role_id, name)
+            `)
+            .eq('person_id', personId)
+            .single();
+
+        if (personError) throw personError;
+
+        // Get crew assignments
+        const { data: crewAssignments, error: crewError } = await supabase
+            .from('crew_member')
+            .select(`
+                crew_member_id,
+                role_in_crew,
+                start_date,
+                end_date,
+                crew (crew_id, name, active)
+            `)
+            .eq('person_id', personId)
+            .order('start_date', { ascending: false });
+
+        if (crewError) throw crewError;
+
+        // Get activities where person is responsible
+        const { data: activities, error: activitiesError } = await supabase
+            .from('planned_activity')
+            .select(`
+                activity_id,
+                title,
+                status,
+                planned_start_week,
+                planned_end_week,
+                priority
+            `)
+            .eq('responsible_person_id', personId)
+            .in('status', ['PLANIFICADA', 'EN_EJECUCION'])
+            .order('planned_start_week', { ascending: true });
+
+        if (activitiesError) throw activitiesError;
+
+        // Calculate availability status
+        const activeAssignments = crewAssignments.filter(ca => !ca.end_date);
+        const activeActivities = activities.filter(a => a.status === 'EN_EJECUCION');
+
+        let availabilityStatus = 'available';
+        if (activeActivities.length > 0 || activeAssignments.length > 1) {
+            availabilityStatus = 'fully_assigned';
+        } else if (activeAssignments.length === 1 || activities.length > 0) {
+            availabilityStatus = 'partially_assigned';
+        }
+
+        return {
+            ...person,
+            role: person.person_role?.name || 'Sin Rol',
+            crewAssignments: crewAssignments || [],
+            activeCrewAssignments: activeAssignments,
+            responsibleActivities: activities || [],
+            activeActivities,
+            availabilityStatus
+        };
+    },
+
+    /**
+     * Check if staff member is available for assignment in a date range
+     * @param {number} personId - Person ID
+     * @param {string} startDate - Start date (YYYY-MM-DD)
+     * @param {string} endDate - End date (YYYY-MM-DD)
+     */
+    async checkStaffAvailability(personId, startDate, endDate) {
+        // Check for overlapping crew assignments
+        const { data: crewConflicts, error: crewError } = await supabase
+            .from('crew_member')
+            .select('*')
+            .eq('person_id', personId)
+            .or(`end_date.is.null,end_date.gte.${startDate}`)
+            .lte('start_date', endDate);
+
+        if (crewError) throw crewError;
+
+        // Check for overlapping activities where person is responsible
+        const { data: activityConflicts, error: activityError } = await supabase
+            .from('planned_activity')
+            .select('activity_id, title, planned_start_week, planned_end_week')
+            .eq('responsible_person_id', personId)
+            .in('status', ['PLANIFICADA', 'EN_EJECUCION'])
+            .or(`planned_end_week.gte.${startDate},planned_start_week.lte.${endDate}`);
+
+        if (activityError) throw activityError;
+
+        const hasConflicts = (crewConflicts && crewConflicts.length > 0) ||
+            (activityConflicts && activityConflicts.length > 0);
+
+        return {
+            available: !hasConflicts,
+            crewConflicts: crewConflicts || [],
+            activityConflicts: activityConflicts || [],
+            message: hasConflicts
+                ? 'Personal tiene asignaciones en este período'
+                : 'Personal disponible para asignación'
+        };
     }
 };

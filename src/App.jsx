@@ -5,7 +5,8 @@ import DashboardPage from './pages/dashboard/DashboardPage';
 import MolinosPage from './pages/assets/MolinosPage';
 import BombasPage from './pages/assets/BombasPage';
 import VisitasPage from './pages/operations/VisitasPage';
-import VisitDetail from './pages/operations/VisitDetail';
+import JourneyPage from './pages/operations/JourneyPage';
+import JourneyDetail from './pages/operations/JourneyDetail';
 import OrdenesPage from './pages/operations/OrdenesPage';
 import DiagnosticosPage from './pages/operations/DiagnosticosPage';
 import NewDiagnosisPage from './pages/operations/NewDiagnosisPage';
@@ -29,8 +30,8 @@ function App() {
           <Route index element={<DashboardPage />} />
 
           {/* Field Work */}
-          <Route path="visitas" element={<VisitasPage />} />
-          <Route path="visitas/:id" element={<VisitDetail />} />
+          <Route path="visitas" element={<JourneyPage />} />
+          <Route path="visitas/:id" element={<JourneyDetail />} />
           <Route path="comunidades" element={<CommunitiesPage />} />
 
           <Route path="ordenes" element={<OrdenesPage />} />

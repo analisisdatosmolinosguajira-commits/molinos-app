@@ -9,7 +9,12 @@ export const DiagnosisService = {
                 *,
                 mill (code, name, community_id),
                 crew (name),
-                pump (serial_number)
+                pump (serial_number),
+                related_activity:planned_activity!diagnosis_related_activity_id_fkey (
+                    activity_id,
+                    title,
+                    activity_type (name)
+                )
             `)
             .order('created_at', { ascending: false });
 
@@ -606,5 +611,62 @@ export const DiagnosisService = {
 
         if (error) throw error;
         return data;
+    },
+
+    /**
+     * Create diagnosis from planned activity
+     * @param {number} activityId - Planned activity ID
+     */
+    async createDiagnosisFromActivity(activityId) {
+        // Get activity details
+        const { data: activity, error: actError } = await supabase
+            .from('planned_activity')
+            .select('*, activity_type(name)')
+            .eq('activity_id', activityId)
+            .single();
+
+        if (actError) throw actError;
+
+        // Create diagnosis with activity data
+        const diagnosisData = {
+            mill_id: activity.target_mill_id,
+            crew_id: activity.assigned_crew_id,
+            diagnosis_type: 'PREVENTIVO',
+            priority: activity.priority || 'MEDIA',
+            visit_date: activity.planned_start_week,
+            notes: `Diagnóstico desde actividad: ${activity.title}\n${activity.description || ''}`,
+            status: 'PENDING',
+            related_activity_id: activityId,
+            pieces: [],
+            materials: [],
+            tools: [],
+            safety: [],
+            components: []
+        };
+
+        const diagnosis = await this.createDiagnosis(diagnosisData);
+        return diagnosis;
+    },
+
+    /**
+     * Link existing diagnosis to planned activity
+     * @param {number} diagnosisId - Diagnosis ID
+     * @param {number} activityId - Activity ID
+     */
+    async linkDiagnosisToActivity(diagnosisId, activityId) {
+        // Update diagnosis
+        const { error } = await supabase
+            .from('diagnosis')
+            .update({ related_activity_id: activityId })
+            .eq('diagnosis_id', diagnosisId);
+
+        if (error) throw error;
+
+        return { success: true };
+    },
+
+    // Alias for compatibility
+    async getDiagnoses() {
+        return this.getAllDiagnoses();
     }
 };

@@ -9,7 +9,12 @@ export const ConcertationService = {
                 *,
                 closing_note,
                 community (name),
-                diagnosis (code, diagnosis_type)
+                diagnosis (code, diagnosis_type),
+                related_activity:planned_activity!community_concertation_related_activity_id_fkey (
+                    activity_id,
+                    title,
+                    activity_type (name)
+                )
             `)
             .order('meeting_date', { ascending: false })
             .order('concertation_id', { ascending: false });
@@ -219,5 +224,50 @@ export const ConcertationService = {
                 ...p,
                 role: getRoleName(p) || 'Sin Rol'
             }));
+    },
+
+    /**
+     * Create concertation from planned activity
+     * @param {number} activityId - Planned activity ID
+     */
+    async createConcertationFromActivity(activityId) {
+        // Get activity details
+        const { data: activity, error: actError } = await supabase
+            .from('planned_activity')
+            .select('*, activity_type(name)')
+            .eq('activity_id', activityId)
+            .single();
+
+        if (actError) throw actError;
+
+        // Create concertation with activity data
+        const concertationData = {
+            community_id: activity.target_community_id,
+            title: activity.title,
+            meeting_date: activity.planned_start_week,
+            status: 'planificada',
+            notes: `Concertación desde actividad planificada:\n${activity.description || ''}`,
+            related_activity_id: activityId
+        };
+
+        const concertation = await this.createConcertation(concertationData);
+        return concertation;
+    },
+
+    /**
+     * Link existing concertation to planned activity
+     * @param {number} concertationId - Concertation ID
+     * @param {number} activityId - Activity ID
+     */
+    async linkConcertationToActivity(concertationId, activityId) {
+        // Update concertation
+        const { error } = await supabase
+            .from('community_concertation')
+            .update({ related_activity_id: activityId })
+            .eq('concertation_id', concertationId);
+
+        if (error) throw error;
+
+        return { success: true };
     }
 };

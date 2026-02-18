@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Users, FileSignature, Calendar, Plus, Search, Filter, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 import { ConcertationService } from '../../services/concertations';
 import StatusBadge from '../../components/ui/StatusBadge';
@@ -13,6 +14,7 @@ export default function ConcertacionesPage() {
     // View State
     const [selectedConcertationId, setSelectedConcertationId] = useState(null);
     const [isCreateMode, setIsCreateMode] = useState(false);
+    const [searchParams] = useSearchParams();
 
     // Filters
     const [statusFilter, setStatusFilter] = useState('ALL');
@@ -20,7 +22,10 @@ export default function ConcertacionesPage() {
 
     useEffect(() => {
         loadConcertations();
-    }, []);
+        if (searchParams.get('action') === 'new') {
+            setIsCreateMode(true);
+        }
+    }, [searchParams]);
 
     useEffect(() => {
         filterConcertations();
@@ -157,15 +162,17 @@ export default function ConcertacionesPage() {
                                         <span className="text-slate-400 italic">N/A</span>
                                     )}
                                 </td>
-                                <span className={`px-2 py-1 rounded text-xs font-medium ${c.decision === 'approved' ? 'bg-green-100 text-green-700' :
+                                <td className="px-6 py-4">
+                                    <span className={`px-2 py-1 rounded text-xs font-medium ${c.decision === 'approved' ? 'bg-green-100 text-green-700' :
                                         c.decision === 'rejected' ? 'bg-red-100 text-red-700' :
                                             c.decision === 'pending' ? 'bg-orange-100 text-orange-700' :
                                                 'bg-slate-100 text-slate-500' // No decision
-                                    }`}>
-                                    {c.decision === 'approved' ? 'Aprobada' :
-                                        c.decision === 'rejected' ? 'Rechazada' :
-                                            c.decision === 'pending' ? 'Aplazada' : 'Sin decisión'}
-                                </span>
+                                        }`}>
+                                        {c.decision === 'approved' ? 'Aprobada' :
+                                            c.decision === 'rejected' ? 'Rechazada' :
+                                                c.decision === 'pending' ? 'Aplazada' : 'Sin decisión'}
+                                    </span>
+                                </td>
                                 <td className="px-6 py-4">
                                     <StatusBadge status={c.status} size="sm" />
                                 </td>

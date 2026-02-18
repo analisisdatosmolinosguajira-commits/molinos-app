@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Stethoscope, Plus, Search, Filter, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 import { DiagnosisService } from '../../services/diagnosis';
 import StatusBadge from '../../components/ui/StatusBadge';
@@ -18,9 +19,15 @@ export default function DiagnosticosPage() {
     const [statusFilter, setStatusFilter] = useState('ALL'); // ALL, PENDING, IN_PROGRESS, COMPLETED
     const [searchQuery, setSearchQuery] = useState('');
 
+    const [searchParams] = useSearchParams();
+
     useEffect(() => {
         loadDiagnoses();
-    }, []);
+        // Check for create action in URL
+        if (searchParams.get('action') === 'new') {
+            setIsCreateMode(true);
+        }
+    }, [searchParams]);
 
     useEffect(() => {
         filterDiagnoses();
@@ -213,9 +220,9 @@ export default function DiagnosticosPage() {
                                 <td className="px-6 py-4 text-slate-600 max-w-xs truncate">{d.description}</td>
                                 <td className="px-6 py-4">
                                     <span className={`px-2 py-1 rounded text-xs font-bold ${d.priority === 'URGENTE' ? 'bg-red-100 text-red-700' :
-                                            d.priority === 'ALTA' ? 'bg-orange-100 text-orange-700' :
-                                                d.priority === 'MEDIA' ? 'bg-yellow-100 text-yellow-700' :
-                                                    'bg-slate-100 text-slate-600'
+                                        d.priority === 'ALTA' ? 'bg-orange-100 text-orange-700' :
+                                            d.priority === 'MEDIA' ? 'bg-yellow-100 text-yellow-700' :
+                                                'bg-slate-100 text-slate-600'
                                         }`}>
                                         {d.priority}
                                     </span>

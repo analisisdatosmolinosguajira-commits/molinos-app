@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
     Save, X, Calendar, User, Briefcase, FileText,
     Package, Wrench, Shield, Activity, Plus, Trash2,
@@ -21,6 +22,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
     const [error, setError] = useState(null);
     const [showCompletionModal, setShowCompletionModal] = useState(false);
     const [completionNotes, setCompletionNotes] = useState('');
+    const [searchParams] = useSearchParams();
 
     // Data Options
     const [options, setOptions] = useState({
@@ -64,6 +66,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
         description: '',
         diagnosis_date: '',
         scheduled_date: '',
+        related_activity_id: null, // Linked activity
 
         // Technical Findings (Tab 2)
         technical_findings: '',
@@ -150,6 +153,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                     diagnosis_date: diagnosis.diagnosis_date ? diagnosis.diagnosis_date.split('T')[0] : '',
                     completion_date: diagnosis.completion_date ? diagnosis.completion_date.split('T')[0] : '',
                     scheduled_date: diagnosis.scheduled_date ? diagnosis.scheduled_date.split('T')[0] : '',
+                    related_activity_id: diagnosis.related_activity_id || null,
 
                     // Technical Findings
                     technical_findings: diagnosis.technical_findings || '',
@@ -181,6 +185,19 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
             setLoading(false);
         }
     }
+
+    // Capture activity_id from URL if not editing
+    useEffect(() => {
+        if (!isEditing) {
+            const activityId = searchParams.get('activity_id');
+            if (activityId) {
+                setFormData(prev => ({
+                    ...prev,
+                    related_activity_id: parseInt(activityId)
+                }));
+            }
+        }
+    }, [isEditing, searchParams]);
 
     // Load Stock Levels for Real-Time Availability Display
     async function loadStockLevels() {
@@ -428,6 +445,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                 pump_condition: formData.pump_condition || null,
                 pump_observations: formData.pump_observations || null,
                 notes: formData.notes || null,
+                related_activity_id: formData.related_activity_id || null,
 
                 pieces: dedupePieces
                     .filter(p => p.piece_id) // Remove empty rows

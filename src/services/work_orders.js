@@ -8,7 +8,12 @@ export const WorkOrderService = {
             .select(`
                 *,
                 mill (code, name),
-                crew (name)
+                crew (name),
+                related_activity:planned_activity!work_order_related_activity_id_fkey (
+                    activity_id,
+                    title,
+                    activity_type (name)
+                )
             `)
             .order('created_at', { ascending: false });
 
@@ -536,5 +541,64 @@ export const WorkOrderService = {
         if (sanitized.end_date === '') sanitized.end_date = null;
 
         return sanitized;
+    },
+
+    /**
+     * Create work order from planned activity
+     * @param {number} activityId - Planned activity ID
+     */
+    async createWorkOrderFromActivity(activityId) {
+        // Get activity details
+        const { data: activity, error: actError } = await supabase
+            .from('planned_activity')
+            .select('*, activity_type(name)')
+            .eq('activity_id', activityId)
+            .single();
+
+        if (actError) throw actError;
+
+        // Create work order with activity data
+        const woData = {
+            basicInfo: {
+                mill_id: activity.target_mill_id,
+                crew_id: activity.assigned_crew_id,
+                description: `${activity.activity_type?.name || 'Trabajo'}: ${activity.title}`,
+                notes: activity.description,
+                scheduled_date: activity.planned_start_week,
+                status: 'PENDING',
+                related_activity_id: activityId
+            },
+            pieces: [],
+            materials: [],
+            tools: [],
+            safety: []
+        };
+
+        const workOrder = await this.createWorkOrder(woData);
+
+        // Link activity to work order
+        await supabase
+            .from('planned_activity')
+            .update({ related_movement_id: null }) // Work orders don't use movement link
+            .eq('activity_id', activityId);
+
+        return workOrder;
+    },
+
+    /**
+     * Link existing work order to planned activity
+     * @param {number} workOrderId - Work Order ID
+     * @param {number} activityId - Activity ID
+     */
+    async linkWorkOrderToActivity(workOrderId, activityId) {
+        // Update work order
+        const { error: woError } = await supabase
+            .from('work_order')
+            .update({ related_activity_id: activityId })
+            .eq('work_order_id', workOrderId);
+
+        if (woError) throw woError;
+
+        return { success: true };
     }
 };

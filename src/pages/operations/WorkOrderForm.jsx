@@ -64,7 +64,10 @@ export default function WorkOrderForm({ orderId, onBack }) {
         scheduled_date: '',
         start_date: '', // New field
         end_date: '',   // New field
+        start_date: '', // New field
+        end_date: '',   // New field
         report_url: '', // New field
+        related_activity_id: null, // Linked Activity
 
         // Pump Operations
         pump_id_to_install: null,
@@ -107,6 +110,11 @@ export default function WorkOrderForm({ orderId, onBack }) {
             const millIdParam = searchParams.get('mill_id');
             const pumpIdParam = searchParams.get('pump_target');
             const actionParam = searchParams.get('pump_action');
+            const activityIdParam = searchParams.get('activity_id');
+
+            if (activityIdParam) {
+                setFormData(prev => ({ ...prev, related_activity_id: parseInt(activityIdParam) }));
+            }
 
             if (millIdParam) {
                 setFormData(prev => ({ ...prev, mill_id: millIdParam }));
@@ -345,6 +353,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
                 diagnosis: formData.diagnosis,
                 is_reintervention: formData.is_reintervention,
                 report_url: formData.report_url,
+                related_activity_id: formData.related_activity_id,
 
                 // Add Pump Operations
                 pump_id_to_install: formData.pump_id_to_install,

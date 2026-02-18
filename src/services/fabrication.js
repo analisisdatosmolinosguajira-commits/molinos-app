@@ -9,7 +9,12 @@ export const FabricationService = {
                 *,
                 piece:piece_id (piece_id, name, code),
                 work_order:work_order_id (work_order_id, description),
-                crew:crew_id (crew_id, name)
+                crew:crew_id (crew_id, name),
+                related_activity:planned_activity!manufacturing_order_related_activity_id_fkey (
+                    activity_id,
+                    title,
+                    activity_type (name)
+                )
             `)
             .order('mo_id', { ascending: false });
 
@@ -84,7 +89,9 @@ export const FabricationService = {
                 start_date: orderData.startDate || null,
                 end_date: orderData.endDate || null,
                 crew_id: orderData.crewId || null,
-                notes: orderData.notes || null
+                crew_id: orderData.crewId || null,
+                notes: orderData.notes || null,
+                related_activity_id: orderData.related_activity_id || null
             })
             .select()
             .single();
@@ -122,5 +129,57 @@ export const FabricationService = {
         }
 
         return data;
+    },
+
+    /**
+     * Create manufacturing order from planned activity
+     * @param {number} activityId - Planned activity ID
+     */
+    async createManufacturingOrderFromActivity(activityId) {
+        // Get activity details
+        const { data: activity, error: actError } = await supabase
+            .from('planned_activity')
+            .select('*, activity_type(name)')
+            .eq('activity_id', activityId)
+            .single();
+
+        if (actError) throw actError;
+
+        // Create manufacturing order with activity data
+        const orderData = {
+            pieceId: null, // To be defined by user
+            workOrderId: null,
+            quantityPlanned: 1,
+            quantityCompleted: 0,
+            status: 'pendiente',
+            startDate: activity.planned_start_week,
+            endDate: activity.planned_end_week,
+            crewId: activity.assigned_crew_id,
+            notes: `Orden desde actividad: ${activity.title}\n${activity.description || ''}`,
+            related_activity_id: activityId
+        };
+
+        const mo = await this.createManufacturingOrder(orderData);
+        return mo;
+    },
+
+    /**
+     * Link existing manufacturing order to planned activity
+     * @param {number} moId - Manufacturing Order ID
+     * @param {number} activityId - Activity ID
+     */
+    async linkManufacturingOrderToActivity(moId, activityId) {
+        // Update manufacturing order
+        const { error } = await supabase
+            .from('manufacturing_order')
+            .update({ related_activity_id: activityId })
+            .eq('mo_id', moId);
+
+        if (error) throw error;
+
+        return { success: true };
     }
 };
+
+// Export as ManufacturingService for compatibility
+export const ManufacturingService = FabricationService;

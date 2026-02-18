@@ -2,13 +2,18 @@ import React, { useState, useEffect } from 'react';
 import {
     Calendar, MapPin, Filter, Plus, Search,
     ArrowRight, Clock, CheckCircle2, ChevronRight,
-    RefreshCw
-} from 'lucide-react'; // Added RefreshCw
+    RefreshCw, X, Link as LinkIcon, Unlink
+} from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { VisitService } from '../../services/visits';
 import StatusBadge from '../../components/ui/StatusBadge';
 import VisitDetail from './VisitDetail';
+import { MillService } from '../../services/mills';
+import { CommunityService } from '../../services/communities';
 
 const VisitasPage = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
     const [visits, setVisits] = useState([]);
     const [filteredVisits, setFilteredVisits] = useState([]); // Search results
     const [loading, setLoading] = useState(true);
@@ -41,8 +46,10 @@ const VisitasPage = () => {
             );
         }
 
-        // 2. Type Filter
-        if (selectedType !== 'ALL') {
+        // 2. Type/Status Filter
+        if (selectedType === 'COMPLETADA') {
+            filtered = filtered.filter(v => ['COMPLETADO', 'FINALIZADO', 'CERRADO'].includes(v.status?.toUpperCase()));
+        } else if (selectedType !== 'ALL') {
             if (selectedType === 'TECNICA') {
                 filtered = filtered.filter(v => ['REPARACION', 'DIAGNOSTICO'].includes(v.type));
             } else {
@@ -102,7 +109,7 @@ const VisitasPage = () => {
     const VisitCard = ({ visit, active }) => (
         <div
             onClick={() => setSelectedId(visit.id)}
-            className={`p-4 border-b border-slate-100 cursor-pointer transition-all hover:bg-slate-50
+            className={`p-4 border-b border-slate-100 cursor-pointer transition-all hover:bg-slate-50 relative group
                 ${selectedId === visit.id ? 'bg-indigo-50/60 border-indigo-200' : ''}
             `}
         >
@@ -125,6 +132,16 @@ const VisitasPage = () => {
                 <MapPin size={12} />
                 <span className="truncate max-w-[200px]">{visit.location}</span>
             </div>
+
+            {/* Activity Badge */}
+            {visit.linkedActivity && (
+                <div className="mb-2 p-2 rounded-lg border flex items-center gap-2 text-xs bg-blue-50 border-blue-200 text-blue-800">
+                    <Calendar size={12} />
+                    <span className="font-medium truncate">
+                        Actividad: {visit.linkedActivity.title}
+                    </span>
+                </div>
+            )}
 
             <div className="flex items-center justify-between mt-2">
                 <StatusBadge status={visit.status} size="sm" />
@@ -175,7 +192,8 @@ const VisitasPage = () => {
                             { id: 'ALL', label: 'Todas' },
                             { id: 'LOGISTICA', label: 'Logística' },
                             { id: 'TECNICA', label: 'Técnica' },
-                            { id: 'SOCIAL', label: 'Social' }
+                            { id: 'SOCIAL', label: 'Social' },
+                            { id: 'COMPLETADA', label: 'Completadas' }
                         ].map(type => (
                             <button
                                 key={type.id}
@@ -183,7 +201,8 @@ const VisitasPage = () => {
                                 className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors
                                     ${selectedType === type.id
                                         ? 'bg-slate-800 text-white'
-                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}
+                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    }
                                 `}
                             >
                                 {type.label}
@@ -191,63 +210,81 @@ const VisitasPage = () => {
                         ))}
                     </div>
                 </div>
-
-                {/* List Content */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar">
-                    {loading ? (
-                        <div className="p-8 text-center text-slate-400">
-                            <div className="animate-spin w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full mx-auto mb-2" />
-                            Loading...
-                        </div>
-                    ) : (
-                        <>
-                            {activeVisits.length > 0 && (
-                                <div>
-                                    <div className="sticky top-0 bg-slate-50/90 backdrop-blur-sm px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider border-y border-slate-100 z-10 flex justify-between">
-                                        <span>Activas ({activeVisits.length})</span>
-                                    </div>
-                                    {activeVisits.map(visit => (
-                                        <VisitCard key={visit.id} visit={visit} active={true} />
-                                    ))}
-                                </div>
-                            )}
-
-                            {pastVisits.length > 0 && (
-                                <div>
-                                    <div className="sticky top-0 bg-slate-50/90 backdrop-blur-sm px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider border-y border-slate-100 z-10 flex justify-between">
-                                        <span>Historial Recent ({pastVisits.length})</span>
-                                    </div>
-                                    {pastVisits.map(visit => (
-                                        <VisitCard key={visit.id} visit={visit} />
-                                    ))}
-                                </div>
-                            )}
-
-                            {activeVisits.length === 0 && pastVisits.length === 0 && (
-                                <div className="p-8 text-center text-slate-400">
-                                    <Filter size={32} className="mx-auto mb-3 opacity-20" />
-                                    <p className="text-sm">No se encontraron visitas</p>
-                                </div>
-                            )}
-                        </>
-                    )}
-                </div>
             </div>
 
-            {/* Detail View - Responsive Toggle */}
-            <div className={`flex-1 bg-slate-50 h-full relative transition-transform duration-300 w-full absolute md:static bg-slate-50
-                 ${selectedId ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
-            `}>
-                {loadingDetail ? (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm z-20">
-                        <div className="animate-spin w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full" />
+            {/* Visits List */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+                {loading ? (
+                    <div className="p-8 text-center text-slate-400">
+                        Loading visits...
                     </div>
-                ) : null}
+                ) : filteredVisits.length === 0 ? (
+                    <div className="p-8 text-center">
+                        <div className="bg-slate-100 p-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
+                            <Search className="text-slate-400" size={24} />
+                        </div>
+                        <p className="text-slate-500 font-medium">No visits found</p>
+                        <p className="text-slate-400 text-sm mt-1">Try adjusting your filters</p>
+                    </div>
+                ) : (
+                    <div className="divide-y divide-slate-100">
+                        {/* Active Visits */}
+                        <div className="px-4 py-2 bg-slate-50 text-xs font-semibold text-slate-500 uppercase tracking-wider sticky top-0">
+                            Activas ({activeVisits.length})
+                        </div>
+                        {activeVisits.map(visit => (
+                            <VisitCard key={visit.id} visit={visit} active={true} />
+                        ))}
 
-                <VisitDetail
-                    visit={detailedVisit}
-                    onClose={() => setSelectedId(null)}
-                />
+                        {/* Past Visits */}
+                        {pastVisits.length > 0 && (
+                            <>
+                                <div className="px-4 py-2 bg-slate-50 text-xs font-semibold text-slate-500 uppercase tracking-wider sticky top-0 mt-4">
+                                    Historial ({pastVisits.length})
+                                </div>
+                                {pastVisits.map(visit => (
+                                    <VisitCard key={visit.id} visit={visit} active={false} />
+                                ))}
+                            </>
+                        )}
+                    </div>
+                )}
+            </div>
+
+            {/* Main Content / Detail View */}
+            <div className={`flex-1 h-full bg-slate-50 overflow-y-auto transition-all duration-300
+                ${selectedId ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10 hidden md:block md:opacity-100 md:translate-x-0'}
+            `}>
+                {selectedId ? (
+                    loadingDetail ? (
+                        <div className="h-full flex items-center justify-center text-slate-400">
+                            Cargando detalles...
+                        </div>
+                    ) : detailedVisit ? (
+                        <VisitDetail
+                            visit={detailedVisit}
+                            onClose={() => setSelectedId(null)}
+                            onUpdate={() => {
+                                loadVisits(); // Reload list
+                                VisitService.getVisitById(selectedId).then(setDetailedVisit);
+                            }}
+                        />
+                    ) : (
+                        <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8">
+                            <p>No se pudo cargar el detalle.</p>
+                        </div>
+                    )
+                ) : (
+                    <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center">
+                        <div className="bg-white p-6 rounded-full shadow-sm mb-4">
+                            <MapPin size={48} className="text-indigo-200" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-700 mb-2">Selecciona una visita</h3>
+                        <p className="max-w-xs text-slate-400">
+                            Click en cualquier item de la lista para ver los detalles completos, reportes y estado.
+                        </p>
+                    </div>
+                )}
             </div>
         </div>
     );

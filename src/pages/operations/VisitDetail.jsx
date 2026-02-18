@@ -1,12 +1,15 @@
-import React from 'react';
+import { useState } from 'react';
 import {
     MapPin, Calendar, User, Users, Truck, Wrench,
     FileText, CheckCircle, Clock, Map as MapIcon,
     Navigation, AlertCircle
 } from 'lucide-react';
 import StatusBadge from '../../components/ui/StatusBadge';
+import { VisitService } from '../../services/visits';
 
-const VisitDetail = ({ visit, onClose }) => {
+const VisitDetail = ({ visit, onClose, onUpdate }) => {
+    const [updatingStatus, setUpdatingStatus] = useState(false);
+
     if (!visit) return (
         <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center bg-slate-50/50 rounded-2xl border-2 border-dashed border-slate-200">
             <Navigation size={48} className="mb-4 text-slate-300" />
@@ -15,7 +18,20 @@ const VisitDetail = ({ visit, onClose }) => {
         </div>
     );
 
-    const isMovement = visit.uiType === 'LOGISTICA';
+    const isMovement = visit.uiType === 'LOGISTICA' || visit.uiType === 'LOGISTICA_DETALLE';
+
+    const handleStatusChange = async (newStatus) => {
+        if (!isMovement) return; // Only movements for now
+        setUpdatingStatus(true);
+        try {
+            await VisitService.updateMovementStatus(visit.raw_id, newStatus);
+            if (onUpdate) onUpdate(); // Refresh parent
+        } catch (error) {
+            console.error("Error updating status:", error);
+        } finally {
+            setUpdatingStatus(false);
+        }
+    };
 
     return (
         <div className="bg-white h-full overflow-y-auto animate-in fade-in slide-in-from-right-4 duration-300">
@@ -24,8 +40,28 @@ const VisitDetail = ({ visit, onClose }) => {
                 <div className="flex justify-between items-start mb-4">
                     <div>
                         <div className="flex items-center gap-2 mb-2">
-                            <StatusBadge status={visit.status} />
+                            {isMovement ? (
+                                <select
+                                    className={`text-xs font-bold px-2 py-1 rounded-full border-none focus:ring-2 focus:ring-indigo-200 cursor-pointer transition-colors
+                                        ${visit.status === 'PLANIFICADO' ? 'bg-blue-100 text-blue-700' :
+                                            visit.status === 'EN EJECUCION' ? 'bg-yellow-100 text-yellow-700' :
+                                                visit.status === 'COMPLETADO' ? 'bg-green-100 text-green-700' :
+                                                    'bg-slate-100 text-slate-700'}
+                                    `}
+                                    value={visit.status}
+                                    onChange={(e) => handleStatusChange(e.target.value)}
+                                    disabled={updatingStatus}
+                                >
+                                    <option value="PLANIFICADO">PLANIFICADO</option>
+                                    <option value="EN EJECUCION">EN EJECUCION</option>
+                                    <option value="COMPLETADO">COMPLETADO</option>
+                                    <option value="CANCELADO">CANCELADO</option>
+                                </select>
+                            ) : (
+                                <StatusBadge status={visit.status} />
+                            )}
                             <span className="text-xs font-mono text-slate-400 bg-slate-100 px-2 py-0.5 rounded">{visit.id}</span>
+                            {updatingStatus && <span className="text-xs text-slate-400 animate-pulse">Guardando...</span>}
                         </div>
                         <h2 className="text-2xl font-bold text-slate-800 leading-tight">{visit.title}</h2>
                     </div>
