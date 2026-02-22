@@ -149,12 +149,14 @@ const KardexModal = ({ category, item, onClose }) => {
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3 text-right">
-                                                    <span className={`font-bold font-mono ${movement.type === 'ENTRY' || movement.type === 'INGRESO'
+                                                    <span className={`font-bold font-mono ${movement.type === 'ENTRY' || movement.type === 'INGRESO' || movement.type === 'IN' || movement.type === 'RETURN'
                                                         ? 'text-green-600'
-                                                        : 'text-rose-600'
+                                                        : movement.type === 'EXIT' || movement.type === 'SALIDA' || movement.type === 'OUT' || movement.type === 'USE'
+                                                            ? 'text-rose-600'
+                                                            : 'text-amber-600'
                                                         }`}>
-                                                        {movement.type === 'ENTRY' || movement.type === 'INGRESO' ? '+' : '-'}
-                                                        {movement.quantity}
+                                                        {movement.type === 'ENTRY' || movement.type === 'INGRESO' || movement.type === 'IN' || movement.type === 'RETURN' ? '+' : movement.type === 'EXIT' || movement.type === 'SALIDA' || movement.type === 'OUT' || movement.type === 'USE' ? '-' : ''}
+                                                        {Math.abs(movement.quantity)}
                                                     </span>
                                                     <span className="text-xs text-slate-500 ml-1">{item.unit}</span>
                                                 </td>

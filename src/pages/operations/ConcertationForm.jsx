@@ -35,7 +35,6 @@ export default function ConcertationForm({ concertationId, onBack }) {
         notes: '',
         closing_note: '',
         act_url: '',
-        act_url: '',
         conclusions: '',
         related_activity_id: null
     });

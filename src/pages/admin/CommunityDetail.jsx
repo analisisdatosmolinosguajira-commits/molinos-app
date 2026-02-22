@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Users, MapPin, Factory, History, Calendar,
-    Phone, Award, Trash2, Edit2, Plus
+    Phone, Award, Trash2, Edit2, Plus, Package,
+    ChevronDown, ChevronUp, Hash
 } from 'lucide-react';
 import StatusBadge from '../../components/ui/StatusBadge';
 import SocialInfoSection from '../../components/social/SocialInfoSection';
 import { CommunityService } from '../../services/communities';
+import { DeliveryService } from '../../services/deliveries';
 
 const CommunityDetail = ({
     community,
@@ -17,7 +19,7 @@ const CommunityDetail = ({
     onUnlinkMill,
     onSocialUpdate
 }) => {
-    const [activeTab, setActiveTab] = useState('general'); // general, members, history, social_info
+    const [activeTab, setActiveTab] = useState('general'); // general, members, history, social_info, deliveries
 
     if (!community) return null;
 
@@ -83,6 +85,15 @@ const CommunityDetail = ({
                                 {community.activeSituations.length}
                             </span>
                         )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('deliveries')}
+                        className={`pb-3 text-sm font-medium transition-colors border-b-2 flex items-center gap-2
+                            ${activeTab === 'deliveries' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-700'}
+                        `}
+                    >
+                        <Package size={16} />
+                        Entregas Material
                     </button>
                 </div>
             </div>
@@ -258,6 +269,11 @@ const CommunityDetail = ({
                     </div>
                 )}
 
+                {/* TAB: DELIVERIES */}
+                {activeTab === 'deliveries' && (
+                    <CommunityDeliveriesTab communityId={community.community_id} />
+                )}
+
                 {/* TAB: SOCIAL INFO */}
                 {activeTab === 'social_info' && (
                     <SocialInfoSection
@@ -276,6 +292,145 @@ const CommunityDetail = ({
 
             </div>
         </div>
+    );
+};
+
+// Internal component for the deliveries tab to encapsulate logic
+const CommunityDeliveriesTab = ({ communityId }) => {
+    const [deliveries, setDeliveries] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [expandedId, setExpandedId] = useState(null);
+
+    useEffect(() => {
+        const loadDeliveries = async () => {
+            setLoading(true);
+            try {
+                const data = await DeliveryService.getDeliveriesByCommunity(communityId);
+                setDeliveries(data);
+            } catch (error) {
+                console.error("Error loading community deliveries:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadDeliveries();
+    }, [communityId]);
+
+    if (loading) {
+        return (
+            <div className="py-12 text-center text-slate-400">
+                <div className="animate-spin w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full mx-auto mb-2" />
+                Cargando entregas...
+            </div>
+        );
+    }
+
+    if (deliveries.length === 0) {
+        return (
+            <div className="py-12 text-center text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                <Package size={32} className="mx-auto mb-2 opacity-50" />
+                <p>No hay registros de entregas de material.</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-4">
+            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">Historico de Entregas</h3>
+            <div className="space-y-3">
+                {deliveries.map((delivery) => (
+                    <div key={delivery.delivery_id} className="bg-white border border-slate-100 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                        <div
+                            className="p-4 flex items-center justify-between cursor-pointer"
+                            onClick={() => setExpandedId(expandedId === delivery.delivery_id ? null : delivery.delivery_id)}
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-600">
+                                    <Package size={20} />
+                                </div>
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <h4 className="font-bold text-slate-800 text-sm">
+                                            {delivery.activity?.title || 'Entrega de Material'}
+                                        </h4>
+                                        <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold uppercase">Completado</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-xs text-slate-500 mt-1">
+                                        <span className="flex items-center gap-1">
+                                            <Calendar size={12} />
+                                            {new Date(delivery.activity?.actual_start_date || delivery.activity?.created_at || Date.now()).toLocaleString()}
+                                        </span>
+                                        <span className="flex items-center gap-1">
+                                            <Hash size={12} />
+                                            ID: {delivery.delivery_id}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            {expandedId === delivery.delivery_id ? <ChevronUp size={20} className="text-slate-400" /> : <ChevronDown size={20} className="text-slate-400" />}
+                        </div>
+
+                        {expandedId === delivery.delivery_id && (
+                            <div className="px-4 pb-4 border-t border-slate-50 bg-slate-50/30">
+                                <div className="mt-4 space-y-4">
+                                    {/* Pieces */}
+                                    {delivery.pieces?.length > 0 && (
+                                        <div>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Piezas</p>
+                                            <div className="grid gap-2">
+                                                {delivery.pieces.map((p, i) => (
+                                                    <div key={i} className="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-100 text-xs">
+                                                        <span className="font-medium text-slate-700">{p.piece?.name}</span>
+                                                        <span className="bg-slate-100 px-2 py-0.5 rounded font-mono font-bold">{p.quantity} {p.piece?.unit || 'und'}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Materials */}
+                                    {delivery.materials?.length > 0 && (
+                                        <div>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Materiales</p>
+                                            <div className="grid gap-2">
+                                                {delivery.materials.map((m, i) => (
+                                                    <div key={i} className="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-100 text-xs">
+                                                        <span className="font-medium text-slate-700">{m.material?.name}</span>
+                                                        <span className="bg-slate-100 px-2 py-0.5 rounded font-mono font-bold">{m.quantity} {m.material?.unit || 'und'}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Tools */}
+                                    {delivery.tools?.length > 0 && (
+                                        <div>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Herramientas</p>
+                                            <div className="grid gap-2">
+                                                {delivery.tools.map((t, i) => (
+                                                    <div key={i} className="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-100 text-xs">
+                                                        <span className="font-medium text-slate-700">{t.tool?.name}</span>
+                                                        <span className="bg-slate-100 px-2 py-0.5 rounded font-mono font-bold">{t.quantity} und</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {delivery.notes && (
+                                        <div className="mt-2 p-3 bg-amber-50 rounded-lg border border-amber-100">
+                                            <p className="text-[10px] font-bold text-amber-600 uppercase mb-1">Notas de Entrega</p>
+                                            <p className="text-xs text-amber-800">{delivery.notes}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+        </div >
     );
 };
 

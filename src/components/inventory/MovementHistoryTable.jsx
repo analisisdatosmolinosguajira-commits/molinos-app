@@ -223,7 +223,7 @@ export default function MovementHistoryTable({ movements, filters, onFilterChang
                                         {/* Quantity */}
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`text-sm font-semibold ${typeInfo.color}`}>
-                                                {typeInfo.sign}{movement.quantity}
+                                                {typeInfo.sign}{Math.abs(movement.quantity)}
                                             </span>
                                         </td>
 
@@ -307,8 +307,8 @@ export default function MovementHistoryTable({ movements, filters, onFilterChang
                                                 key={page}
                                                 onClick={() => goToPage(page)}
                                                 className={`min-w-[2rem] px-2 py-1 rounded text-sm font-medium transition-colors ${currentPage === page
-                                                        ? 'bg-brand-600 text-white'
-                                                        : 'border border-slate-300 hover:bg-slate-100'
+                                                    ? 'bg-brand-600 text-white'
+                                                    : 'border border-slate-300 hover:bg-slate-100'
                                                     }`}
                                             >
                                                 {page}

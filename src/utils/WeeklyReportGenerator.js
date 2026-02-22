@@ -88,10 +88,15 @@ export const generateWeeklyReport = (activities, weekStart, weekEnd) => {
             if (movNotes) results += `\n${movNotes}`;
         }
 
+        let crewMembersText = 'N/A';
+        if (act.crewMembers && act.crewMembers.length > 0) {
+            crewMembersText = act.crewMembers.map(m => `- ${m.person?.first_name} ${m.person?.last_name} (${m.role_in_crew || 'Miembro'})`).join('\n');
+        }
+
         return [
-            act.planned_start_week || 'S/F',
             act.title,
             act.crewName || 'Sin asignar',
+            crewMembersText,
             act.status,
             relatedInfo,
             results.trim()
@@ -100,16 +105,16 @@ export const generateWeeklyReport = (activities, weekStart, weekEnd) => {
 
     autoTable(doc, {
         startY: doc.lastAutoTable.finalY + 20,
-        head: [['Fecha', 'Actividad', 'Cuadrilla', 'Estado', 'Relacionado A', 'Resultados/Conclusiones']],
+        head: [['Actividad', 'Cuadrilla', 'Miembros', 'Estado', 'Relacionado A', 'Resultados/Conclusiones']],
         body: detailedData,
         theme: 'grid',
         headStyles: { fillColor: [44, 62, 80] },
         styles: { fontSize: 8, cellPadding: 2 },
         columnStyles: {
-            0: { cellWidth: 20 },
-            1: { cellWidth: 40 },
-            2: { cellWidth: 25 },
-            3: { cellWidth: 20 },
+            0: { cellWidth: 35 },
+            1: { cellWidth: 25 },
+            2: { cellWidth: 45 },
+            3: { cellWidth: 18 },
             4: { cellWidth: 30 },
             5: { cellWidth: 'auto' }
         }

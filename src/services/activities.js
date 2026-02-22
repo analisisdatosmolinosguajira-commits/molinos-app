@@ -16,11 +16,19 @@ export const ActivityService = {
                 *,
                 activity_type (activity_type_id, name, description, requires_field_trip),
                 responsible_person:person!responsible_person_id (person_id, first_name, last_name, document_id),
-                assigned_crew:crew (crew_id, name, active),
+                assigned_crew:crew (
+                    crew_id, 
+                    name, 
+                    active,
+                    crew_member (
+                        role_in_crew,
+                        person (first_name, last_name)
+                    )
+                ),
                 target_community:community (community_id, name, department, municipality),
                 target_mill:mill (mill_id, code, name, community_name),
                 related_movements:movement!movement_related_activity_id_fkey (
-                    movement_id, start_date, end_date, objective,
+                    movement_id, start_date, end_date, objective, title,
                     completion_notes, notes
                 ),
                 created_by_person:person!created_by (person_id, first_name, last_name),
@@ -74,6 +82,7 @@ export const ActivityService = {
                 ? `${activity.responsible_person.first_name} ${activity.responsible_person.last_name}`
                 : null,
             crewName: activity.assigned_crew?.name,
+            crewMembers: activity.assigned_crew?.crew_member || [],
             communityName: activity.target_community?.name,
             millCode: activity.target_mill?.code,
             millName: activity.target_mill?.name,

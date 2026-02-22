@@ -91,6 +91,16 @@ export const InventoryService = {
             return acc;
         }, {});
 
+        // Query 5: Proveedores (Suppliers) without stock mappings
+        const { data: suppliersRaw, error: supplierError } = await supabase
+            .from('supplier')
+            .select('*')
+            .order('name');
+
+        if (supplierError) {
+            console.error('Error loading suppliers into inventory:', supplierError);
+        }
+
         // Normalize and merge all inventory items
         const normalizedPieces = (piecesRaw || []).map(item => ({
             id: `piece-${item.piece_id}`,
@@ -126,7 +136,7 @@ export const InventoryService = {
             code: item.code,
             category: 'herramientas',
             stock: toolStockMap[item.tool_id] || 0,
-            min: 1,
+            min: item.min_stock || 1,
             unit: 'ud',
             description: item.type || 'Herramienta manual',
             location: item.location || 'N/A',
@@ -147,8 +157,23 @@ export const InventoryService = {
             raw: item
         }));
 
+        const normalizedSuppliers = (suppliersRaw || []).map(item => ({
+            id: `supplier-${item.supplier_id}`,
+            rawId: item.supplier_id,
+            name: item.name,
+            code: 'N/A', // Suppliers don't have code
+            category: 'proveedores',
+            stock: '-', // Not applicable for suppliers
+            min: '-',
+            unit: 'N/A',
+            description: item.supplier_type || 'General',
+            location: item.contact_name || 'N/A',
+            status: item.phone || 'N/A', // repurposing table columns for the Unified grid view
+            raw: item
+        }));
+
         // Merge all categories
-        return [...normalizedMaterials, ...normalizedPieces, ...normalizedTools, ...normalizedSafety];
+        return [...normalizedMaterials, ...normalizedPieces, ...normalizedTools, ...normalizedSafety, ...normalizedSuppliers];
     },
 
     // ============ MATERIALS CRUD ============
@@ -185,6 +210,24 @@ export const InventoryService = {
     },
 
     // ============ PIECES CRUD ============
+    async uploadPieceImage(file) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+        const filePath = `piezas/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+            .from('molinos')
+            .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage
+            .from('molinos')
+            .getPublicUrl(filePath);
+
+        return data.publicUrl;
+    },
+
     async createPiece(data) {
         const { data: piece, error } = await supabase
             .from('piece')
@@ -209,6 +252,38 @@ export const InventoryService = {
     },
 
     async deletePiece(pieceId) {
+        // Find existing image_url first
+        const { data: pieceData, error: fetchError } = await supabase
+            .from('piece')
+            .select('image_url')
+            .eq('piece_id', pieceId)
+            .single();
+
+        if (fetchError && fetchError.code !== 'PGRST116') {
+            console.error('Error fetching piece to delete:', fetchError);
+        }
+
+        // Output of image_url looks like: https://[project].supabase.co/storage/v1/object/public/molinos/piezas/file.ext
+        if (pieceData && pieceData.image_url) {
+            try {
+                // Parse out the "piezas/file.ext" portion from the bucket URL
+                const urlObj = new URL(pieceData.image_url);
+                const pathParts = urlObj.pathname.split('/molinos/');
+                if (pathParts.length > 1) {
+                    const filePath = pathParts[1]; // 'piezas/file.ext'
+                    const { error: removeError } = await supabase.storage
+                        .from('molinos')
+                        .remove([filePath]);
+
+                    if (removeError) {
+                        console.error('Error removing piece image from storage:', removeError);
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to parse image URL for deletion:', e);
+            }
+        }
+
         const { error } = await supabase
             .from('piece')
             .delete()
@@ -350,9 +425,24 @@ export const InventoryService = {
                 throw new Error('Invalid category');
         }
 
+        let dbType = movementData.type; // 'IN', 'OUT', 'ADJUST'
+
+        // Map UI movement types to Database enum types based on specific table constraints
+        if (category === 'epp') {
+            // safety_inventory_movement_type_check allows IN, OUT, ADJUST
+            if (dbType === 'ENTRY') dbType = 'IN';
+            if (dbType === 'USE') dbType = 'OUT';
+            if (dbType === 'ADJUSTMENT') dbType = 'ADJUST';
+        } else {
+            // material, piece, tool_stock_movement allows ENTRY, USE, ADJUSTMENT
+            if (dbType === 'IN') dbType = 'ENTRY';
+            if (dbType === 'OUT') dbType = 'USE';
+            if (dbType === 'ADJUST') dbType = 'ADJUSTMENT';
+        }
+
         const movement = {
             [idColumn]: itemId,
-            type: movementData.type, // 'IN', 'OUT', 'ADJUST'
+            type: dbType, // Mapped type
             quantity: movementData.quantity,
             reference_type: movementData.reference_type || 'MANUAL',
             reference_id: movementData.reference_id || null,
@@ -419,13 +509,16 @@ export const InventoryService = {
             }
 
             // Normalize and add category
-            const normalized = (data || []).map(m => ({
-                ...m,
-                category: cat.category,
-                itemName: m.item?.[0]?.name || 'Desconocido',
-                itemCode: m.item?.[0]?.code || 'N/A',
-                itemId: m[cat.idCol]
-            }));
+            const normalized = (data || []).map(m => {
+                const itemData = Array.isArray(m.item) ? m.item[0] : m.item;
+                return {
+                    ...m,
+                    category: cat.category,
+                    itemName: itemData?.name || 'Desconocido',
+                    itemCode: itemData?.code || 'N/A',
+                    itemId: m[cat.idCol]
+                };
+            });
 
             allMovements.push(...normalized);
         }
@@ -501,7 +594,7 @@ export const InventoryService = {
 
         let query = supabase
             .from(tableName)
-            .select(`${idColumn}, name, code, unit`)
+            .select('*')
             .order('name');
 
         if (searchTerm) {
@@ -520,6 +613,259 @@ export const InventoryService = {
             code: item.code,
             unit: item.unit || 'ud'
         }));
+    },
+
+    /**
+     * Get items across all categories that are at or below their minimum stock threshold.
+     */
+    async getLowStockItems() {
+        const categories = [
+            { category: 'materiales', table: 'material', idCol: 'material_id', stockTable: 'material_stock', stockCol: 'quantity_available' },
+            { category: 'piezas', table: 'piece', idCol: 'piece_id', stockTable: 'piece_stock', stockCol: 'current_stock' },
+            { category: 'herramientas', table: 'tool', idCol: 'tool_id', stockTable: 'tool_stock', stockCol: 'quantity_available' },
+            { category: 'epp', table: 'safety_equipment', idCol: 'safety_id', stockTable: 'safety_equipment_stock', stockCol: 'quantity_available' }
+        ];
+
+        let allLowStock = [];
+
+        for (const cat of categories) {
+            // Need to join the main table (min_stock) with the stock table (quantity_available/current_stock)
+            // doing a pseudo-join by selecting related foreign records using PostgREST syntax
+            const { data, error } = await supabase
+                .from(cat.table)
+                .select(`
+                    *,
+                    stock:${cat.stockTable}(${cat.stockCol})
+                `);
+
+            if (error) {
+                console.error(`Error loading low stock for ${cat.category}:`, error);
+                continue;
+            }
+
+            // Filter locally to match logic
+            const lowStockItems = (data || [])
+                .filter(item => {
+                    const available = Array.isArray(item.stock) ? (item.stock[0]?.[cat.stockCol] || 0) : (item.stock?.[cat.stockCol] || 0);
+                    const minStock = item.min_stock || 0;
+                    // Trigger if stock is equal or less than minimum
+                    return available <= minStock;
+                })
+                .map(item => {
+                    const available = Array.isArray(item.stock) ? (item.stock[0]?.[cat.stockCol] || 0) : (item.stock?.[cat.stockCol] || 0);
+                    return {
+                        id: item[cat.idCol],
+                        rawId: item[cat.idCol],
+                        code: item.code || 'N/A',
+                        name: item.name,
+                        description: item.description,
+                        unit: item.unit,
+                        category: cat.category,
+                        currentStock: available,
+                        minStock: item.min_stock || 0,
+                        // We attach a placeholder for price that can be filled later by UI or manual input
+                        defaultPrice: 0
+                    };
+                });
+
+            allLowStock.push(...lowStockItems);
+        }
+
+        // Sort by how critical the shortage is (current - min)
+        allLowStock.sort((a, b) => (a.currentStock - a.minStock) - (b.currentStock - b.minStock));
+
+        return allLowStock;
+    },
+
+    /**
+     * Get all purchase orders
+     */
+    async getPurchaseOrders() {
+        try {
+            const { data, error } = await supabase
+                .from('purchase_order')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            return data;
+        } catch (err) {
+            console.error('Error fetching purchase orders:', err);
+            throw err;
+        }
+    },
+
+    /**
+     * Get details of a specific purchase order including its items
+     */
+    async getPurchaseOrderDetails(orderId) {
+        try {
+            // Get header
+            const { data: orderData, error: orderError } = await supabase
+                .from('purchase_order')
+                .select('*')
+                .eq('order_id', orderId)
+                .single();
+
+            if (orderError) throw orderError;
+
+            // Get items
+            const { data: itemsData, error: itemsError } = await supabase
+                .from('purchase_order_item')
+                .select('*')
+                .eq('order_id', orderId)
+                .order('item_id', { ascending: true });
+
+            if (itemsError) throw itemsError;
+
+            return {
+                ...orderData,
+                items: itemsData
+            };
+        } catch (err) {
+            console.error('Error fetching purchase order details:', err);
+            throw err;
+        }
+    },
+
+    /**
+     * Update the status of a purchase order
+     */
+    async updatePurchaseOrderStatus(orderId, status) {
+        try {
+            const { data, error } = await supabase
+                .from('purchase_order')
+                .update({ status: status })
+                .eq('order_id', orderId)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
+        } catch (err) {
+            console.error('Error updating purchase order status:', err);
+            throw err;
+        }
+    },
+
+    /**
+     * Save a generated purchase order plan or update an existing one
+     */
+    async savePurchaseOrder(title, items, totalEstimated, notes = '', orderId = null) {
+        try {
+            // Get user ID
+            const { data: { user } } = await supabase.auth.getUser();
+
+            let orderData;
+
+            if (orderId) {
+                // Update existing order
+                const { data, error } = await supabase
+                    .from('purchase_order')
+                    .update({
+                        title: title,
+                        total_estimated: totalEstimated,
+                        notes: notes
+                    })
+                    .eq('order_id', orderId)
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                orderData = data;
+
+                // Delete old items to replace with new ones
+                const { error: deleteError } = await supabase
+                    .from('purchase_order_item')
+                    .delete()
+                    .eq('order_id', orderId);
+
+                if (deleteError) throw deleteError;
+            } else {
+                // Create new order
+                const { data, error } = await supabase
+                    .from('purchase_order')
+                    .insert([{
+                        title: title,
+                        status: 'borrador', // default status
+                        total_estimated: totalEstimated,
+                        notes: notes,
+                        created_by: user?.id || null
+                    }])
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                orderData = data;
+            }
+
+            // 2. Prepare Items Payload
+            const orderItems = items.map(item => {
+                const payload = {
+                    order_id: orderData.order_id,
+                    name: item.name,
+                    description: item.description || null,
+                    unit: item.unit || 'ud',
+                    quantity: parseFloat(item.quantity) || 1,
+                    unit_price: parseFloat(item.unitPrice) || 0,
+                    total_price: parseFloat(item.total) || 0,
+                    supplier_notes: item.supplier_notes || null
+                };
+
+                // Link to DB entity if it's not a manual item
+                if (!item.isManual && item.rawId) {
+                    if (item.category === 'materiales') payload.material_id = item.rawId;
+                    if (item.category === 'piezas') payload.piece_id = item.rawId;
+                    if (item.category === 'herramientas') payload.tool_id = item.rawId;
+                    if (item.category === 'epp') payload.safety_id = item.rawId;
+                }
+
+                return payload;
+            });
+
+            // 3. Insert Items
+            if (orderItems.length > 0) {
+                const { error: itemsError } = await supabase
+                    .from('purchase_order_item')
+                    .insert(orderItems);
+
+                if (itemsError) throw itemsError;
+            }
+
+            return orderData;
+
+        } catch (err) {
+            console.error('Error saving purchase order:', err);
+            throw err;
+        }
+    },
+
+    /**
+     * Delete a purchase order and its items
+     */
+    async deletePurchaseOrder(orderId) {
+        try {
+            // First delete items to avoid foreign key constraints
+            const { error: itemsError } = await supabase
+                .from('purchase_order_item')
+                .delete()
+                .eq('order_id', orderId);
+
+            if (itemsError) throw itemsError;
+
+            // Then delete the order header
+            const { error: orderError } = await supabase
+                .from('purchase_order')
+                .delete()
+                .eq('order_id', orderId);
+
+            if (orderError) throw orderError;
+
+            return true;
+        } catch (err) {
+            console.error('Error deleting purchase order:', err);
+            throw err;
+        }
     }
 };
 

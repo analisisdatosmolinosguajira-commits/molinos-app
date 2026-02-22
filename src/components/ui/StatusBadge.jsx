@@ -20,11 +20,9 @@ const statusStyles = {
 
     // Concertation
     activa: 'bg-purple-100 text-purple-700 border-purple-200',
-    active: 'bg-purple-100 text-purple-700 border-purple-200',
     firmada: 'bg-purple-100 text-purple-700 border-purple-200',
     signed: 'bg-purple-100 text-purple-700 border-purple-200',
     pendiente: 'bg-slate-100 text-slate-600 border-slate-200',
-    en_proceso: 'bg-blue-100 text-blue-700 border-blue-200',
     finalizada: 'bg-green-100 text-green-700 border-green-200',
     cancelada: 'bg-red-50 text-red-700 border-red-200',
 
@@ -95,9 +93,7 @@ const labels = {
     descartada: 'Descartada',
     discarded: 'Descartada',
 
-    pendiente: 'Pendiente',
-    finalizada: 'Finalizada',
-    cancelada: 'Cancelada'
+    finalizada: 'Finalizada'
 };
 
 export default function StatusBadge({ status, size = 'md', className = '' }) {

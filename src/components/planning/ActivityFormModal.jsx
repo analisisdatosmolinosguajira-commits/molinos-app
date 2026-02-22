@@ -197,7 +197,16 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                         </label>
                                         <select
                                             value={formData.activity_type_id}
-                                            onChange={(e) => setFormData({ ...formData, activity_type_id: e.target.value })}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                const updates = { activity_type_id: val };
+                                                if (val == 10) { // Entrega de Materiales
+                                                    updates.target_community_id = '';
+                                                    updates.target_mill_id = '';
+                                                    updates.target_location_notes = 'Ruta general';
+                                                }
+                                                setFormData({ ...formData, ...updates });
+                                            }}
                                             className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.activity_type_id ? 'border-red-500' : 'border-gray-300'
                                                 }`}
                                         >
@@ -391,18 +400,25 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                         <label className="block text-sm font-medium text-slate-700 mb-1">
                                             Comunidad
                                         </label>
-                                        <select
-                                            value={formData.target_community_id}
-                                            onChange={(e) => setFormData({ ...formData, target_community_id: e.target.value, target_mill_id: '' })}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        >
-                                            <option value="">Seleccionar...</option>
-                                            {communities.map(comm => (
-                                                <option key={comm.community_id} value={comm.community_id}>
-                                                    {comm.name}
-                                                </option>
-                                            ))}
-                                        </select>
+                                        {formData.activity_type_id == 10 ? (
+                                            <div className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-500 text-sm font-medium flex items-center gap-2">
+                                                <AlertCircle size={14} />
+                                                Ruta general
+                                            </div>
+                                        ) : (
+                                            <select
+                                                value={formData.target_community_id}
+                                                onChange={(e) => setFormData({ ...formData, target_community_id: e.target.value, target_mill_id: '' })}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            >
+                                                <option value="">Seleccionar...</option>
+                                                {communities.map(comm => (
+                                                    <option key={comm.community_id} value={comm.community_id}>
+                                                        {comm.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        )}
                                     </div>
 
                                     {/* Mill */}
@@ -410,18 +426,25 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                         <label className="block text-sm font-medium text-slate-700 mb-1">
                                             Molino
                                         </label>
-                                        <select
-                                            value={formData.target_mill_id}
-                                            onChange={(e) => setFormData({ ...formData, target_mill_id: e.target.value })}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        >
-                                            <option value="">Seleccionar...</option>
-                                            {mills.map(mill => (
-                                                <option key={mill.mill_id} value={mill.mill_id}>
-                                                    {mill.code} - {mill.name}
-                                                </option>
-                                            ))}
-                                        </select>
+                                        {formData.activity_type_id == 10 ? (
+                                            <div className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-500 text-sm font-medium flex items-center gap-2">
+                                                <AlertCircle size={14} />
+                                                Ruta general
+                                            </div>
+                                        ) : (
+                                            <select
+                                                value={formData.target_mill_id}
+                                                onChange={(e) => setFormData({ ...formData, target_mill_id: e.target.value })}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            >
+                                                <option value="">Seleccionar...</option>
+                                                {mills.map(mill => (
+                                                    <option key={mill.mill_id} value={mill.mill_id}>
+                                                        {mill.code} - {mill.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        )}
                                     </div>
                                 </div>
 

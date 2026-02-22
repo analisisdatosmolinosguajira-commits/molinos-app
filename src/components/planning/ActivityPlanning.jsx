@@ -7,6 +7,7 @@ import ActivityFormModal from './ActivityFormModal';
 import MonthlyCalendar from './MonthlyCalendar';
 import LinkActivityModal from './LinkActivityModal';
 import WeeklyPlanningBoard from './WeeklyPlanningBoard';
+import MaterialDeliveryModal from './MaterialDeliveryModal';
 
 const ActivityPlanning = () => {
     const navigate = useNavigate();
@@ -17,6 +18,10 @@ const ActivityPlanning = () => {
     const [selectedActivity, setSelectedActivity] = useState(null);
     const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
     const [selectedLinkActivity, setSelectedLinkActivity] = useState(null);
+    // New modal for delivery
+    const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
+    const [selectedDeliveryActivity, setSelectedDeliveryActivity] = useState(null);
+
     const [currentDate, setCurrentDate] = useState(new Date());
     const [initialFormData, setInitialFormData] = useState(null);
 
@@ -46,13 +51,20 @@ const ActivityPlanning = () => {
 
     const handleCreateActivity = (initialData = null) => {
         setSelectedActivity(null);
-        setInitialFormData(initialData); // Set initial data (e.g. from DnD)
+        // Ignore React Synthetic Events, only accept actual data objects
+        const data = (initialData && typeof initialData === 'object' && !initialData.nativeEvent) ? initialData : null;
+        setInitialFormData(data); // Set initial data (e.g. from DnD)
         setIsModalOpen(true);
     };
 
-    const handleEditActivity = (activity) => {
-        setSelectedActivity(activity);
-        setIsModalOpen(true);
+    const handleEditActivity = (activity, action) => {
+        if (action === 'delivery') {
+            setSelectedDeliveryActivity(activity);
+            setIsDeliveryModalOpen(true);
+        } else {
+            setSelectedActivity(activity);
+            setIsModalOpen(true);
+        }
     };
 
     const handleDeleteActivity = async (activity) => {
@@ -346,6 +358,17 @@ const ActivityPlanning = () => {
                     setSelectedLinkActivity(null);
                 }}
                 activity={selectedLinkActivity}
+                onSuccess={loadActivities}
+            />
+
+            {/* Material Delivery Modal */}
+            <MaterialDeliveryModal
+                isOpen={isDeliveryModalOpen}
+                onClose={() => {
+                    setIsDeliveryModalOpen(false);
+                    setSelectedDeliveryActivity(null);
+                }}
+                activity={selectedDeliveryActivity}
                 onSuccess={loadActivities}
             />
         </div>

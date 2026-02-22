@@ -1,348 +1,325 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Plus, FileText, Calendar, Users, Package, AlertCircle, Settings } from 'lucide-react';
+import {
+    Plus, Package, Users, Calendar, Search, Trash2,
+    Activity, Loader2, BookOpen, Wrench, Droplets
+} from 'lucide-react';
 import { FabricationService } from '../../services/fabrication';
-import StatusBadge from '../../components/ui/StatusBadge';
-import ManufacturingOrderForm from './ManufacturingOrderForm';
+import ManufacturingOrderModal from './ManufacturingOrderModal';
+import RecipeManager from './RecipeManager';
+import PumpOrdersManager from './PumpOrdersManager';
 
-// Assuming OrderCard and OrderDetailView are new components that will be defined elsewhere
-// For the purpose of making the provided snippet syntactically correct,
-// I'll create minimal placeholder components.
-const OrderCard = ({ order, isSelected, onClick }) => {
-    const getStatusBadge = (status) => {
-        const colors = {
-            'pendiente': 'bg-yellow-100 text-yellow-700 border-yellow-200',
-            'en_proceso': 'bg-blue-100 text-blue-700 border-blue-200',
-            'terminada': 'bg-green-100 text-green-700 border-green-200',
-            'cancelada': 'bg-red-100 text-red-700 border-red-200'
-        };
-        const labels = {
-            'pendiente': 'Pendiente',
-            'en_proceso': 'En Proceso',
-            'terminada': 'Terminada',
-            'cancelada': 'Cancelada'
-        };
-        return (
-            <span className={`px-2 py-0.5 rounded text-xs font-medium border ${colors[status] || 'bg-slate-100 text-slate-700 border-slate-200'}`}>
-                {labels[status] || status}
-            </span>
-        );
-    };
+const STATUS_CONFIG = {
+    'pendiente': { label: 'Pendiente', bg: 'bg-amber-100', text: 'text-amber-700', border: 'border-amber-200', dot: 'bg-amber-500' },
+    'planificada': { label: 'Planificada', bg: 'bg-violet-100', text: 'text-violet-700', border: 'border-violet-200', dot: 'bg-violet-500' },
+    'en_proceso': { label: 'En Proceso', bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200', dot: 'bg-blue-500' },
+    'terminada': { label: 'Terminada', bg: 'bg-emerald-100', text: 'text-emerald-700', border: 'border-emerald-200', dot: 'bg-emerald-500' },
+    'cancelada': { label: 'Cancelada', bg: 'bg-red-100', text: 'text-red-700', border: 'border-red-200', dot: 'bg-red-500' }
+};
+
+const StatusBadge = ({ status }) => {
+    const cfg = STATUS_CONFIG[status] || STATUS_CONFIG['pendiente'];
+    return (
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+            {cfg.label}
+        </span>
+    );
+};
+
+const ProgressBar = ({ completed, planned }) => {
+    const pct = planned > 0 ? Math.min((completed / planned) * 100, 100) : 0;
+    return (
+        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+            <div
+                className={`h-full rounded-full transition-all duration-500 ${pct >= 100 ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' :
+                    pct > 50 ? 'bg-gradient-to-r from-blue-600 to-indigo-500' :
+                        'bg-gradient-to-r from-amber-500 to-orange-400'
+                    }`}
+                style={{ width: `${pct}%` }}
+            />
+        </div>
+    );
+};
+
+const OrderCard = ({ order, onClick, onDelete }) => {
+    // Summarize processes
+    const processNames = order.processes?.map(p => p.pieceName).join(', ') || order.pieceName || 'Sin piezas';
+    const totalPlanned = order.processes?.reduce((sum, p) => sum + p.quantityPlanned, 0) || order.quantityPlanned;
+    const totalCompleted = order.processes?.reduce((sum, p) => sum + p.quantityCompleted, 0) || order.quantityCompleted;
+    const pct = totalPlanned > 0 ? Math.round((totalCompleted / totalPlanned) * 100) : 0;
+
     return (
         <div
-            key={order.id}
             onClick={onClick}
-            className={`p-4 rounded-xl border cursor-pointer transition-all ${isSelected
-                ? 'bg-brand-50 border-brand-200 shadow-sm ring-1 ring-brand-200'
-                : 'bg-white border-slate-100 hover:border-slate-200 hover:shadow-sm'
-                }`}
+            className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-indigo-200 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer overflow-hidden"
         >
-            <div className="flex items-start justify-between mb-2">
-                <div>
-                    <h4 className="font-bold text-slate-800">Orden #{order.id}</h4>
-                    <p className="text-sm text-slate-600">{order.pieceName}</p>
-                    <p className="text-xs text-slate-400">{order.pieceCode}</p>
+            <div className={`h-1 ${STATUS_CONFIG[order.status]?.dot || 'bg-slate-300'}`} />
+            <div className="p-5">
+                <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-mono text-slate-400">{order.code || `#${order.id}`}</span>
+                            <StatusBadge status={order.status} />
+                        </div>
+                        <h4 className="font-bold text-slate-900 text-base truncate" title={order.name || processNames}>{order.name || processNames}</h4>
+                        {order.processes?.length > 0 && (
+                            <p className="text-xs text-slate-400 mt-0.5">{order.processes.length} proceso(s)</p>
+                        )}
+                    </div>
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onDelete(order.id); }}
+                        className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+                    >
+                        <Trash2 size={14} />
+                    </button>
                 </div>
-                {getStatusBadge(order.status)}
-            </div>
-            <div className="flex items-center gap-3 mt-3 text-xs text-slate-500">
-                <span>{order.quantityCompleted}/{order.quantityPlanned} und</span>
-                {order.crewName && (
-                    <span className="flex items-center gap-1">
-                        <Users size={12} />
-                        {order.crewName}
-                    </span>
+
+                <div className="mb-4">
+                    <div className="flex justify-between items-center text-xs mb-1.5">
+                        <span className="text-slate-500 font-medium">Progreso</span>
+                        <span className="font-bold text-slate-700">{totalCompleted}/{totalPlanned} <span className="text-slate-400 font-normal">({pct}%)</span></span>
+                    </div>
+                    <ProgressBar completed={totalCompleted} planned={totalPlanned} />
+                </div>
+
+                <div className="flex items-center gap-3 text-xs text-slate-500 flex-wrap">
+                    {order.crewName && (
+                        <span className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-lg">
+                            <Users size={12} className="text-slate-400" />
+                            {order.crewName}
+                        </span>
+                    )}
+                    {order.startDate && (
+                        <span className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-lg">
+                            <Calendar size={12} className="text-slate-400" />
+                            {new Date(order.startDate).toLocaleDateString()}
+                        </span>
+                    )}
+                </div>
+
+                {order.relatedActivity && (
+                    <div className="mt-3 pt-3 border-t border-slate-50 flex items-center gap-1.5 text-xs text-indigo-600">
+                        <Activity size={12} />
+                        <span className="truncate font-medium">{order.relatedActivity.title}</span>
+                    </div>
                 )}
             </div>
         </div>
     );
 };
-
-const OrderDetailView = ({ orderId, onClose }) => {
-    const [order, setOrder] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    useEffect(() => {
-        // In a real app, you'd fetch the order details here
-        // For now, simulate fetching
-        setLoading(true);
-        setError(null);
-        // This is a placeholder. In a real app, you'd fetch from an API.
-        // For this example, we'll just show a generic detail view.
-        setTimeout(() => {
-            setOrder({
-                id: orderId,
-                pieceName: `Pieza ${orderId}`,
-                pieceCode: `PC-${orderId}`,
-                status: 'en_proceso',
-                quantityPlanned: 100,
-                quantityCompleted: 50,
-                startDate: new Date().toISOString(),
-                endDate: null,
-                crewName: 'Cuadrilla A',
-                workOrderId: 123,
-                workOrderDescription: 'Descripción de la OT',
-                notes: 'Notas de la orden de fabricación.'
-            });
-            setLoading(false);
-        }, 500);
-    }, [orderId]);
-
-    const getStatusBadge = (status) => {
-        const colors = {
-            'pendiente': 'bg-yellow-100 text-yellow-700 border-yellow-200',
-            'en_proceso': 'bg-blue-100 text-blue-700 border-blue-200',
-            'terminada': 'bg-green-100 text-green-700 border-green-200',
-            'cancelada': 'bg-red-100 text-red-700 border-red-200'
-        };
-        const labels = {
-            'pendiente': 'Pendiente',
-            'en_proceso': 'En Proceso',
-            'terminada': 'Terminada',
-            'cancelada': 'Cancelada'
-        };
-        return (
-            <span className={`px-2 py-0.5 rounded text-xs font-medium border ${colors[status] || 'bg-slate-100 text-slate-700 border-slate-200'}`}>
-                {labels[status] || status}
-            </span>
-        );
-    };
-
-    if (loading) return <div className="p-8 text-center text-slate-500">Cargando detalles...</div>;
-    if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
-    if (!order) return <div className="p-8 text-center text-slate-500">No se encontró la orden.</div>;
-
-    return (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            {/* Order Header */}
-            <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-                <div className="flex items-center justify-between mb-4">
-                    <div>
-                        <h2 className="text-xl font-bold text-slate-900">Orden de Fabricación #{order.id}</h2>
-                        <p className="text-slate-500 mt-1">{order.pieceName}</p>
-                    </div>
-                    {getStatusBadge(order.status)}
-                </div>
-            </div>
-
-            {/* Order Information */}
-            <div className="p-6 space-y-6">
-                {/* Production Info */}
-                <div>
-                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Información de Producción</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-slate-50 p-3 rounded-xl">
-                            <p className="text-xs text-slate-500">Pieza</p>
-                            <p className="font-bold text-slate-900">{order.pieceName}</p>
-                            <p className="text-xs text-slate-400">{order.pieceCode}</p>
-                        </div>
-                        <div className="bg-slate-50 p-3 rounded-xl">
-                            <p className="text-xs text-slate-500">Progreso</p>
-                            <p className="font-bold text-slate-900">{order.quantityCompleted} / {order.quantityPlanned}</p>
-                            <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
-                                <div
-                                    className="bg-brand-600 h-2 rounded-full transition-all"
-                                    style={{ width: `${(order.quantityCompleted / order.quantityPlanned) * 100}%` }}
-                                ></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Dates & Crew */}
-                <div>
-                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Fechas y Asignación</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-slate-50 p-3 rounded-xl">
-                            <p className="text-xs text-slate-500">Fecha de Inicio</p>
-                            <p className="font-medium text-slate-900">
-                                {order.startDate
-                                    ? new Date(order.startDate).toLocaleDateString()
-                                    : 'No definida'}
-                            </p>
-                        </div>
-                        <div className="bg-slate-50 p-3 rounded-xl">
-                            <p className="text-xs text-slate-500">Fecha de Fin</p>
-                            <p className="font-medium text-slate-900">
-                                {order.endDate
-                                    ? new Date(order.endDate).toLocaleDateString()
-                                    : 'No definida'}
-                            </p>
-                        </div>
-                        <div className="bg-slate-50 p-3 rounded-xl col-span-2">
-                            <p className="text-xs text-slate-500">Cuadrilla Asignada</p>
-                            <p className="font-medium text-slate-900">
-                                {order.crewName || 'Sin asignar'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Work Order Link */}
-                {order.workOrderId && (
-                    <div>
-                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Orden de Trabajo Relacionada</h3>
-                        <div className="bg-blue-50 p-3 rounded-xl border border-blue-200">
-                            <p className="text-xs text-blue-600 mb-1">Orden de Trabajo #{order.workOrderId}</p>
-                            <p className="text-sm text-blue-700">{order.workOrderDescription || 'Sin descripción'}</p>
-                        </div>
-                    </div>
-                )}
-
-                {/* Notes */}
-                {order.notes && (
-                    <div>
-                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Notas</h3>
-                        <div className="bg-slate-50 p-3 rounded-xl">
-                            <p className="text-sm text-slate-700 whitespace-pre-wrap">{order.notes}</p>
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            {/* Actions */}
-            <div className="p-6 border-t border-slate-100 flex gap-3">
-                <button className="flex-1 bg-brand-600 text-white px-4 py-2 rounded-xl hover:bg-brand-700 font-medium">
-                    Editar Orden
-                </button>
-                <button className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium">
-                    Actualizar Progreso
-                </button>
-                <button onClick={onClose} className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium">
-                    Cerrar
-                </button>
-            </div>
-        </div>
-    );
-};
-
 
 export default function FabricationPage() {
+    const [pageTab, setPageTab] = useState('ORDERS');
     const [orders, setOrders] = useState([]);
-    const [selectedOrderId, setSelectedOrderId] = useState(null);
-    const [isCreateMode, setIsCreateMode] = useState(false);
-    const [searchParams] = useSearchParams();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [searchParams] = useSearchParams();
+
+    const [statusFilter, setStatusFilter] = useState('ALL');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [modalOpen, setModalOpen] = useState(false);
+    const [editingOrderId, setEditingOrderId] = useState(null);
 
     useEffect(() => {
         loadOrders();
-        if (searchParams.get('action') === 'new') {
-            setIsCreateMode(true);
-        }
+        if (searchParams.get('action') === 'new') setModalOpen(true);
     }, [searchParams]);
 
-    async function loadOrders() {
+    const loadOrders = async () => {
         try {
             setLoading(true);
             const data = await FabricationService.getManufacturingOrders();
             setOrders(data || []);
-            // If there are orders, select the first one by default unless in create mode
-            if (data && data.length > 0 && !isCreateMode && !selectedOrderId) {
-                setSelectedOrderId(data[0].id);
-            }
         } catch (err) {
-            console.error("Error loading manufacturing orders:", err);
-            setError("No se pudieron cargar las órdenes de fabricación.");
+            console.error('Error loading orders:', err);
+            setError('No se pudieron cargar las órdenes.');
         } finally {
             setLoading(false);
         }
-    }
-
-    // The original getStatusBadge function is kept as it's used by the placeholder OrderCard and OrderDetailView
-    // If StatusBadge component was meant to replace it, that would be a separate instruction.
-    const getStatusBadge = (status) => {
-        const colors = {
-            'pendiente': 'bg-yellow-100 text-yellow-700 border-yellow-200',
-            'en_proceso': 'bg-blue-100 text-blue-700 border-blue-200',
-            'terminada': 'bg-green-100 text-green-700 border-green-200',
-            'cancelada': 'bg-red-100 text-red-700 border-red-200'
-        };
-        const labels = {
-            'pendiente': 'Pendiente',
-            'en_proceso': 'En Proceso',
-            'terminada': 'Terminada',
-            'cancelada': 'Cancelada'
-        };
-        return (
-            <span className={`px-2 py-0.5 rounded text-xs font-medium border ${colors[status] || 'bg-slate-100 text-slate-700 border-slate-200'}`}>
-                {labels[status] || status}
-            </span>
-        );
     };
 
-    if (loading) return <div className="p-8 text-center text-slate-500">Cargando órdenes de fabricación...</div>;
-    if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
+    const handleDelete = async (id) => {
+        if (!window.confirm('¿Eliminar esta orden de fabricación?')) return;
+        try {
+            await FabricationService.deleteManufacturingOrder(id);
+            loadOrders();
+        } catch (err) { alert('Error: ' + err.message); }
+    };
 
-    // Assuming filteredOrders is simply 'orders' for now, as no filtering logic was provided
-    const filteredOrders = orders;
+    const filteredOrders = orders.filter(order => {
+        if (statusFilter !== 'ALL' && order.status !== statusFilter) return false;
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            const processMatch = order.processes?.some(p => p.pieceName?.toLowerCase().includes(q) || p.pieceCode?.toLowerCase().includes(q));
+            return processMatch || order.crewName?.toLowerCase().includes(q) || String(order.id).includes(q);
+        }
+        return true;
+    });
+
+    const counts = {
+        ALL: orders.length,
+        pendiente: orders.filter(o => o.status === 'pendiente').length,
+        planificada: orders.filter(o => o.status === 'planificada').length,
+        en_proceso: orders.filter(o => o.status === 'en_proceso').length,
+        terminada: orders.filter(o => o.status === 'terminada').length,
+        cancelada: orders.filter(o => o.status === 'cancelada').length
+    };
+
+    const STATUS_TABS = [
+        { id: 'ALL', label: 'Todas' },
+        { id: 'pendiente', label: 'Pendientes' },
+        { id: 'planificada', label: 'Planificadas' },
+        { id: 'en_proceso', label: 'En Proceso' },
+        { id: 'terminada', label: 'Terminadas' },
+        { id: 'cancelada', label: 'Canceladas' }
+    ];
 
     return (
-        <div className="space-y-8 animate-slide-up">
+        <div className="space-y-6">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Fabricación</h1>
-                    <p className="text-slate-500 mt-1">Gestión de órdenes de fabricación de piezas</p>
-                </div>
-                <button
-                    onClick={() => { setIsCreateMode(true); setSelectedOrderId(null); }}
-                    className="bg-brand-600 text-white px-4 py-2 rounded-xl hover:bg-brand-700 font-medium flex items-center gap-2"
-                >
-                    <Plus size={18} />
-                    Nueva Orden
-                </button>
-            </div>
-
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Orders List */}
-                <div className="col-span-1 lg:col-span-2 space-y-4">
-                    {filteredOrders.length === 0 ? (
-                        <div className="p-12 text-center bg-slate-50 rounded-2xl border border-slate-100 border-dashed">
-                            <Package className="mx-auto text-slate-300 mb-3" size={48} />
-                            <h3 className="text-lg font-medium text-slate-900">No hay órdenes de fabricación</h3>
-                            <p className="text-slate-500">Crea una nueva orden para comenzar</p>
+            <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-900 rounded-2xl p-6 text-white shadow-xl shadow-slate-900/10">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+                            <Wrench size={26} className="text-indigo-400" />
+                            Fabricación
+                        </h1>
+                        <p className="text-slate-400 text-sm mt-1">
+                            Gestión de órdenes, recetas y consumo de materiales
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        {/* Page Tabs */}
+                        <div className="flex bg-white/10 rounded-xl p-1">
+                            <button
+                                onClick={() => setPageTab('ORDERS')}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-all ${pageTab === 'ORDERS' ? 'bg-white text-slate-900 shadow-sm' : 'text-white/70 hover:text-white'
+                                    }`}
+                            >
+                                <Activity size={15} />
+                                Órdenes
+                            </button>
+                            <button
+                                onClick={() => setPageTab('RECIPES')}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-all ${pageTab === 'RECIPES' ? 'bg-white text-slate-900 shadow-sm' : 'text-white/70 hover:text-white'
+                                    }`}
+                            >
+                                <BookOpen size={15} />
+                                Recetas
+                            </button>
+                            <button
+                                onClick={() => setPageTab('PUMPS')}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-all ${pageTab === 'PUMPS' ? 'bg-white text-slate-900 shadow-sm' : 'text-white/70 hover:text-white'
+                                    }`}
+                            >
+                                <Droplets size={15} />
+                                Bombas
+                            </button>
                         </div>
-                    ) : (
-                        filteredOrders.map(order => (
-                            <OrderCard
-                                key={order.id}
-                                order={order}
-                                isSelected={selectedOrderId === order.id}
-                                onClick={() => setSelectedOrderId(order.id)}
-                            />
-                        ))
-                    )}
+                        {pageTab === 'ORDERS' && (
+                            <button
+                                onClick={() => { setEditingOrderId(null); setModalOpen(true); }}
+                                className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-indigo-500/30 transition-all active:scale-95"
+                            >
+                                <Plus size={18} />
+                                Nueva Orden
+                            </button>
+                        )}
+                    </div>
                 </div>
 
-                {/* Detail View Sidebar */}
-                <div className="lg:col-span-1">
-                    {isCreateMode ? (
-                        <ManufacturingOrderForm
-                            onCancel={() => setIsCreateMode(false)}
-                            onSuccess={() => {
-                                setIsCreateMode(false);
-                                loadOrders();
-                            }}
-                        />
-                    ) : selectedOrderId ? (
-                        <OrderDetailView
-                            orderId={selectedOrderId}
-                            onClose={() => setSelectedOrderId(null)}
-                        />
-                    ) : (
-                        <div className="h-full min-h-[400px] bg-slate-50 rounded-2xl border border-slate-100 border-dashed flex items-center justify-center text-slate-400">
-                            <div className="text-center p-6">
-                                <Settings size={48} className="mx-auto mb-3 opacity-20" />
-                                <p>Selecciona una orden para ver detalles</p>
+                {pageTab === 'ORDERS' && (
+                    <div className="grid grid-cols-4 gap-3 mt-5">
+                        {[
+                            { label: 'Planificadas', value: counts.planificada, color: 'text-violet-400' },
+                            { label: 'En Proceso', value: counts.en_proceso, color: 'text-blue-400' },
+                            { label: 'Terminadas', value: counts.terminada, color: 'text-emerald-400' },
+                            { label: 'Total', value: counts.ALL, color: 'text-white' }
+                        ].map(stat => (
+                            <div key={stat.label} className="bg-white/5 rounded-xl p-3 backdrop-blur-sm border border-white/5">
+                                <p className="text-xs text-slate-400 font-medium">{stat.label}</p>
+                                <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
                             </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* ORDERS TAB */}
+            {pageTab === 'ORDERS' && (
+                <>
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                        <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1 overflow-x-auto">
+                            {STATUS_TABS.map(tab => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setStatusFilter(tab.id)}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${statusFilter === tab.id
+                                        ? 'bg-white text-slate-900 shadow-sm'
+                                        : 'text-slate-500 hover:text-slate-700'
+                                        }`}
+                                >
+                                    {tab.label} <span className="text-slate-400">({counts[tab.id]})</span>
+                                </button>
+                            ))}
+                        </div>
+                        <div className="relative flex-1 max-w-xs">
+                            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                            <input
+                                type="text"
+                                placeholder="Buscar pieza, código, cuadrilla..."
+                                className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
+                                value={searchQuery}
+                                onChange={e => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    {loading ? (
+                        <div className="flex items-center justify-center py-16">
+                            <Loader2 className="animate-spin text-slate-300" size={32} />
+                        </div>
+                    ) : error ? (
+                        <div className="text-center py-16 text-red-500">{error}</div>
+                    ) : filteredOrders.length === 0 ? (
+                        <div className="p-16 text-center bg-white rounded-2xl border border-slate-100 border-dashed">
+                            <Package className="mx-auto text-slate-300 mb-3" size={56} />
+                            <h3 className="text-lg font-bold text-slate-900 mb-1">
+                                {searchQuery || statusFilter !== 'ALL' ? 'Sin resultados' : 'No hay órdenes'}
+                            </h3>
+                            <p className="text-slate-500 text-sm">
+                                {searchQuery || statusFilter !== 'ALL' ? 'Prueba con otros filtros.' : 'Crea una nueva orden para comenzar.'}
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                            {filteredOrders.map(order => (
+                                <OrderCard
+                                    key={order.id}
+                                    order={order}
+                                    onClick={() => { setEditingOrderId(order.id); setModalOpen(true); }}
+                                    onDelete={handleDelete}
+                                />
+                            ))}
                         </div>
                     )}
-                </div>
-            </div>
+                </>
+            )}
+
+            {/* RECIPES TAB */}
+            {pageTab === 'RECIPES' && <RecipeManager />}
+
+            {/* PUMPS TAB */}
+            {pageTab === 'PUMPS' && <PumpOrdersManager />}
+
+            {/* Modal */}
+            <ManufacturingOrderModal
+                isOpen={modalOpen}
+                onClose={() => { setModalOpen(false); setEditingOrderId(null); }}
+                orderId={editingOrderId}
+                onSuccess={loadOrders}
+            />
         </div>
     );
 }
-

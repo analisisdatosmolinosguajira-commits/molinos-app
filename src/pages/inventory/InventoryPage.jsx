@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Wrench, Shield, Box, Search, AlertTriangle, Plus, Edit2, Trash2, TrendingUp } from 'lucide-react';
+import { Package, Wrench, Shield, Box, Search, AlertTriangle, Plus, Edit2, Trash2, TrendingUp, Users, FolderOpen, ClipboardList } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { InventoryService } from '../../services/inventory';
+import { SupplierService } from '../../services/supplier';
 import InventoryItemModal from '../../components/inventory/InventoryItemModal';
 import KardexModal from '../../components/inventory/KardexModal';
 import BatchMovementForm from '../../components/inventory/BatchMovementForm';
 import MovementHistoryTable from '../../components/inventory/MovementHistoryTable';
+import OrderPlanningTab from '../../components/inventory/OrderPlanningTab';
 
 export default function InventoryPage() {
-    const [activeCategory, setActiveCategory] = useState('materiales');
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [activeCategory, setActiveCategory] = useState(location.state?.activeTab || 'materiales');
     const [inventory, setInventory] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -54,6 +59,7 @@ export default function InventoryPage() {
         { id: 'piezas', label: 'Piezas', icon: Package },
         { id: 'herramientas', label: 'Herramientas', icon: Wrench },
         { id: 'epp', label: 'EPP', icon: Shield },
+        { id: 'proveedores', label: 'Proveedores', icon: Users },
         { id: 'movimientos', label: 'Movimientos', icon: TrendingUp },
     ];
 
@@ -63,6 +69,7 @@ export default function InventoryPage() {
         if (lower.includes('mater')) return 'materiales';
         if (lower.includes('herram') || lower.includes('tool')) return 'herramientas';
         if (lower.includes('epp') || lower.includes('ppe')) return 'epp';
+        if (lower.includes('prov') || lower.includes('suppli')) return 'proveedores';
         return 'piezas';
     };
 
@@ -102,12 +109,19 @@ export default function InventoryPage() {
                 case 'epp':
                     await InventoryService.deleteSafetyEquipment(item.rawId);
                     break;
+                case 'proveedores':
+                    await SupplierService.deleteSupplier(item.rawId);
+                    break;
             }
             await loadInventory(); // Reload inventory
             alert('Elemento eliminado correctamente.');
         } catch (error) {
             console.error('Error deleting item:', error);
-            alert('Hubo un error al eliminar el elemento.');
+            if (error?.code === '23503') {
+                alert(`No se puede eliminar "${item.name}" porque está siendo utilizado de forma activa actualmente en el sistema (ej. en órdenes de trabajo, equipos o inventario relacionado).`);
+            } else {
+                alert('Hubo un error al eliminar el elemento.');
+            }
         }
     };
 
@@ -166,6 +180,9 @@ export default function InventoryPage() {
                     case 'epp':
                         await InventoryService.updateSafetyEquipment(editingItem.safety_id, formData);
                         break;
+                    case 'proveedores':
+                        await SupplierService.updateSupplier(editingItem.supplier_id, formData);
+                        break;
                 }
             } else {
                 // Create new item
@@ -181,6 +198,9 @@ export default function InventoryPage() {
                         break;
                     case 'epp':
                         await InventoryService.createSafetyEquipment(formData);
+                        break;
+                    case 'proveedores':
+                        await SupplierService.createSupplier(formData);
                         break;
                 }
             }
@@ -225,7 +245,7 @@ export default function InventoryPage() {
             {/* Table */}
             <div className="bg-white rounded-b-2xl rounded-tr-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <div className="p-4 border-b border-slate-100 bg-slate-50/30 flex justify-between items-center">
-                    <h3 className="font-bold text-slate-700 capitalize">{categories.find(c => c.id === activeCategory)?.label}</h3>
+                    <h3 className="font-bold text-slate-700 capitalize">{activeCategory === 'planificacion' ? 'Planificación de Pedidos' : categories.find(c => c.id === activeCategory)?.label}</h3>
                     <div className="flex items-center gap-3">
                         <div className="relative">
                             <Search size={16} className="absolute left-3 top-2.5 text-slate-400" />
@@ -237,8 +257,8 @@ export default function InventoryPage() {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        {/* Only show Nuevo button in inventory tabs, not in Movimientos */}
-                        {activeCategory !== 'movimientos' && (
+                        {/* Only show Nuevo button in inventory tabs, not in Movimientos or Planificacion */}
+                        {activeCategory !== 'movimientos' && activeCategory !== 'planificacion' && (
                             <button
                                 onClick={handleCreate}
                                 className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
@@ -247,11 +267,30 @@ export default function InventoryPage() {
                                 Nuevo
                             </button>
                         )}
+                        {activeCategory === 'movimientos' && (
+                            <button
+                                onClick={() => setActiveCategory('planificacion')}
+                                className="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white object-center rounded-lg hover:bg-brand-700 transition-colors text-sm font-medium shadow-sm hover:shadow"
+                            >
+                                <ClipboardList size={16} />
+                                Planificar Pedido
+                            </button>
+                        )}
+                        {activeCategory === 'planificacion' && (
+                            <button
+                                onClick={() => setActiveCategory('movimientos')}
+                                className="flex items-center gap-2 px-4 py-2 bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors text-sm font-medium"
+                            >
+                                Volver a Movimientos
+                            </button>
+                        )}
                     </div>
                 </div>
 
-                {/* Movimientos Tab Content */}
-                {activeCategory === 'movimientos' ? (
+                {/* Movimientos and Planificacion Content */}
+                {activeCategory === 'planificacion' ? (
+                    <OrderPlanningTab onNotification={(notif) => alert(notif.message)} />
+                ) : activeCategory === 'movimientos' ? (
                     <div className="space-y-6">
                         <BatchMovementForm
                             onSubmit={handleMovementSubmit}
@@ -269,42 +308,84 @@ export default function InventoryPage() {
                         <table className="w-full text-sm text-left">
                             <thead className="bg-slate-50 text-slate-500 font-medium border-b border-slate-100">
                                 <tr>
-                                    <th className="px-6 py-4">Código / Ítem</th>
-                                    <th className="px-6 py-4">Stock Actual</th>
-                                    <th className="px-6 py-4">Stock Mínimo</th>
-                                    <th className="px-6 py-4">Estado</th>
+                                    {activeCategory === 'proveedores' ? (
+                                        <>
+                                            <th className="px-6 py-4">Razón Social</th>
+                                            <th className="px-6 py-4">Contacto</th>
+                                            <th className="px-6 py-4">Información</th>
+                                            <th className="px-6 py-4">Tipo</th>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <th className="px-6 py-4">Código / Ítem</th>
+                                            <th className="px-6 py-4">Stock Actual</th>
+                                            <th className="px-6 py-4">Stock Mínimo</th>
+                                            <th className="px-6 py-4">Estado</th>
+                                        </>
+                                    )}
                                     <th className="px-6 py-4 text-right">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {filteredItems.map(item => (
                                     <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                                        <td className="px-6 py-4">
-                                            <div className="font-bold text-slate-800">{item.name}</div>
-                                            <div className="text-xs text-slate-400 font-mono">{item.code || 'S/C'}</div>
-                                        </td>
-                                        <td className="px-6 py-4 font-mono font-bold text-slate-700">{item.stock} <span className="text-xs text-slate-400 font-normal">{item.unit}</span></td>
-                                        <td className="px-6 py-4 text-slate-500">{item.min} {item.unit}</td>
-                                        <td className="px-6 py-4">
-                                            {item.stock < item.min ? (
-                                                <span className="flex items-center gap-1 text-rose-600 font-bold text-xs bg-rose-50 px-2 py-1 rounded w-fit">
-                                                    <AlertTriangle size={12} />
-                                                    BAJO STOCK
-                                                </span>
-                                            ) : (
-                                                <span className="text-green-600 font-bold text-xs bg-green-50 px-2 py-1 rounded w-fit">
-                                                    OK
-                                                </span>
-                                            )}
-                                        </td>
+                                        {activeCategory === 'proveedores' ? (
+                                            <>
+                                                <td className="px-6 py-4">
+                                                    <div className="font-bold text-slate-800">{item.name}</div>
+                                                </td>
+                                                <td className="px-6 py-4 text-slate-700">
+                                                    {item.location}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="text-slate-700">{item.status}</div>
+                                                    <div className="text-xs text-slate-500">{item.raw?.email || 'N/A'}</div>
+                                                </td>
+                                                <td className="px-6 py-4 text-slate-500 text-sm">
+                                                    {item.description}
+                                                </td>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <td className="px-6 py-4">
+                                                    <div className="font-bold text-slate-800">{item.name}</div>
+                                                    <div className="text-xs text-slate-400 font-mono">{item.code || 'S/C'}</div>
+                                                </td>
+                                                <td className="px-6 py-4 font-mono font-bold text-slate-700">{item.stock} <span className="text-xs text-slate-400 font-normal">{item.unit}</span></td>
+                                                <td className="px-6 py-4 text-slate-500">{item.min} {item.unit}</td>
+                                                <td className="px-6 py-4">
+                                                    {item.stock < item.min ? (
+                                                        <span className="flex items-center gap-1 text-rose-600 font-bold text-xs bg-rose-50 px-2 py-1 rounded w-fit">
+                                                            <AlertTriangle size={12} />
+                                                            BAJO STOCK
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-green-600 font-bold text-xs bg-green-50 px-2 py-1 rounded w-fit">
+                                                            OK
+                                                        </span>
+                                                    )}
+                                                </td>
+                                            </>
+                                        )}
                                         <td className="px-6 py-4">
                                             <div className="flex items-center justify-end gap-2">
-                                                <button
-                                                    className="text-brand-600 font-medium hover:underline text-xs"
-                                                    onClick={() => handleShowKardex(item)}
-                                                >
-                                                    Ver Kardex
-                                                </button>
+                                                {activeCategory !== 'proveedores' && (
+                                                    <button
+                                                        className="text-brand-600 font-medium hover:underline text-xs"
+                                                        onClick={() => handleShowKardex(item)}
+                                                    >
+                                                        Ver Kardex
+                                                    </button>
+                                                )}
+                                                {activeCategory === 'proveedores' && (
+                                                    <button
+                                                        onClick={() => navigate(`/inventario/supplier/${item.rawId}`)}
+                                                        className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+                                                        title="Ver Perfil y Catálogo"
+                                                    >
+                                                        <FolderOpen size={16} />
+                                                    </button>
+                                                )}
                                                 <button
                                                     onClick={() => handleEdit(item)}
                                                     className="p-1.5 text-slate-600 hover:bg-slate-100 rounded transition-colors"

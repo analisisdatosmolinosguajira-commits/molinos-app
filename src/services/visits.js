@@ -213,6 +213,7 @@ export const VisitService = {
                     ),
                     related_activity:planned_activity!movement_related_activity_id_fkey (
                         id:activity_id,
+                        activity_type_id,
                         title,
                         description,
                         status,
@@ -260,6 +261,19 @@ export const VisitService = {
                             meeting_date,
                             community (community_id, name, municipality, department, latitude, longitude, geotracker_route)
                         ),
+                        deliveries:activity_community_delivery!activity_community_delivery_activity_id_fkey (
+                            delivery_id,
+                            delivery_status,
+                            community:community (
+                                community_id,
+                                name,
+                                municipality,
+                                department,
+                                latitude,
+                                longitude,
+                                geotracker_route
+                            )
+                        ),
                         manufacturing_orders:manufacturing_order!manufacturing_order_related_activity_id_fkey (
                             id:mo_id,
                             status
@@ -298,6 +312,7 @@ export const VisitService = {
                 description: data.notes,
                 activity: data.related_activity ? {
                     id: data.related_activity.id,
+                    activity_type_id: data.related_activity.activity_type_id,
                     title: data.related_activity.title,
                     description: data.related_activity.description,
                     status: data.related_activity.status,
@@ -317,6 +332,10 @@ export const VisitService = {
                         concertations: data.related_activity.concertations?.map(c => ({
                             ...c,
                             target_community: c.community
+                        })) || [],
+                        deliveries: data.related_activity.deliveries?.map(d => ({
+                            ...d,
+                            target_community: d.community
                         })) || [],
                         manufacturingOrders: data.related_activity.manufacturing_orders || []
                     }

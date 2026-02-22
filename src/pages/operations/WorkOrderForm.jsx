@@ -64,8 +64,6 @@ export default function WorkOrderForm({ orderId, onBack }) {
         scheduled_date: '',
         start_date: '', // New field
         end_date: '',   // New field
-        start_date: '', // New field
-        end_date: '',   // New field
         report_url: '', // New field
         related_activity_id: null, // Linked Activity
 

@@ -36,6 +36,12 @@ const JourneyRoutesTab = ({ activity }) => {
     activity.linkedEntities?.diagnoses?.forEach(addCommunityFromEntity);
     activity.linkedEntities?.concertations?.forEach(addCommunityFromEntity);
 
+    // Special case: Material Delivery (Type "Entrega de Materiales" or ID 10)
+    // We only collect communities from deliveries if it is a material delivery activity
+    if (activity.type === 'Entrega de Materiales' || activity.activity_type_id == 10) {
+        activity.linkedEntities?.deliveries?.forEach(addCommunityFromEntity);
+    }
+
     const handleDownloadRoute = (community) => {
         if (!community.geotracker_route) return;
 

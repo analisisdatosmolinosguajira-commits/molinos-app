@@ -14,6 +14,7 @@ import ConcertacionesPage from './pages/operations/ConcertacionesPage';
 import InstallPumpPage from './pages/operations/InstallPumpPage';
 import PersonnelPage from './pages/operations/PersonnelPage';
 import InventoryPage from './pages/inventory/InventoryPage';
+import SupplierDetail from './pages/inventory/SupplierDetail';
 import ReportsPage from './pages/reports/ReportsPage';
 import CommunitiesPage from './pages/admin/CommunitiesPage';
 import FabricationPage from './pages/fabrication/FabricationPage';
@@ -49,6 +50,7 @@ function App() {
 
           {/* Workshop */}
           <Route path="inventario" element={<InventoryPage />} />
+          <Route path="inventario/supplier/:id" element={<SupplierDetail />} />
           <Route path="fabricacion" element={<FabricationPage />} />
 
           {/* Management */}

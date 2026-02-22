@@ -175,7 +175,9 @@ const ActivityCard = ({ activity, onEdit, onDelete, onLinkMovement, onUnlinkEnti
                 {activity.related_movements?.map(mov => (
                     <div key={`mov-${mov.movement_id}`} className="inline-flex items-center gap-1.5 px-2 py-1 bg-purple-50 text-purple-700 rounded-md text-xs font-medium border border-purple-100">
                         <ArrowRightLeft size={12} />
-                        <span>Mov #{mov.movement_id}</span>
+                        <span className="truncate max-w-[150px]">
+                            {mov.title || `Mov #${mov.movement_id}`}
+                        </span>
                         <div className="text-[10px] text-purple-600/80 max-w-[100px] truncate hidden sm:block">
                             {mov.objective}
                         </div>
@@ -201,8 +203,19 @@ const ActivityCard = ({ activity, onEdit, onDelete, onLinkMovement, onUnlinkEnti
                         Vincular
                     </button>
                 )}
+
+                {activity.activityTypeName === 'Entrega de Materiales' && (
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onEdit?.(activity, 'delivery'); }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 border border-blue-200 shadow-sm transition-colors"
+                    >
+                        <ClipboardList size={14} />
+                        Ruta de Entrega
+                    </button>
+                )}
+
                 <button
-                    onClick={() => onEdit?.(activity)}
+                    onClick={() => onEdit?.(activity, 'general')}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-50 rounded-md hover:bg-slate-100 transition-colors"
                 >
                     <Edit2 size={14} />
