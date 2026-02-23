@@ -1,28 +1,17 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import {
-    LayoutDashboard,
-    Map,
-    ClipboardList,
-    Stethoscope,
-    Users,
-    Wind,
-    Droplet,
-    Package,
-    BarChart3,
-    Menu,
-    X,
-    ChevronRight,
-    Settings,
-    Home,
-    Wrench
+    LayoutDashboard, Map, ClipboardList, Stethoscope, Users,
+    Wind, Droplet, Package, BarChart3, Menu, X, ChevronRight,
+    Settings, Home, Wrench, User, Shield
 } from 'lucide-react';
-import clsx from 'clsx'; // Assuming user will install this, or I can implement a mini-utility
 
-// Simple utility if clsx is not available immediately
 const cn = (...classes) => classes.filter(Boolean).join(' ');
 
 export default function Sidebar({ isOpen, toggleSidebar }) {
+    const { displayName, initials, roleName, profile, isSupervisor } = useAuth();
+    const navigate = useNavigate();
 
     const navGroups = [
         {
@@ -34,7 +23,7 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
         {
             title: 'Trabajo en Campo',
             items: [
-                { path: '/visitas', label: 'Visitas & Desplamientos', icon: Map },
+                { path: '/visitas', label: 'Visitas & Desplazamientos', icon: Map },
                 { path: '/ordenes', label: 'Órdenes de Trabajo', icon: ClipboardList },
                 { path: '/diagnosticos', label: 'Diagnósticos', icon: Stethoscope },
                 { path: '/concertaciones', label: 'Concertaciones', icon: Users },
@@ -65,6 +54,12 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
             title: 'Gestión',
             items: [
                 { path: '/reportes', label: 'Reportes y Metas', icon: BarChart3 },
+            ]
+        },
+        {
+            title: 'Administración',
+            items: [
+                { path: '/admin/operaciones', label: 'Control de Operaciones', icon: Shield },
             ]
         }
     ];
@@ -115,12 +110,9 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
                                     {({ isActive }) => (
                                         <>
                                             <item.icon size={20} className={cn("transition-colors", isActive ? "text-white" : "text-slate-400 group-hover:text-brand-400")} />
-
                                             {isOpen && (
                                                 <span className="font-medium truncate animate-fade-in">{item.label}</span>
                                             )}
-
-                                            {/* Active Indicator & Hover Effect */}
                                             {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white/20 rounded-r-full blur-[2px]" />}
                                         </>
                                     )}
@@ -133,20 +125,27 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
 
             {/* Footer / User Profile */}
             <div className="p-4 border-t border-slate-800/50">
-                <div className={cn(
-                    "flex items-center gap-3 p-2 rounded-xl transition-all",
-                    isOpen ? "bg-slate-800/50" : "justify-center hover:bg-slate-800/50"
-                )}>
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-brand-500 to-social-500 flex items-center justify-center text-white text-xs font-bold shadow-lg ring-2 ring-slate-900">
-                        JP
-                    </div>
-                    {isOpen && (
-                        <div className="overflow-hidden animate-fade-in">
-                            <p className="text-sm font-medium text-white truncate">Jose Perez</p>
-                            <p className="text-xs text-slate-400 truncate">Coordinador Técnico</p>
+                <button
+                    onClick={() => navigate('/perfil')}
+                    className={cn(
+                        "w-full flex items-center gap-3 p-2 rounded-xl transition-all hover:bg-slate-800/70",
+                        isOpen ? "bg-slate-800/50" : "justify-center hover:bg-slate-800/50"
+                    )}
+                >
+                    {profile?.avatar_url ? (
+                        <img src={profile.avatar_url} alt="" className="w-9 h-9 rounded-full object-cover ring-2 ring-slate-900" />
+                    ) : (
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-brand-500 to-social-500 flex items-center justify-center text-white text-xs font-bold shadow-lg ring-2 ring-slate-900">
+                            {initials}
                         </div>
                     )}
-                </div>
+                    {isOpen && (
+                        <div className="overflow-hidden animate-fade-in text-left">
+                            <p className="text-sm font-medium text-white truncate">{displayName}</p>
+                            <p className="text-xs text-slate-400 truncate">{roleName}</p>
+                        </div>
+                    )}
+                </button>
             </div>
         </aside>
     );

@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Outlet, useParams } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import LoginPage from './pages/auth/LoginPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import MolinosPage from './pages/assets/MolinosPage';
 import BombasPage from './pages/assets/BombasPage';
@@ -20,14 +22,22 @@ import CommunitiesPage from './pages/admin/CommunitiesPage';
 import FabricationPage from './pages/fabrication/FabricationPage';
 import MillDetail from './pages/assets/MillDetail';
 import PumpDetail from './pages/assets/PumpDetail';
-import RLSTestPage from './pages/test/RLSTestPage';
-import MigrationsTestPage from './pages/test/MigrationsTestPage';
+import ProfilePage from './pages/profile/ProfilePage';
+import OperationsControlPage from './pages/admin/OperationsControlPage';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<AppLayout />}>
+        {/* Public route */}
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* Protected routes */}
+        <Route path="/" element={
+          <ProtectedRoute>
+            <AppLayout />
+          </ProtectedRoute>
+        }>
           <Route index element={<DashboardPage />} />
 
           {/* Field Work */}
@@ -56,9 +66,9 @@ function App() {
           {/* Management */}
           <Route path="reportes" element={<ReportsPage />} />
 
-          {/* Test / Development */}
-          <Route path="test/rls" element={<RLSTestPage />} />
-          <Route path="test/migrations" element={<MigrationsTestPage />} />
+          {/* Profile & Admin */}
+          <Route path="perfil" element={<ProfilePage />} />
+          <Route path="admin/operaciones" element={<OperationsControlPage />} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
