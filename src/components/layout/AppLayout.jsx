@@ -5,11 +5,25 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Menu, X, Bell, Search, User, LogOut, ChevronDown } from 'lucide-react';
 
 export default function AppLayout() {
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const { displayName, initials, roleName, profile, signOut } = useAuth();
     const navigate = useNavigate();
     const dropdownRef = useRef(null);
+
+    // Sync sidebar state on mount and resize
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth <= 1024 && sidebarOpen) {
+                setSidebarOpen(false);
+            } else if (window.innerWidth > 1024 && !sidebarOpen) {
+                setSidebarOpen(true);
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, [sidebarOpen]);
 
     // Close dropdown on outside click
     useEffect(() => {
