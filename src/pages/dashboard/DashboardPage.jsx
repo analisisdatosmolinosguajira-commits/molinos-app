@@ -1,51 +1,64 @@
 import React, { useState, useEffect } from 'react';
-import {
-    ClipboardList,
-    Stethoscope,
-    Users,
-    MapPin,
-    AlertTriangle,
-    CheckCircle,
-    Activity,
-    ArrowRight
-} from 'lucide-react';
-import StatCard from '../../components/ui/StatCard';
-import StatusBadge from '../../components/ui/StatusBadge';
-import { DashboardService } from '../../services/dashboard';
 import { useNavigate } from 'react-router-dom';
+import {
+    Wind, Droplets, ClipboardList, Stethoscope, Users, MapPin,
+    AlertTriangle, CheckCircle, Activity, ArrowRight, Clock,
+    ChevronRight, Wrench, Handshake, XCircle, BarChart3, Zap
+} from 'lucide-react';
+import {
+    PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid,
+    Tooltip, Legend
+} from 'recharts';
+import MillMap from '../../components/dashboard/MillMap';
+import { DashboardService } from '../../services/dashboard';
+import { useAuth } from '../../contexts/AuthContext';
+
+const ACTIVITY_ICONS = {
+    work_order: { icon: ClipboardList, color: 'text-blue-500', bg: 'bg-blue-50' },
+    diagnosis: { icon: Stethoscope, color: 'text-amber-500', bg: 'bg-amber-50' },
+    concertation: { icon: Handshake, color: 'text-purple-500', bg: 'bg-purple-50' },
+};
+
+const PRIORITY_STYLES = {
+    CRITICAL: 'bg-red-100 text-red-700 border-red-200',
+    HIGH: 'bg-amber-100 text-amber-700 border-amber-200',
+    MEDIUM: 'bg-blue-100 text-blue-700 border-blue-200',
+    LOW: 'bg-slate-100 text-slate-600 border-slate-200',
+};
 
 export default function DashboardPage() {
     const navigate = useNavigate();
-    const [stats, setStats] = useState({
-        otsAbiertas: 0,
-        diagnosticosPendientes: 0,
-        concertacionesActivas: 0,
-        molinosOperativos: 0,
-        molinosInactivos: 0,
-        comunidadesImpactadas: 0,
-        alertasCriticas: 0
-    });
-    const [criticalAlerts, setCriticalAlerts] = useState([]);
+    const { displayName } = useAuth();
+    const [stats, setStats] = useState(null);
     const [mapMills, setMapMills] = useState([]);
+    const [activities, setActivities] = useState([]);
+    const [alerts, setAlerts] = useState([]);
+    const [statusChart, setStatusChart] = useState([]);
+    const [monthlyChart, setMonthlyChart] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         async function loadDashboard() {
             try {
-                // Fetch in parallel
-                const [kpis, alerts, mills] = await Promise.all([
+                const [kpis, mills, activityFeed, alertsFeed, statusDist, monthlyWO] = await Promise.all([
                     DashboardService.getStats(),
+                    DashboardService.getMapMills(),
+                    DashboardService.getActivityFeed(),
                     DashboardService.getRecentAlerts(),
-                    DashboardService.getMapMills()
+                    DashboardService.getMillStatusDistribution(),
+                    DashboardService.getMonthlyWorkOrders(),
                 ]);
 
                 setStats(kpis);
-                setCriticalAlerts(alerts || []);
                 setMapMills(mills || []);
+                setActivities(activityFeed || []);
+                setAlerts(alertsFeed || []);
+                setStatusChart(statusDist || []);
+                setMonthlyChart(monthlyWO || []);
             } catch (err) {
-                console.error("Dashboard error:", err);
-                setError(err.message || "Error cargando datos del tablero");
+                console.error('Dashboard error:', err);
+                setError(err.message || 'Error cargando datos del tablero');
             } finally {
                 setLoading(false);
             }
@@ -53,167 +66,346 @@ export default function DashboardPage() {
         loadDashboard();
     }, []);
 
-    if (loading) return <div className="p-8 text-center text-slate-500">Cargando panel de control...</div>;
-    if (error) return (
-        <div className="p-8 text-center text-red-500">
-            <p className="font-bold">Error cargando Dashboard</p>
-            <p className="font-mono text-sm mt-2">{error}</p>
-        </div>
-    );
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-[60vh]">
+                <div className="text-center">
+                    <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-4" />
+                    <p className="text-slate-500 font-medium">Cargando panel de control...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex items-center justify-center h-[60vh]">
+                <div className="text-center bg-red-50 p-8 rounded-2xl border border-red-100">
+                    <XCircle size={48} className="text-red-400 mx-auto mb-3" />
+                    <p className="font-bold text-red-700">Error cargando Dashboard</p>
+                    <p className="font-mono text-sm mt-2 text-red-500">{error}</p>
+                </div>
+            </div>
+        );
+    }
+
+    const greeting = getGreeting();
 
     return (
         <div className="space-y-8 animate-slide-up">
-            {/* Page Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Panel de Control</h1>
-                <p className="text-slate-500 mt-1 text-lg">Resumen operativo y social del proyecto</p>
+            {/* Header with greeting */}
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-2">
+                <div>
+                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+                        {greeting}, <span className="text-brand-600">{displayName?.split(' ')[0] || 'Usuario'}</span>
+                    </h1>
+                    <p className="text-slate-500 mt-1 text-lg">Resumen operativo del Proyecto Molinos de Viento</p>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <Clock size={14} />
+                    <span>{new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                </div>
             </div>
 
-            {/* KPI Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <StatCard
-                    title="OTs Abiertas"
-                    value={stats.otsAbiertas}
-                    icon={ClipboardList}
-                    color="blue"
-                    trend="Activas"
+            {/* KPI Strip */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <KpiCard
+                    label="Molinos"
+                    value={stats?.totalMolinos}
+                    icon={Wind}
+                    gradient="from-brand-500 to-brand-700"
+                    onClick={() => navigate('/molinos')}
                 />
-                <StatCard
-                    title="Diagnósticos Pendientes"
-                    value={stats.diagnosticosPendientes}
-                    icon={Stethoscope}
-                    color="amber"
-                    trend="Requieren visita"
-                />
-                <StatCard
-                    title="Concertaciones Activas"
-                    value={stats.concertacionesActivas}
-                    icon={Users}
-                    color="purple"
-                    subtitle="Procesos sociales en curso"
-                />
-
-                {/* Status Breakdown */}
-                <StatCard
-                    title="Molinos Operativos"
-                    value={stats.molinosOperativos}
+                <KpiCard
+                    label="Operativos"
+                    value={stats?.molinosOperativos}
                     icon={CheckCircle}
-                    color="green"
-                    subtitle={`${stats.molinosInactivos} Equipos inactivos`}
+                    gradient="from-green-500 to-emerald-600"
+                    highlight={stats?.totalMolinos ? `${Math.round((stats.molinosOperativos / stats.totalMolinos) * 100)}%` : null}
                 />
-
-                <StatCard
-                    title="Comunidades Impactadas"
-                    value={stats.comunidadesImpactadas}
-                    icon={MapPin}
-                    color="purple"
+                <KpiCard
+                    label="OTs Abiertas"
+                    value={stats?.otsAbiertas}
+                    icon={ClipboardList}
+                    gradient="from-amber-500 to-orange-600"
+                    onClick={() => navigate('/ordenes')}
                 />
-
-                <StatCard
-                    title="Alertas Críticas"
-                    value={stats.alertasCriticas}
-                    icon={AlertTriangle}
-                    color="red"
-                    trend="Acción inmediata"
+                <KpiCard
+                    label="Diagnósticos"
+                    value={stats?.diagnosticosPendientes}
+                    icon={Stethoscope}
+                    gradient="from-rose-500 to-red-600"
+                    onClick={() => navigate('/diagnosticos')}
+                />
+                <KpiCard
+                    label="Comunidades"
+                    value={stats?.comunidadesImpactadas}
+                    icon={Users}
+                    gradient="from-violet-500 to-purple-600"
+                    onClick={() => navigate('/comunidades')}
+                />
+                <KpiCard
+                    label="Bombas"
+                    value={stats?.bombasInstaladas}
+                    icon={Droplets}
+                    gradient="from-cyan-500 to-teal-600"
+                    onClick={() => navigate('/bombas')}
                 />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-                {/* Map Placeholder with Real Mills */}
-                <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                            <MapPin className="text-blue-500" />
-                            Mapa de Operaciones
-                        </h2>
-                        <button className="text-brand-600 font-medium text-sm hover:underline">
-                            Ver mapa completo
-                        </button>
-                    </div>
-
-                    <div className="flex-1 min-h-[400px] bg-slate-50 rounded-xl border border-slate-200 relative overflow-hidden group">
-                        {/* Abstract Map Background */}
-                        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px]"></div>
-
-                        {/* Pins (limited to 10 for layout) */}
-                        {mapMills.slice(0, 10).map((mill, idx) => (
-                            <div
-                                key={mill.mill_id}
-                                className="absolute hover:z-10 group/pin cursor-pointer transition-all hover:scale-110"
-                                style={{
-                                    // Randomize slightly for demo if no real lat/long, otherwise map
-                                    // For now using simple grid distribution based on index to ensure visibility
-                                    top: `${20 + (idx * 15) % 60}%`,
-                                    left: `${10 + (idx * 20) % 80}%`
-                                }}
-                            >
-                                <div className={`
-                  w-4 h-4 rounded-full shadow-lg border-2 border-white
-                  ${mill.status === 'OPERATIONAL' ? 'bg-green-500' : 'bg-red-500'}
-                `}></div>
-
-                                {/* Tooltip */}
-                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 bg-white p-2 rounded-lg shadow-xl opacity-0 group-hover/pin:opacity-100 transition-opacity text-center pointer-events-none z-20">
-                                    <p className="text-xs font-bold text-slate-800">{mill.code}</p>
-                                    <p className="text-[10px] text-slate-500 truncate">{mill.community || 'Sin comunidad'}</p>
-                                </div>
-                            </div>
-                        ))}
-
-                        {mapMills.length === 0 && (
-                            <div className="absolute inset-0 flex items-center justify-center text-slate-400">
-                                No hay molinos con geolocalización.
-                            </div>
-                        )}
-
-                        <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-3 py-2 rounded-lg shadow border border-slate-100 text-xs">
-                            <div className="flex items-center gap-2 mb-1">
-                                <span className="w-2 h-2 rounded-full bg-green-500"></span> Operativo
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span> Inactivo
-                            </div>
+            {/* Map Section — PRIORITY */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 bg-brand-50 rounded-xl">
+                            <MapPin className="text-brand-600" size={22} />
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-bold text-slate-800">Mapa de Molinos</h2>
+                            <p className="text-xs text-slate-400 mt-0.5">Geolocalización en tiempo real · OpenStreetMap</p>
                         </div>
                     </div>
+                    <button
+                        onClick={() => navigate('/molinos')}
+                        className="flex items-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors"
+                    >
+                        Ver todos <ChevronRight size={16} />
+                    </button>
+                </div>
+                <MillMap mills={mapMills} height="500px" />
+            </div>
+
+            {/* Charts + Alerts Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Donut: Mill Status */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                        <BarChart3 size={18} className="text-slate-400" />
+                        <h3 className="font-bold text-slate-800">Estado de Molinos</h3>
+                    </div>
+                    {statusChart.length > 0 ? (
+                        <div className="flex items-center justify-center" style={{ height: 260 }}>
+                            <PieChart width={260} height={260}>
+                                <Pie
+                                    data={statusChart}
+                                    cx="50%"
+                                    cy="45%"
+                                    innerRadius={55}
+                                    outerRadius={90}
+                                    paddingAngle={3}
+                                    dataKey="value"
+                                    stroke="none"
+                                >
+                                    {statusChart.map((entry, i) => (
+                                        <Cell key={i} fill={entry.fill} />
+                                    ))}
+                                </Pie>
+                                <Tooltip
+                                    contentStyle={{
+                                        borderRadius: '12px',
+                                        border: '1px solid #e2e8f0',
+                                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                        fontSize: '13px',
+                                    }}
+                                    formatter={(value, name) => [`${value} molinos`, name]}
+                                />
+                                <Legend
+                                    verticalAlign="bottom"
+                                    iconType="circle"
+                                    iconSize={8}
+                                    wrapperStyle={{ fontSize: '12px', paddingTop: '12px' }}
+                                />
+                            </PieChart>
+                        </div>
+                    ) : (
+                        <div className="h-[260px] flex items-center justify-center text-slate-400 text-sm">
+                            Sin datos de estado
+                        </div>
+                    )}
                 </div>
 
-                {/* Recent Alerts Feed */}
+                {/* Bar: Monthly Work Orders */}
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                    <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                        <Activity className="text-rose-500" />
-                        Alertas Recientes
-                    </h2>
+                    <div className="flex items-center gap-2 mb-4">
+                        <Wrench size={18} className="text-slate-400" />
+                        <h3 className="font-bold text-slate-800">OTs por Mes</h3>
+                    </div>
+                    {monthlyChart.length > 0 ? (
+                        <div style={{ width: '100%', overflowX: 'auto' }}>
+                            <BarChart width={380} height={260} data={monthlyChart} barGap={4}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                                <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
+                                <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                                <Tooltip
+                                    contentStyle={{
+                                        borderRadius: '12px',
+                                        border: '1px solid #e2e8f0',
+                                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                        fontSize: '13px',
+                                    }}
+                                />
+                                <Bar dataKey="completed" name="Completadas" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="pending" name="Pendientes" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                        </div>
+                    ) : (
+                        <div className="h-[260px] flex items-center justify-center text-slate-400 text-sm">
+                            Sin datos de órdenes
+                        </div>
+                    )}
+                </div>
 
-                    <div className="space-y-4">
-                        {criticalAlerts.map(alert => (
-                            <div key={alert.id} className="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors group cursor-pointer" onClick={() => navigate('/ordenes')}>
-                                <div className="flex justify-between items-start mb-2">
-                                    <span className="text-xs font-bold text-slate-500">{alert.mill_code}</span>
-                                    <StatusBadge status={alert.priority} size="sm" />
-                                </div>
-                                <h3 className="font-semibold text-slate-800 text-sm mb-1">{alert.description}</h3>
-                                <div className="flex justify-between items-center mt-3">
-                                    <span className="text-xs text-slate-400">{alert.date}</span>
-                                    <button className="text-brand-600 hover:text-brand-700 text-xs font-medium flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        Ver O.T <ArrowRight size={12} />
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-
-                        {criticalAlerts.length === 0 && (
-                            <div className="text-center py-8 text-slate-400 text-sm">
-                                No hay alertas críticas pendientes.
-                            </div>
+                {/* Alerts Panel */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <Zap size={18} className="text-rose-500" />
+                            <h3 className="font-bold text-slate-800">Alertas Críticas</h3>
+                        </div>
+                        {stats?.alertasCriticas > 0 && (
+                            <span className="px-2.5 py-1 text-xs font-bold bg-red-100 text-red-700 rounded-full animate-pulse">
+                                {stats.alertasCriticas}
+                            </span>
                         )}
                     </div>
 
-                    <button className="w-full mt-6 py-2.5 text-sm font-medium text-slate-600 hover:text-brand-600 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-dashed border-slate-200">
-                        Ver todas las alertas
-                    </button>
+                    <div className="space-y-3 max-h-[260px] overflow-y-auto custom-scrollbar pr-1">
+                        {alerts.length > 0 ? alerts.map(alert => (
+                            <div
+                                key={alert.id}
+                                onClick={() => navigate('/ordenes')}
+                                className="p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-brand-200 hover:shadow-sm transition-all cursor-pointer group"
+                            >
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <span className="text-xs font-bold text-slate-500">{alert.mill_code}</span>
+                                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full border ${PRIORITY_STYLES[alert.priority] || PRIORITY_STYLES.MEDIUM}`}>
+                                        {alert.priority}
+                                    </span>
+                                </div>
+                                <p className="text-sm font-medium text-slate-700 line-clamp-2">{alert.description}</p>
+                                <div className="flex items-center justify-between mt-2">
+                                    <span className="text-[11px] text-slate-400">{alert.timeAgo}</span>
+                                    <ArrowRight size={12} className="text-brand-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </div>
+                            </div>
+                        )) : (
+                            <div className="text-center py-10 text-slate-400 text-sm">
+                                <CheckCircle size={32} className="mx-auto mb-2 opacity-40" />
+                                Sin alertas críticas 🎉
+                            </div>
+                        )}
+                    </div>
                 </div>
+            </div>
+
+            {/* Activity Feed */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-2">
+                        <Activity size={18} className="text-brand-500" />
+                        <h3 className="font-bold text-slate-800">Actividad Reciente</h3>
+                        <span className="text-xs text-slate-400 ml-1">Últimos 7 días</span>
+                    </div>
+                </div>
+
+                {activities.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {activities.map(act => {
+                            const config = ACTIVITY_ICONS[act.type] || ACTIVITY_ICONS.work_order;
+                            const IconComp = config.icon;
+                            return (
+                                <div
+                                    key={act.id}
+                                    className="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors group"
+                                >
+                                    <div className={`p-2 rounded-lg ${config.bg} shrink-0`}>
+                                        <IconComp size={16} className={config.color} />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-slate-700 truncate">{act.title}</p>
+                                        <div className="flex items-center gap-2 mt-0.5">
+                                            <span className="text-xs text-slate-400">{act.subtitle}</span>
+                                            <span className="text-slate-200">·</span>
+                                            <span className="text-xs text-slate-400">{act.timeAgo}</span>
+                                        </div>
+                                    </div>
+                                    {act.status && (
+                                        <span className="text-[10px] font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">
+                                            {act.status}
+                                        </span>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <div className="text-center py-8 text-slate-400 text-sm">
+                        No hay actividad reciente esta semana.
+                    </div>
+                )}
+            </div>
+
+            {/* Quick Actions */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <QuickAction icon={Stethoscope} label="Nuevo Diagnóstico" onClick={() => navigate('/diagnosticos/new')} color="amber" />
+                <QuickAction icon={ClipboardList} label="Ver Órdenes" onClick={() => navigate('/ordenes')} color="blue" />
+                <QuickAction icon={Users} label="Concertaciones" onClick={() => navigate('/concertaciones')} color="purple" />
+                <QuickAction icon={Wind} label="Gestión Molinos" onClick={() => navigate('/molinos')} color="green" />
             </div>
         </div>
     );
+}
+
+// ─── Sub-Components ────────────────────────────────
+
+function KpiCard({ label, value, icon: Icon, gradient, highlight, onClick }) {
+    return (
+        <div
+            onClick={onClick}
+            className={`relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br ${gradient} text-white shadow-md hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 ${onClick ? 'cursor-pointer' : ''}`}
+        >
+            <div className="flex items-start justify-between">
+                <div>
+                    <p className="text-3xl font-bold tracking-tight">{value ?? '-'}</p>
+                    <p className="text-sm font-medium text-white/80 mt-1">{label}</p>
+                </div>
+                <div className="p-2 bg-white/15 rounded-xl backdrop-blur-sm">
+                    <Icon size={22} />
+                </div>
+            </div>
+            {highlight && (
+                <div className="mt-2 text-xs font-semibold text-white/90 bg-white/15 inline-block px-2 py-0.5 rounded-full">
+                    {highlight}
+                </div>
+            )}
+            {/* Decorative circle */}
+            <div className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
+        </div>
+    );
+}
+
+function QuickAction({ icon: Icon, label, onClick, color }) {
+    const colorMap = {
+        blue: 'hover:border-blue-300 hover:bg-blue-50 text-blue-600',
+        amber: 'hover:border-amber-300 hover:bg-amber-50 text-amber-600',
+        purple: 'hover:border-purple-300 hover:bg-purple-50 text-purple-600',
+        green: 'hover:border-green-300 hover:bg-green-50 text-green-600',
+    };
+
+    return (
+        <button
+            onClick={onClick}
+            className={`flex items-center gap-3 p-4 rounded-xl bg-white border border-slate-200 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 ${colorMap[color]}`}
+        >
+            <Icon size={20} />
+            <span className="text-sm font-semibold text-slate-700">{label}</span>
+        </button>
+    );
+}
+
+function getGreeting() {
+    const h = new Date().getHours();
+    if (h < 12) return 'Buenos días';
+    if (h < 18) return 'Buenas tardes';
+    return 'Buenas noches';
 }

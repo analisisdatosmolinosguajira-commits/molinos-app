@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, MapPin, Wind, Droplet, ClipboardList, History, Wrench, Settings, AlertTriangle, Activity, Users, FileText, BarChart3
 } from 'lucide-react';
+import { MapContainer, TileLayer, CircleMarker, Popup, ZoomControl } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 import StatusBadge from '../../components/ui/StatusBadge';
 import { MillService } from '../../services/mills';
 import MillFormModal from '../../components/mill/MillFormModal';
@@ -433,10 +435,62 @@ export default function MillDetail() {
                                 <span className="font-mono text-slate-700 font-medium">{mill.longitude || 'N/A'}</span>
                             </div>
                         </div>
-                        <div className="mt-4 h-32 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 text-xs text-center p-4">
-                            {/* Placeholder for Map Component */}
-                            Mapa Interactivo no disponible en demo
-                        </div>
+
+                        {/* Interactive Mini-Map */}
+                        {mill.latitude && mill.longitude ? (
+                            <div className="mt-4 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+                                <div style={{ height: '200px' }}>
+                                    <MapContainer
+                                        center={[parseFloat(mill.latitude), parseFloat(mill.longitude)]}
+                                        zoom={7}
+                                        style={{ height: '100%', width: '100%' }}
+                                        zoomControl={false}
+                                        scrollWheelZoom={false}
+                                        dragging={true}
+                                    >
+                                        <TileLayer
+                                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                        />
+                                        <ZoomControl position="bottomright" />
+                                        <CircleMarker
+                                            center={[parseFloat(mill.latitude), parseFloat(mill.longitude)]}
+                                            radius={12}
+                                            pathOptions={{
+                                                fillColor: mill.status === 'OPERATIONAL' ? '#22c55e' :
+                                                    mill.status === 'MAINTENANCE' ? '#f59e0b' : '#ef4444',
+                                                color: '#fff',
+                                                weight: 3,
+                                                fillOpacity: 0.9,
+                                                opacity: 1,
+                                            }}
+                                        >
+                                            <Popup>
+                                                <div className="text-center p-1">
+                                                    <p className="font-bold text-sm">{mill.code}</p>
+                                                    <p className="text-xs text-slate-500">{mill.community_name || 'Sin comunidad'}</p>
+                                                </div>
+                                            </Popup>
+                                        </CircleMarker>
+                                    </MapContainer>
+                                </div>
+                                <a
+                                    href={`https://www.google.com/maps?q=${mill.latitude},${mill.longitude}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block text-center py-2 text-xs font-semibold text-brand-600 hover:bg-brand-50 transition-colors border-t border-slate-100"
+                                >
+                                    Abrir en Google Maps ↗
+                                </a>
+                            </div>
+                        ) : (
+                            <div className="mt-4 h-32 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 text-xs text-center p-4 border border-dashed border-slate-200">
+                                <div>
+                                    <MapPin size={24} className="mx-auto mb-2 opacity-40" />
+                                    Sin coordenadas registradas
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
