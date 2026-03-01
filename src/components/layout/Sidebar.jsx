@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import {
     LayoutDashboard, Map, ClipboardList, Stethoscope, Users,
     Wind, Droplet, Package, BarChart3, Menu, X, ChevronRight,
-    Settings, Home, Wrench, User, Shield
+    Settings, Home, Wrench, User, Shield, ShieldCheck
 } from 'lucide-react';
 
 const cn = (...classes) => classes.filter(Boolean).join(' ');
@@ -28,6 +28,12 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
                 { path: '/diagnosticos', label: 'Diagnósticos', icon: Stethoscope },
                 { path: '/concertaciones', label: 'Concertaciones', icon: Users },
                 { path: '/cuadrillas', label: 'Personal Operativo', icon: Users },
+            ]
+        },
+        {
+            title: 'Seguridad y Salud',
+            items: [
+                { path: '/sst', label: 'Gestión SST', icon: ShieldCheck },
             ]
         },
         {

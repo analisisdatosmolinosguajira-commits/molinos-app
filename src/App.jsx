@@ -24,6 +24,8 @@ import MillDetail from './pages/assets/MillDetail';
 import PumpDetail from './pages/assets/PumpDetail';
 import ProfilePage from './pages/profile/ProfilePage';
 import OperationsControlPage from './pages/admin/OperationsControlPage';
+import SSTPage from './pages/sst/SSTPage';
+import PersonSSTDetail from './pages/sst/PersonSSTDetail';
 
 function App() {
   return (
@@ -65,6 +67,10 @@ function App() {
 
           {/* Management */}
           <Route path="reportes" element={<ReportsPage />} />
+
+          {/* SST */}
+          <Route path="sst" element={<SSTPage />} />
+          <Route path="sst/:personId" element={<PersonSSTDetail />} />
 
           {/* Profile & Admin */}
           <Route path="perfil" element={<ProfilePage />} />
