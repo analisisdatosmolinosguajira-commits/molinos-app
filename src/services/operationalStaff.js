@@ -16,6 +16,7 @@ export const OperationalStaffService = {
                     crew (crew_id, name)
                 )
             `)
+            .neq('role_id', 5) // Exclude community members
             .order('first_name');
 
         if (error) {

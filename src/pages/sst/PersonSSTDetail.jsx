@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, ShieldCheck, User, Award, Clock, Package,
@@ -90,18 +91,26 @@ export default function PersonSSTDetail() {
         return zones;
     };
 
-    const handleZoneClick = async (zoneName, zoneData) => {
+    // Quick deliver with size prompt
+    const [sizeModal, setSizeModal] = useState(null); // { zoneName, zoneData }
+    const [selectedSize, setSelectedSize] = useState('');
+
+    const handleZoneClick = (zoneName, zoneData) => {
         if (!zoneData?.requirement) return;
+        setSelectedSize('');
+        setSizeModal({ zoneName, zoneData });
+    };
 
+    const confirmQuickDeliver = async () => {
+        if (!sizeModal) return;
+        const { zoneName, zoneData } = sizeModal;
         const safetyId = zoneData.requirement.safety_id;
-        const eppName = zoneData.eppName;
         const renewalMonths = zoneData.requirement.renewal_months || 6;
-
-        if (!confirm(`¿Registrar entrega de "${eppName}" para ${data.person.first_name}?`)) return;
 
         try {
             setQuickDelivering(zoneName);
-            await SSTService.quickDeliverEPP(parseInt(personId), safetyId, renewalMonths);
+            setSizeModal(null);
+            await SSTService.quickDeliverEPP(parseInt(personId), safetyId, renewalMonths, selectedSize);
             await loadData();
         } catch (err) {
             console.error('Quick deliver error:', err);
@@ -379,7 +388,7 @@ export default function PersonSSTDetail() {
                     )}
 
                     {/* Cert Form Modal */}
-                    {showCertForm && (
+                    {showCertForm && createPortal(
                         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
                                 <div className="flex items-center justify-between mb-5">
@@ -455,7 +464,8 @@ export default function PersonSSTDetail() {
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>,
+                        document.body
                     )}
                 </div>
             )}
@@ -513,6 +523,50 @@ export default function PersonSSTDetail() {
                         </div>
                     )}
                 </div>
+            )}
+
+            {/* Size Picker Modal for Quick Deliver */}
+            {sizeModal && createPortal(
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="font-bold text-slate-800">Entrega Rápida</h3>
+                            <button onClick={() => setSizeModal(null)} className="p-1.5 hover:bg-slate-100 rounded-lg">
+                                <X size={18} className="text-slate-400" />
+                            </button>
+                        </div>
+                        <p className="text-sm text-slate-600 mb-1">
+                            <span className="font-semibold">{sizeModal.zoneData.eppName}</span> → {person.first_name} {person.last_name}
+                        </p>
+                        <p className="text-xs text-slate-400 mb-4">Seleccione la talla del EPP</p>
+                        <div className="flex flex-wrap gap-2 mb-5">
+                            {['XS', 'S', 'M', 'L', 'XL', 'N/A'].map(sz => (
+                                <button
+                                    key={sz}
+                                    onClick={() => setSelectedSize(sz === 'N/A' ? '' : sz)}
+                                    className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all border
+                                        ${(selectedSize === sz || (sz === 'N/A' && !selectedSize))
+                                            ? 'bg-brand-600 text-white border-brand-600 shadow-md'
+                                            : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-brand-300'}`}
+                                >
+                                    {sz}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="flex justify-end gap-3">
+                            <button onClick={() => setSizeModal(null)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl text-sm">
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={confirmQuickDeliver}
+                                className="px-5 py-2 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 shadow-lg shadow-brand-500/30 text-sm"
+                            >
+                                Registrar
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
             )}
         </div>
     );

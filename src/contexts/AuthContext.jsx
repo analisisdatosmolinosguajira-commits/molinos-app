@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { supabase } from '../services/supabase';
+import { clearPermissionCache } from '../hooks/usePermissions';
 
 const AuthContext = createContext(null);
 
@@ -82,7 +83,7 @@ export function AuthProvider({ children }) {
                 if (prof?.person_id) {
                     const { data: personData } = await supabase
                         .from('person')
-                        .select('*')
+                        .select('*, person_role(name)')
                         .eq('person_id', prof.person_id)
                         .single();
                     setPerson(personData || null);
@@ -105,6 +106,7 @@ export function AuthProvider({ children }) {
     const signOut = async () => {
         const { error } = await supabase.auth.signOut();
         if (error) throw error;
+        clearPermissionCache();
         setUser(null);
         setProfile(null);
         setPerson(null);
@@ -130,6 +132,7 @@ export function AuthProvider({ children }) {
         refreshProfile,
         isAuthenticated: !!user,
         isSupervisor: profile?.app_role === 'supervisor',
+        secondaryRole: profile?.secondary_role || null,
         displayName: person
             ? `${person.first_name} ${person.last_name}`
             : user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuario',
@@ -141,8 +144,10 @@ export function AuthProvider({ children }) {
             ing_lider: 'Ingeniero Líder',
             social_lider: 'Líder Social',
             inventario_lider: 'Líder Inventario',
+            logistica_lider: 'Líder Logística',
+            sst_lider: 'Líder SST',
             operativo: 'Operativo'
-        }[profile?.app_role] || 'Usuario',
+        }[profile?.app_role] || 'Operativo',
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

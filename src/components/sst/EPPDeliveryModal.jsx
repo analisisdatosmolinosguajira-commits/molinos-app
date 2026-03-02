@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Plus, Trash2, Users, Package, Search } from 'lucide-react';
 import { SSTService } from '../../services/sst';
 
@@ -95,7 +96,7 @@ export default function EPPDeliveryModal({ isOpen, onClose, onSuccess }) {
         `${s.first_name} ${s.last_name}`.toLowerCase().includes(staffSearch.toLowerCase())
     );
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
                 {/* Header */}
@@ -269,6 +270,7 @@ export default function EPPDeliveryModal({ isOpen, onClose, onSuccess }) {
                     </div>
                 )}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

@@ -8,6 +8,7 @@ import MonthlyCalendar from './MonthlyCalendar';
 import LinkActivityModal from './LinkActivityModal';
 import WeeklyPlanningBoard from './WeeklyPlanningBoard';
 import MaterialDeliveryModal from './MaterialDeliveryModal';
+import WeeklyAssignmentGeneratorModal from './WeeklyAssignmentGeneratorModal';
 
 const ActivityPlanning = () => {
     const navigate = useNavigate();
@@ -21,6 +22,9 @@ const ActivityPlanning = () => {
     // New modal for delivery
     const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
     const [selectedDeliveryActivity, setSelectedDeliveryActivity] = useState(null);
+
+    // Generator modal
+    const [isGeneratorModalOpen, setIsGeneratorModalOpen] = useState(false);
 
     const [currentDate, setCurrentDate] = useState(new Date());
     const [initialFormData, setInitialFormData] = useState(null);
@@ -153,13 +157,22 @@ const ActivityPlanning = () => {
                     </p>
                 </div>
 
-                <button
-                    onClick={handleCreateActivity}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                >
-                    <Plus size={18} />
-                    Nueva Actividad
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => setIsGeneratorModalOpen(true)}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors font-medium"
+                    >
+                        <Calendar size={18} />
+                        Crear nueva asignación semanal
+                    </button>
+                    <button
+                        onClick={handleCreateActivity}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
+                    >
+                        <Plus size={18} />
+                        Nueva Actividad
+                    </button>
+                </div>
             </div>
 
             {/* Stats Cards */}
@@ -370,6 +383,16 @@ const ActivityPlanning = () => {
                 }}
                 activity={selectedDeliveryActivity}
                 onSuccess={loadActivities}
+            />
+
+            {/* Generator Modal */}
+            <WeeklyAssignmentGeneratorModal
+                isOpen={isGeneratorModalOpen}
+                onClose={() => setIsGeneratorModalOpen(false)}
+                onSuccess={() => {
+                    setIsGeneratorModalOpen(false);
+                    loadActivities();
+                }}
             />
         </div>
     );

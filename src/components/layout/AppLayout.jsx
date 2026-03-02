@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import OnboardingModal from '../auth/OnboardingModal';
 import { useAuth } from '../../contexts/AuthContext';
 import { Menu, X, Bell, Search, User, LogOut, ChevronDown } from 'lucide-react';
 
@@ -124,6 +125,9 @@ export default function AppLayout() {
                     </div>
                 </main>
             </div>
+
+            {/* Onboarding modal for new users */}
+            <OnboardingModal />
         </div>
     );
 }

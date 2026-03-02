@@ -10,6 +10,7 @@ import { VisitService } from '../../services/visits';
 import StatusBadge from '../../components/ui/StatusBadge';
 import JourneyCalendar from './JourneyCalendar';
 import CreateJourneyModal from './CreateJourneyModal';
+import PermissionGate from '../../components/auth/PermissionGate';
 
 const JourneyPage = () => {
     const navigate = useNavigate();
@@ -100,26 +101,30 @@ const JourneyPage = () => {
             className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-all cursor-pointer group relative"
         >
             <div className="absolute top-4 right-4 flex gap-2 z-10">
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditJourney(journey);
-                    }}
-                    className="p-2 bg-white/90 hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 rounded-full shadow-sm border border-slate-200 hover:border-indigo-100 transition-all"
-                    title="Editar viaje"
-                >
-                    <Pencil size={16} />
-                </button>
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteJourney(journey);
-                    }}
-                    className="p-2 bg-white/90 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-full shadow-sm border border-slate-200 hover:border-red-100 transition-all"
-                    title="Eliminar viaje"
-                >
-                    <Trash2 size={16} />
-                </button>
+                <PermissionGate module="jornadas" action="update">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditJourney(journey);
+                        }}
+                        className="p-2 bg-white/90 hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 rounded-full shadow-sm border border-slate-200 hover:border-indigo-100 transition-all"
+                        title="Editar viaje"
+                    >
+                        <Pencil size={16} />
+                    </button>
+                </PermissionGate>
+                <PermissionGate module="jornadas" action="delete">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteJourney(journey);
+                        }}
+                        className="p-2 bg-white/90 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-full shadow-sm border border-slate-200 hover:border-red-100 transition-all"
+                        title="Eliminar viaje"
+                    >
+                        <Trash2 size={16} />
+                    </button>
+                </PermissionGate>
             </div>
 
             <div className="flex justify-between items-start mb-3">
@@ -234,12 +239,14 @@ const JourneyPage = () => {
                                 >
                                     <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
                                 </button>
-                                <button
-                                    onClick={() => setIsCreateModalOpen(true)}
-                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl shadow-sm font-medium flex items-center gap-2 transition-all hover:translate-y-[-1px] whitespace-nowrap ml-auto md:ml-0">
-                                    <Plus size={20} />
-                                    <span className="hidden sm:inline">Nuevo Viaje</span>
-                                </button>
+                                <PermissionGate module="jornadas" action="create">
+                                    <button
+                                        onClick={() => setIsCreateModalOpen(true)}
+                                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl shadow-sm font-medium flex items-center gap-2 transition-all hover:translate-y-[-1px] whitespace-nowrap ml-auto md:ml-0">
+                                        <Plus size={20} />
+                                        <span className="hidden sm:inline">Nuevo Viaje</span>
+                                    </button>
+                                </PermissionGate>
                             </div>
                         </div>
 

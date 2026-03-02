@@ -4,7 +4,8 @@ import { ClipboardList, Filter, Plus, AlertCircle, CheckCircle, Clock, Search, B
 import StatusBadge from '../../components/ui/StatusBadge';
 import { WorkOrderService } from '../../services/work_orders';
 import OrdenDetail from './OrdenDetail';
-import WorkOrderForm from './WorkOrderForm'; // We will create this next
+import WorkOrderForm from './WorkOrderForm';
+import PermissionGate from '../../components/auth/PermissionGate';
 
 export default function OrdenesPage() {
     const [orders, setOrders] = useState([]);
@@ -111,13 +112,15 @@ export default function OrdenesPage() {
                     >
                         🌱 Seed Data
                     </button>
-                    <button
-                        onClick={() => setIsCreateMode(true)}
-                        className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-indigo-700 shadow-lg shadow-indigo-500/30 transition-all font-medium"
-                    >
-                        <Plus size={20} />
-                        Nueva Orden
-                    </button>
+                    <PermissionGate module="ordenes_trabajo" action="create">
+                        <button
+                            onClick={() => setIsCreateMode(true)}
+                            className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-indigo-700 shadow-lg shadow-indigo-500/30 transition-all font-medium"
+                        >
+                            <Plus size={20} />
+                            Nueva Orden
+                        </button>
+                    </PermissionGate>
                 </div>
             </div>
 

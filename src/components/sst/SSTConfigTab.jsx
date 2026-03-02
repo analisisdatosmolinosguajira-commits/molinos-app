@@ -103,6 +103,7 @@ export default function SSTConfigTab() {
                     <Settings size={18} className="text-slate-400" />
                     Roles del Proyecto
                 </h3>
+                <p className="text-xs text-slate-400 mb-3">Los roles se administran desde Control de Operaciones</p>
                 <div className="space-y-2">
                     {roles.map(role => (
                         <button
@@ -113,7 +114,12 @@ export default function SSTConfigTab() {
                                     ? 'bg-brand-600 text-white shadow-md'
                                     : 'bg-slate-50 text-slate-700 hover:bg-slate-100'}`}
                         >
-                            {role.name}
+                            <p className="font-semibold">{role.name}</p>
+                            {role.description && (
+                                <p className={`text-xs mt-0.5 ${selectedRole?.role_id === role.role_id ? 'text-white/70' : 'text-slate-400'}`}>
+                                    {role.description}
+                                </p>
+                            )}
                         </button>
                     ))}
                     {roles.length === 0 && (

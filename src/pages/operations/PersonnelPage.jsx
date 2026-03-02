@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Plus, Shield, Wrench, UserCheck, Briefcase, UserCog, Calendar, Circle, Edit2, Trash2, LayoutGrid } from 'lucide-react';
+import { Users, Plus, Shield, Wrench, UserCheck, Briefcase, UserCog, Calendar, Circle, Edit2, Trash2, LayoutGrid, Package, Filter } from 'lucide-react';
 import StatusBadge from '../../components/ui/StatusBadge';
 import { CrewService } from '../../services/crews';
 import { OperationalStaffService } from '../../services/operationalStaff';
 import { ActivityService } from '../../services/activities';
+import { supabase } from '../../services/supabase';
 import ActivityPlanning from '../../components/planning/ActivityPlanning';
 import CrewActivitiesPanel from '../../components/personnel/CrewActivitiesPanel';
 import CrewTimeline from '../../components/personnel/CrewTimeline';
@@ -11,6 +12,10 @@ import CrewModal from '../../components/personnel/CrewModal';
 import CrewMemberModal from '../../components/operations/CrewMemberModal';
 import OperationalStaffModal from '../../components/operations/OperationalStaffModal';
 import CrewAssignmentBoard from '../../components/personnel/CrewAssignmentBoard';
+import SupplyBoxPanel from '../../components/supplyBox/SupplyBoxPanel';
+import SupplyBoxManagerModal from '../../components/supplyBox/SupplyBoxManagerModal';
+import { SupplyBoxService } from '../../services/supplyBox';
+import PermissionGate from '../../components/auth/PermissionGate';
 
 export default function PersonnelPage() {
     // View state: 'crews' | 'staff' | 'planning'
@@ -302,6 +307,13 @@ export default function PersonnelPage() {
 // Crews View Component (Enhanced with Activities and Timeline)
 function CrewsView({ crews, selectedCrew, onSelectCrew, onEditCrew, activities = [], loadingActivities = false, onStartQuickAssignment }) {
     const [activeTab, setActiveTab] = useState('members'); // 'members' | 'activities' | 'timeline'
+    const [crewStatusFilter, setCrewStatusFilter] = useState('active');
+
+    const filteredCrews = crews.filter(crew => {
+        if (crewStatusFilter === 'active') return crew.active === true;
+        if (crewStatusFilter === 'inactive') return crew.active === false;
+        return true;
+    });
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -315,7 +327,25 @@ function CrewsView({ crews, selectedCrew, onSelectCrew, onEditCrew, activities =
                     Modo Asignación Rápida
                 </button>
 
-                {crews.map(crew => (
+                <div className="relative">
+                    <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                    <select
+                        value={crewStatusFilter}
+                        onChange={(e) => setCrewStatusFilter(e.target.value)}
+                        className="w-full pl-9 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors appearance-none cursor-pointer"
+                    >
+                        <option value="all">Todas las Cuadrillas</option>
+                        <option value="active">Solo Activas</option>
+                        <option value="inactive">Solo Inactivas</option>
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                </div>
+
+                {filteredCrews.map(crew => (
                     <div
                         key={crew.crew_id}
                         onClick={() => onSelectCrew(crew.crew_id)}
@@ -557,6 +587,8 @@ function StaffView({ staff, selectedStaff, onSelectStaff, onUpdate, onEditStaff 
     const [roleFilter, setRoleFilter] = useState('Todos');
     const [currentPage, setCurrentPage] = useState(1);
     const [deletingId, setDeletingId] = useState(null);
+    const [showBoxModal, setShowBoxModal] = useState(false);
+    const [selectedBox, setSelectedBox] = useState(null);
     const itemsPerPage = 6;
 
     // Filter staff based on search and role
@@ -611,6 +643,25 @@ function StaffView({ staff, selectedStaff, onSelectStaff, onUpdate, onEditStaff 
             } finally {
                 setDeletingId(null);
             }
+        }
+    };
+
+    const handleOpenBoxManager = async (person) => {
+        try {
+            let box = await SupplyBoxService.getBoxByPersonId(person.person_id);
+            if (!box) {
+                // Auto-create box if missing
+                const { data } = await supabase
+                    .from('supply_box')
+                    .insert({ person_id: person.person_id, label: `${person.first_name} ${person.last_name}` })
+                    .select().single();
+                box = data;
+            }
+            setSelectedBox(box);
+            setShowBoxModal(true);
+        } catch (err) {
+            console.error(err);
+            alert('Error al abrir caja: ' + err.message);
         }
     };
 
@@ -788,6 +839,17 @@ function StaffView({ staff, selectedStaff, onSelectStaff, onUpdate, onEditStaff 
                                         <Trash2 size={16} />
                                         Eliminar
                                     </button>
+                                    {['Ingeniero Lider', 'Supervisor'].includes(selectedStaff.role) && (
+                                        <PermissionGate module="inventario" action="update">
+                                            <button
+                                                onClick={() => handleOpenBoxManager(selectedStaff)}
+                                                className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                                            >
+                                                <Package size={16} />
+                                                Gestionar Caja
+                                            </button>
+                                        </PermissionGate>
+                                    )}
                                 </div>
                             </div>
 
@@ -846,6 +908,15 @@ function StaffView({ staff, selectedStaff, onSelectStaff, onUpdate, onEditStaff 
                             </div>
                         </div>
 
+                        {/* Supply Box Section - for Ingeniero Lider / Supervisor */}
+                        {['Ingeniero Lider', 'Supervisor'].includes(selectedStaff.role) && (
+                            <div className="p-6 border-t border-slate-100">
+                                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                                    <Package size={16} /> Caja de Suministros
+                                </h3>
+                                <SupplyBoxPanel personId={selectedStaff.person_id} canReport={false} />
+                            </div>
+                        )}
 
                     </div>
                 ) : (
@@ -854,6 +925,15 @@ function StaffView({ staff, selectedStaff, onSelectStaff, onUpdate, onEditStaff 
                     </div>
                 )}
             </div>
+
+            {/* Supply Box Manager Modal */}
+            {showBoxModal && selectedBox && (
+                <SupplyBoxManagerModal
+                    box={selectedBox}
+                    onClose={() => setShowBoxModal(false)}
+                    onComplete={() => { /* triggers refresh via React re-render */ }}
+                />
+            )}
         </div>
     );
 }

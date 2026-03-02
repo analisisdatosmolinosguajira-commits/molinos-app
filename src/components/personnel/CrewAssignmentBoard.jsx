@@ -17,6 +17,7 @@ export default function CrewAssignmentBoard({ crews, staff, onSave, onCancel }) 
     // Filter states
     const [searchTerm, setSearchTerm] = useState('');
     const [roleFilter, setRoleFilter] = useState('all');
+    const [crewStatusFilter, setCrewStatusFilter] = useState('active');
 
     // Initialize board state from props
     useEffect(() => {
@@ -197,7 +198,7 @@ export default function CrewAssignmentBoard({ crews, staff, onSave, onCancel }) 
     };
 
     return (
-        <div className="space-y-6 animate-fade-in h-screen flex flex-col bg-slate-50 fixed inset-0 z-50 overflow-hidden font-sans">
+        <div className="space-y-6 animate-fade-in h-screen flex flex-col bg-slate-50 fixed top-0 right-0 bottom-0 left-0 lg:left-64 z-[100] overflow-hidden font-sans">
             {/* Toolbar */}
             <div className="bg-white/80 backdrop-blur-xl p-4 px-6 shadow-sm border-b border-slate-200 flex justify-between items-center shrink-0 z-20">
                 <div className="flex items-center gap-5">
@@ -323,52 +324,82 @@ export default function CrewAssignmentBoard({ crews, staff, onSave, onCancel }) 
                 </div>
 
                 {/* Right Column: Crews Grid */}
-                <div className="lg:col-span-3 p-6 lg:overflow-y-auto bg-slate-200/50 lg:h-full">
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-10">
-                        {crews.map(crew => (
-                            <div
-                                key={crew.crew_id}
-                                className={`flex flex-col bg-white rounded-2xl transition-all duration-200 overflow-hidden ${draggedItem && String(draggedItem.sourceId) !== String(crew.crew_id)
-                                        ? 'border-2 border-brand-400 ring-4 ring-brand-100 shadow-2xl scale-[1.02] z-10'
-                                        : 'border border-slate-200 shadow-sm hover:shadow-lg hover:border-slate-300'
-                                    }`}
-                                onDragOver={(e) => handleDragOver(e)}
-                                onDrop={(e) => handleDrop(e, crew.crew_id)}
+                <div className="lg:col-span-3 lg:overflow-y-auto bg-slate-200/50 lg:h-full flex flex-col">
+                    {/* Crews Header & Filter */}
+                    <div className="p-4 px-6 border-b border-slate-200/50 flex justify-between items-center bg-slate-100/50 sticky top-0 z-10">
+                        <h3 className="font-bold text-slate-800">Cuadrillas</h3>
+                        <div className="w-48 relative">
+                            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                            <select
+                                value={crewStatusFilter}
+                                onChange={(e) => setCrewStatusFilter(e.target.value)}
+                                className="w-full pl-9 pr-8 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-all font-medium appearance-none cursor-pointer"
                             >
-                                <div className={`p-4 border-b flex justify-between items-center ${crew.active ? 'bg-white' : 'bg-slate-50 border-slate-100'}`}>
-                                    <div>
-                                        <h3 className="font-bold text-slate-800 text-base">{crew.name}</h3>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${crew.active ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-slate-100 text-slate-500 border border-slate-200'}`}>
-                                                <span className={`w-1.5 h-1.5 rounded-full ${crew.active ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
-                                                {crew.active ? 'Activa' : 'Inactiva'}
+                                <option value="all">Todos los estados</option>
+                                <option value="active">Activas</option>
+                                <option value="inactive">Inactivas</option>
+                            </select>
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="p-6 flex-1">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-10">
+                            {crews
+                                .filter(crew => {
+                                    if (crewStatusFilter === 'active') return crew.active === true;
+                                    if (crewStatusFilter === 'inactive') return crew.active === false;
+                                    return true;
+                                })
+                                .map(crew => (
+                                    <div
+                                        key={crew.crew_id}
+                                        className={`flex flex-col bg-white rounded-2xl transition-all duration-200 overflow-hidden ${draggedItem && String(draggedItem.sourceId) !== String(crew.crew_id)
+                                            ? 'border-2 border-brand-400 ring-4 ring-brand-100 shadow-2xl scale-[1.02] z-10'
+                                            : 'border border-slate-200 shadow-sm hover:shadow-lg hover:border-slate-300'
+                                            }`}
+                                        onDragOver={(e) => handleDragOver(e)}
+                                        onDrop={(e) => handleDrop(e, crew.crew_id)}
+                                    >
+                                        <div className={`p-4 border-b flex justify-between items-center ${crew.active ? 'bg-white' : 'bg-slate-50 border-slate-100'}`}>
+                                            <div>
+                                                <h3 className="font-bold text-slate-800 text-base">{crew.name}</h3>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${crew.active ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-slate-100 text-slate-500 border border-slate-200'}`}>
+                                                        <span className={`w-1.5 h-1.5 rounded-full ${crew.active ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
+                                                        {crew.active ? 'Activa' : 'Inactiva'}
+                                                    </div>
+                                                    <span className="text-xs text-slate-400 font-medium">{boardState.crews[crew.crew_id]?.length || 0} miembros</span>
+                                                </div>
                                             </div>
-                                            <span className="text-xs text-slate-400 font-medium">{boardState.crews[crew.crew_id]?.length || 0} miembros</span>
+                                        </div>
+
+                                        <div className="flex-1 p-3 space-y-2 min-h-[180px] bg-slate-50/50">
+                                            {boardState.crews[crew.crew_id]?.length === 0 && (
+                                                <div className="h-full flex flex-col items-center justify-center text-slate-400 text-sm border-2 border-dashed border-slate-200 rounded-xl bg-white/50 m-1 p-6 transition-colors hover:border-brand-300 hover:bg-brand-50/20 group">
+                                                    <div className="p-3 bg-slate-100 rounded-full mb-3 group-hover:bg-brand-100 transition-colors">
+                                                        <Users size={20} className="text-slate-400 group-hover:text-brand-500" />
+                                                    </div>
+                                                    <p className="font-medium opacity-70">Arrastra personal aquí</p>
+                                                </div>
+                                            )}
+                                            {boardState.crews[crew.crew_id]?.map(person => (
+                                                <DraggableCard
+                                                    key={person.person_id}
+                                                    person={person}
+                                                    sourceId={crew.crew_id}
+                                                    onDragStart={handleDragStart}
+                                                    variant="crew"
+                                                />
+                                            ))}
                                         </div>
                                     </div>
-                                </div>
-
-                                <div className="flex-1 p-3 space-y-2 min-h-[180px] bg-slate-50/50">
-                                    {boardState.crews[crew.crew_id]?.length === 0 && (
-                                        <div className="h-full flex flex-col items-center justify-center text-slate-400 text-sm border-2 border-dashed border-slate-200 rounded-xl bg-white/50 m-1 p-6 transition-colors hover:border-brand-300 hover:bg-brand-50/20 group">
-                                            <div className="p-3 bg-slate-100 rounded-full mb-3 group-hover:bg-brand-100 transition-colors">
-                                                <Users size={20} className="text-slate-400 group-hover:text-brand-500" />
-                                            </div>
-                                            <p className="font-medium opacity-70">Arrastra personal aquí</p>
-                                        </div>
-                                    )}
-                                    {boardState.crews[crew.crew_id]?.map(person => (
-                                        <DraggableCard
-                                            key={person.person_id}
-                                            person={person}
-                                            sourceId={crew.crew_id}
-                                            onDragStart={handleDragStart}
-                                            variant="crew"
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
+                                ))}
+                        </div>
                     </div>
                 </div>
             </div>

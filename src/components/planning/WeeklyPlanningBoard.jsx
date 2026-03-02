@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Users, CheckCircle, AlertCircle, Plus, Link, FileText } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Users, CheckCircle, AlertCircle, Plus, Link, FileText, Loader2 } from 'lucide-react';
 import { ActivityService } from '../../services/activities';
 import { generateWeeklyReport } from '../../utils/WeeklyReportGenerator';
+import { generateDetailedWeeklyReport } from '../../utils/DetailedWeeklyReportGenerator';
 
 const WeeklyPlanningBoard = ({
     activities,
@@ -14,6 +15,7 @@ const WeeklyPlanningBoard = ({
     const [unassignedCrews, setUnassignedCrews] = useState([]);
     const [loadingUnassigned, setLoadingUnassigned] = useState(false);
     const [draggedCrew, setDraggedCrew] = useState(null);
+    const [generatingDetailed, setGeneratingDetailed] = useState(false);
 
     // Calculate start and end of the week
     const getWeekRange = (date) => {
@@ -35,6 +37,19 @@ const WeeklyPlanningBoard = ({
 
     const handleDownloadReport = () => {
         generateWeeklyReport(activities, weekStart, weekEnd);
+    };
+
+    const handleDownloadDetailedReport = async () => {
+        if (generatingDetailed) return;
+        setGeneratingDetailed(true);
+        try {
+            await generateDetailedWeeklyReport(activities, weekStart, weekEnd);
+        } catch (error) {
+            console.error("Error generating detailed report:", error);
+            alert("Hubo un error al generar el informe detallado.");
+        } finally {
+            setGeneratingDetailed(false);
+        }
     };
 
     useEffect(() => {
@@ -114,10 +129,19 @@ const WeeklyPlanningBoard = ({
                     <button
                         onClick={handleDownloadReport}
                         className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200"
-                        title="Descargar reporte PDF"
+                        title="Resumen General PDF"
                     >
                         <FileText size={18} className="text-red-500" />
-                        Reporte
+                        Resumen Ejecutivo
+                    </button>
+                    <button
+                        onClick={handleDownloadDetailedReport}
+                        disabled={generatingDetailed}
+                        className="inline-flex items-center gap-2 px-4 py-1.5 text-sm font-bold text-white bg-slate-800 hover:bg-slate-900 rounded-lg transition-colors disabled:opacity-50 shadow-sm"
+                        title="Informe PDF detallado por actividad"
+                    >
+                        {generatingDetailed ? <Loader2 size={18} className="animate-spin" /> : <FileText size={18} className="text-blue-300" />}
+                        {generatingDetailed ? 'Generando...' : 'Informe Detallado'}
                     </button>
                     <div className="h-6 w-px bg-slate-200 mx-2"></div>
                     <button

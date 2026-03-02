@@ -493,5 +493,108 @@ export const ActivityService = {
                 leaderName: leader ? `${leader.first_name} ${leader.last_name}` : 'Sin miembros'
             };
         });
+    },
+
+    /**
+     * Get total count of active crews
+     * @returns {Promise<number>}
+     */
+    async getActiveCrewsCount() {
+        const { count, error } = await supabase
+            .from('crew')
+            .select('*', { count: 'exact', head: true })
+            .eq('active', true);
+
+        if (error) throw error;
+        return count || 0;
+    },
+
+    /**
+     * Generate standard weekly assignments for all active crews based on their type
+     * @param {string} startDate - YYYY-MM-DD
+     * @param {string} endDate - YYYY-MM-DD
+     */
+    async generateWeeklyAssignments(startDate, endDate) {
+        // 1. Obtener todas las cuadrillas activas, su tipo y miembros
+        const { data: crews, error: crewsError } = await supabase
+            .from('crew')
+            .select(`
+                crew_id,
+                name,
+                crew_member (
+                    role_in_crew,
+                    person (person_id)
+                )
+            `)
+            .eq('active', true);
+
+        if (crewsError) throw crewsError;
+        if (!crews || crews.length === 0) return;
+
+        // Calcular duración en días
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const diffTime = Math.abs(end - start);
+        const durationDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Inclusivo
+
+        const formatDt = (dtStr) => {
+            const [y, m, d] = dtStr.split('-');
+            return `${d}/${m}/${y.slice(-2)}`;
+        };
+        const datePrefix = `(${formatDt(startDate)}-${formatDt(endDate)})`;
+
+        const newActivities = crews.map(crew => {
+            // Determinar tipo de cuadrilla para mapeo basado en el nombre
+            let targetActivityTypeId = null;
+            let baseTitle = `Planificación Semana - ${crew.name}`;
+
+            // Hardcoded IDs according to database check
+            // Concertación: 2, Reparación/Mantenimiento: 3, Entrega de Materiales: 10
+            // Mecanizado: 6, Fabricación de Piezas: 5
+
+            const lowerName = crew.name.toLowerCase();
+
+            if (lowerName.includes('mantenimiento') || lowerName.match(/cuadrilla [1-6]\b/)) {
+                targetActivityTypeId = 3;
+                baseTitle = "Reparación/Mantenimiento";
+            } else if (lowerName.includes('entrega') || lowerName.includes('material')) {
+                targetActivityTypeId = 10;
+                baseTitle = "Entrega de Materiales";
+            } else if (lowerName.includes('concertación') || lowerName.includes('social')) {
+                targetActivityTypeId = 2;
+                baseTitle = "Concertación";
+            } else {
+                // Taller u otras cuadrillas
+                baseTitle = crew.name;
+                if (lowerName.includes('mecanizado')) targetActivityTypeId = 6;
+                else if (lowerName.includes('fabricación') || lowerName.includes('soldadura') || lowerName.includes('roscado')) targetActivityTypeId = 5;
+            }
+
+            // Identificar ingeniero líder o primer miembro
+            let responsiblePersonId = null;
+            if (crew.crew_member && crew.crew_member.length > 0) {
+                const leader = crew.crew_member.find(m => m.role_in_crew === 'Ingeniero Lider');
+                responsiblePersonId = leader && leader.person ? leader.person.person_id : crew.crew_member[0]?.person?.person_id;
+            }
+
+            return {
+                title: `${datePrefix} ${baseTitle}`,
+                activity_type_id: targetActivityTypeId,
+                priority: 'MEDIA',
+                status: 'PLANIFICADA',
+                assigned_crew_id: crew.crew_id,
+                responsible_person_id: responsiblePersonId,
+                planned_start_week: startDate,
+                planned_end_week: endDate,
+                estimated_duration_days: durationDays,
+            };
+        });
+
+        // Insertar por lotes
+        const { error: insertError } = await supabase
+            .from('planned_activity')
+            .insert(newActivities);
+
+        if (insertError) throw insertError;
     }
 };

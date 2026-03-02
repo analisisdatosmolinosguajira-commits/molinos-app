@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Calendar, MapPin, Truck, Users, X, CheckCircle, XCircle, Clock, AlertTriangle,
-    FileText, Trash2, Activity, Navigation, Plus, Save, Map as MapIcon
+    FileText, Trash2, Activity, Navigation, Plus, Save, Map as MapIcon, Search
 } from 'lucide-react';
 import { VisitService } from '../../services/visits';
 import { VehicleService } from '../../services/vehicles';
@@ -27,6 +27,7 @@ const JourneyDetail = () => {
 
     // Data for Modals
     const [availableVehicles, setAvailableVehicles] = useState([]);
+    const [vehicleSearch, setVehicleSearch] = useState('');
 
     // Forms State
     const [logForm, setLogForm] = useState({ activity_type: 'SALIDA_CAMPO', description: '', incident_reported: false });
@@ -153,7 +154,7 @@ const JourneyDetail = () => {
         const vehicles = await VehicleService.getAllVehicles();
         // Filter out already assigned vehicles
         const assignedIds = journey.vehicle_assignments?.map(va => va.vehicle_id) || [];
-        setAvailableVehicles(vehicles.filter(v => !assignedIds.includes(v.vehicle_id) && v.status === 'AVAILABLE'));
+        setAvailableVehicles(vehicles.filter(v => !assignedIds.includes(v.vehicle_id) && v.status === 'DISPONIBLE'));
         setShowVehicleModal(true);
     };
 
@@ -456,10 +457,30 @@ const JourneyDetail = () => {
                             <h3 className="font-bold text-lg">Asignar Vehículo</h3>
                             <button onClick={() => setShowVehicleModal(false)}><X className="text-slate-400" /></button>
                         </div>
+
+                        <div className="relative mb-4">
+                            <input
+                                type="text"
+                                placeholder="Buscar por placa o modelo..."
+                                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={vehicleSearch}
+                                onChange={(e) => setVehicleSearch(e.target.value)}
+                            />
+                            <Search size={16} className="absolute left-3 top-2.5 text-slate-400" />
+                        </div>
+
                         <div className="max-h-60 overflow-y-auto space-y-2 mb-4 custom-scrollbar">
                             {availableVehicles.length === 0 ? (
                                 <p className="text-slate-500 text-center py-4">No hay vehículos disponibles.</p>
-                            ) : availableVehicles.map(v => (
+                            ) : availableVehicles.filter(v =>
+                                v.plate_number?.toLowerCase().includes(vehicleSearch.toLowerCase()) ||
+                                v.model?.toLowerCase().includes(vehicleSearch.toLowerCase())
+                            ).length === 0 ? (
+                                <p className="text-slate-500 text-center py-4">No se encontraron vehículos que coincidan.</p>
+                            ) : availableVehicles.filter(v =>
+                                v.plate_number?.toLowerCase().includes(vehicleSearch.toLowerCase()) ||
+                                v.model?.toLowerCase().includes(vehicleSearch.toLowerCase())
+                            ).map(v => (
                                 <button
                                     key={v.vehicle_id}
                                     onClick={() => handleAssignVehicle(v.vehicle_id)}

@@ -4,6 +4,7 @@ import { Stethoscope, Plus, Search, Filter, AlertCircle, CheckCircle, Clock } fr
 import { DiagnosisService } from '../../services/diagnosis';
 import StatusBadge from '../../components/ui/StatusBadge';
 import DiagnosisForm from './DiagnosisForm';
+import PermissionGate from '../../components/auth/PermissionGate';
 
 export default function DiagnosticosPage() {
     const [diagnoses, setDiagnoses] = useState([]);
@@ -98,13 +99,15 @@ export default function DiagnosticosPage() {
                     <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Diagnósticos</h1>
                     <p className="text-slate-500 mt-1">Evaluaciones técnicas y análisis de componentes</p>
                 </div>
-                <button
-                    onClick={() => setIsCreateMode(true)}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-500/30 transition-all font-bold active:scale-95"
-                >
-                    <Plus size={20} />
-                    Nuevo Diagnóstico
-                </button>
+                <PermissionGate module="diagnosticos" action="create">
+                    <button
+                        onClick={() => setIsCreateMode(true)}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-500/30 transition-all font-bold active:scale-95"
+                    >
+                        <Plus size={20} />
+                        Nuevo Diagnóstico
+                    </button>
+                </PermissionGate>
             </div>
 
             {/* Stats Cards */}

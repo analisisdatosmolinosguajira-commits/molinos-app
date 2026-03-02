@@ -4,6 +4,7 @@ import { Users, FileSignature, Calendar, Plus, Search, Filter, AlertCircle, Chec
 import { ConcertationService } from '../../services/concertations';
 import StatusBadge from '../../components/ui/StatusBadge';
 import ConcertationForm from './ConcertationForm';
+import PermissionGate from '../../components/auth/PermissionGate';
 
 export default function ConcertacionesPage() {
     const [concertations, setConcertations] = useState([]);
@@ -92,13 +93,15 @@ export default function ConcertacionesPage() {
                     <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Concertaciones</h1>
                     <p className="text-slate-500 mt-1">Acuerdos comunitarios y actas de entrega</p>
                 </div>
-                <button
-                    onClick={() => setIsCreateMode(true)}
-                    className="bg-social-600 hover:bg-social-700 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-social-500/30 transition-all font-bold active:scale-95"
-                >
-                    <Plus size={20} />
-                    Registrar Acta
-                </button>
+                <PermissionGate module="concertaciones" action="create">
+                    <button
+                        onClick={() => setIsCreateMode(true)}
+                        className="bg-social-600 hover:bg-social-700 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-social-500/30 transition-all font-bold active:scale-95"
+                    >
+                        <Plus size={20} />
+                        Registrar Acta
+                    </button>
+                </PermissionGate>
             </div>
 
             {/* Filters Bar */}

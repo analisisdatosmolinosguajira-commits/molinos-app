@@ -178,14 +178,14 @@ export const CommunityService = {
         const { data: roleData } = await supabase
             .from('person_role')
             .select('role_id')
-            .eq('name', 'Comunidad')
+            .eq('name', 'Miembro de Comunidad')
             .limit(1);
 
         const roleId = roleData?.[0]?.role_id;
 
 
 
-        if (!roleId) throw new Error("Role 'Comunidad' not found");
+        if (!roleId) throw new Error("Role 'Miembro de Comunidad' not found");
 
         const { data, error } = await supabase
             .from('person')
@@ -218,6 +218,7 @@ export const CommunityService = {
                 role:person_role(name)
             `)
             .or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%,document_id.ilike.%${query}%`)
+            .eq('role_id', 5) // Only community members
             .limit(10);
 
         if (error) throw error;
@@ -228,7 +229,7 @@ export const CommunityService = {
     },
 
     async getUnassignedPeople() {
-        // Fetch people and check if they have community assignments
+        // Fetch people with role 'Miembro de Comunidad' (role_id=5) that don't have community assignments
         const { data, error } = await supabase
             .from('person')
             .select(`
@@ -238,6 +239,7 @@ export const CommunityService = {
                 document_id,
                 community_member(id)
             `)
+            .eq('role_id', 5) // Only community members
             .order('first_name')
             .limit(50);
 
@@ -248,7 +250,7 @@ export const CommunityService = {
             .filter(p => !p.community_member || p.community_member.length === 0)
             .map(p => ({
                 ...p,
-                role: 'Sin Asignar'
+                role: 'Miembro de Comunidad'
             }));
     },
 

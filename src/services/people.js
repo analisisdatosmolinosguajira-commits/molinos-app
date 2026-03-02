@@ -20,6 +20,7 @@ export const PeopleService = {
                     role:community_role (role_id, name)
                 )
             `)
+            .eq('role_id', 5) // Only community members
             .order('first_name');
 
         if (error) throw error;
@@ -61,7 +62,7 @@ export const PeopleService = {
             const { data: roleData } = await supabase
                 .from('person_role')
                 .select('role_id')
-                .eq('name', 'Comunidad')
+                .eq('name', 'Miembro de Comunidad')
                 .limit(1);
             roleId = roleData?.[0]?.role_id;
         }

@@ -1,15 +1,34 @@
 import { supabase } from './supabase';
 
+/**
+ * Safe query helper — returns empty array/null if table doesn't exist (404).
+ * This allows the SST module to work gracefully before DB migration is run.
+ */
+async function safeQuery(queryFn) {
+    try {
+        const result = await queryFn();
+        if (result.error) {
+            const code = result.error.code;
+            const msg = result.error.message || '';
+            // Silently handle missing tables (404) and RLS/permission errors (403)
+            if (code === 'PGRST205' || code === '42501' || code === 'PGRST301' ||
+                msg.includes('Not Found') || msg.includes('permission denied') ||
+                msg.includes('row-level security')) {
+                return { data: null, error: null };
+            }
+        }
+        return result;
+    } catch (err) {
+        return { data: null, error: null };
+    }
+}
+
 export const SSTService = {
 
     // ═══════════════════════════════════════════════════════
     // PERSONNEL WITH EPP STATUS
     // ═══════════════════════════════════════════════════════
 
-    /**
-     * Get all operational staff with their EPP compliance status
-     * (excludes community members)
-     */
     async getStaffWithEPPStatus() {
         // 1. Get all operational staff
         const { data: people, error: pErr } = await supabase
@@ -27,10 +46,10 @@ export const SSTService = {
             return role && role !== 'Miembro de Comunidad' && role !== 'Comunidad';
         });
 
-        // 2. Get role requirements (what EPP each role needs)
-        const { data: requirements } = await supabase
-            .from('epp_role_requirement')
-            .select('*, safety_equipment(name, code)');
+        // 2. Get role requirements (safe — may not exist yet)
+        const { data: requirements } = await safeQuery(() =>
+            supabase.from('epp_role_requirement').select('*, safety_equipment(name, code)')
+        );
 
         const reqByRole = {};
         (requirements || []).forEach(r => {
@@ -38,23 +57,23 @@ export const SSTService = {
             reqByRole[r.role_id].push(r);
         });
 
-        // 3. Get latest delivery items per person
-        const { data: deliveryItems } = await supabase
-            .from('epp_delivery_item')
-            .select('*, safety_equipment(name, code)')
-            .order('created_at', { ascending: false });
+        // 3. Get latest delivery items per person (safe)
+        const { data: deliveryItems } = await safeQuery(() =>
+            supabase.from('epp_delivery_item')
+                .select('*, safety_equipment(name, code)')
+                .order('created_at', { ascending: false })
+        );
 
-        // Build a map of latest delivery per person+safety_id
         const latestDelivery = {};
         (deliveryItems || []).forEach(di => {
             const key = `${di.person_id}-${di.safety_id}`;
             if (!latestDelivery[key]) latestDelivery[key] = di;
         });
 
-        // 4. Get certifications
-        const { data: certs } = await supabase
-            .from('person_certification')
-            .select('*');
+        // 4. Get certifications (safe)
+        const { data: certs } = await safeQuery(() =>
+            supabase.from('person_certification').select('*')
+        );
 
         const certsByPerson = {};
         (certs || []).forEach(c => {
@@ -76,28 +95,26 @@ export const SSTService = {
             let eppExpiring = 0;
             let eppMissing = 0;
 
-            // Compute EPP zone statuses
             const zones = {};
             roleReqs.forEach(req => {
                 const key = `${p.person_id}-${req.safety_id}`;
                 const delivery = latestDelivery[key];
 
-                let zoneStatus = 'MISSING'; // red
+                let zoneStatus = 'MISSING';
                 if (delivery) {
                     if (delivery.expires_at) {
                         const expDate = new Date(delivery.expires_at);
                         if (expDate < now) {
-                            zoneStatus = 'EXPIRED'; // red
+                            zoneStatus = 'EXPIRED';
                         } else if (expDate < thirtyDaysFromNow) {
-                            zoneStatus = 'EXPIRING'; // yellow
+                            zoneStatus = 'EXPIRING';
                             eppExpiring++;
                             eppOk++;
                         } else {
-                            zoneStatus = 'OK'; // green
+                            zoneStatus = 'OK';
                             eppOk++;
                         }
                     } else {
-                        // No expiration set — check by renewal_months
                         const deliveryDate = new Date(delivery.created_at);
                         const expDate = new Date(deliveryDate);
                         expDate.setMonth(expDate.getMonth() + (req.renewal_months || 6));
@@ -125,26 +142,16 @@ export const SSTService = {
                 };
             });
 
-            // Overall status
             let eppStatus = 'OK';
-            if (eppMissing > 0 || (roleReqs.length > 0 && eppOk === 0 && roleReqs.some(r => {
-                const key = `${p.person_id}-${r.safety_id}`;
-                const del = latestDelivery[key];
-                return del && new Date(del.expires_at || del.created_at) < now;
-            }))) {
-                eppStatus = 'INCOMPLETE';
-            }
-            if (eppExpiring > 0 && eppMissing === 0) eppStatus = 'EXPIRING';
-            if (eppTotal === 0) eppStatus = 'NO_REQUIREMENTS';
-            if (eppOk === eppTotal && eppTotal > 0) eppStatus = 'OK';
             if (eppMissing > 0) eppStatus = 'INCOMPLETE';
+            else if (eppExpiring > 0) eppStatus = 'EXPIRING';
+            else if (eppTotal === 0) eppStatus = 'NO_REQUIREMENTS';
+            else if (eppOk === eppTotal && eppTotal > 0) eppStatus = 'OK';
 
-            // Cert status
             let certStatus = 'OK';
             const expiringCerts = personCerts.filter(c => {
                 if (!c.expires_at) return false;
-                const exp = new Date(c.expires_at);
-                return exp < thirtyDaysFromNow;
+                return new Date(c.expires_at) < thirtyDaysFromNow;
             });
             if (expiringCerts.length > 0) certStatus = 'EXPIRING';
             const expiredCerts = personCerts.filter(c => {
@@ -175,7 +182,6 @@ export const SSTService = {
     // ═══════════════════════════════════════════════════════
 
     async getPersonEPPDetail(personId) {
-        // Get person
         const { data: person, error: pErr } = await supabase
             .from('person')
             .select('*, person_role(role_id, name)')
@@ -186,25 +192,26 @@ export const SSTService = {
 
         const roleId = person.person_role?.role_id;
 
-        // Get role requirements
-        const { data: requirements } = await supabase
-            .from('epp_role_requirement')
-            .select('*, safety_equipment(name, code)')
-            .eq('role_id', roleId);
+        // Safe queries
+        const { data: requirements } = await safeQuery(() =>
+            supabase.from('epp_role_requirement')
+                .select('*, safety_equipment(name, code)')
+                .eq('role_id', roleId)
+        );
 
-        // Get ALL delivery items for this person
-        const { data: deliveries } = await supabase
-            .from('epp_delivery_item')
-            .select('*, safety_equipment(name, code), epp_delivery(delivery_date, notes)')
-            .eq('person_id', personId)
-            .order('created_at', { ascending: false });
+        const { data: deliveries } = await safeQuery(() =>
+            supabase.from('epp_delivery_item')
+                .select('*, safety_equipment(name, code), epp_delivery(delivery_date, notes)')
+                .eq('person_id', personId)
+                .order('created_at', { ascending: false })
+        );
 
-        // Get certifications
-        const { data: certs } = await supabase
-            .from('person_certification')
-            .select('*')
-            .eq('person_id', personId)
-            .order('expires_at', { ascending: true });
+        const { data: certs } = await safeQuery(() =>
+            supabase.from('person_certification')
+                .select('*')
+                .eq('person_id', personId)
+                .order('expires_at', { ascending: true })
+        );
 
         return {
             person: {
@@ -223,11 +230,11 @@ export const SSTService = {
     // ═══════════════════════════════════════════════════════
 
     async getRoleRequirements(roleId) {
-        const { data, error } = await supabase
-            .from('epp_role_requirement')
-            .select('*, safety_equipment(name, code)')
-            .eq('role_id', roleId);
-
+        const { data, error } = await safeQuery(() =>
+            supabase.from('epp_role_requirement')
+                .select('*, safety_equipment(name, code)')
+                .eq('role_id', roleId)
+        );
         if (error) throw error;
         return data || [];
     },
@@ -256,14 +263,9 @@ export const SSTService = {
     // EPP DELIVERIES
     // ═══════════════════════════════════════════════════════
 
-    /**
-     * Create a bulk delivery to multiple people
-     * @param {object} deliveryData - { delivery_date, notes, items: [{ person_id, safety_id, quantity, condition, size, expires_at }] }
-     */
     async createDelivery(deliveryData) {
         const { data: { user } } = await supabase.auth.getUser();
 
-        // 1. Create delivery header
         const { data: delivery, error: dErr } = await supabase
             .from('epp_delivery')
             .insert([{
@@ -276,7 +278,6 @@ export const SSTService = {
 
         if (dErr) throw dErr;
 
-        // 2. Create delivery items
         const items = deliveryData.items.map(item => ({
             delivery_id: delivery.delivery_id,
             person_id: item.person_id,
@@ -296,10 +297,7 @@ export const SSTService = {
         return delivery;
     },
 
-    /**
-     * Quick deliver a single EPP to a person (from silhouette click)
-     */
-    async quickDeliverEPP(personId, safetyId, renewalMonths = 6) {
+    async quickDeliverEPP(personId, safetyId, renewalMonths = 6, size = '') {
         const expiresAt = new Date();
         expiresAt.setMonth(expiresAt.getMonth() + renewalMonths);
 
@@ -311,30 +309,155 @@ export const SSTService = {
                 safety_id: safetyId,
                 quantity: 1,
                 condition: 'NUEVO',
+                size: size || null,
                 expires_at: expiresAt.toISOString().split('T')[0],
             }],
         });
     },
 
+    // Get full planning data: all staff with their requirements, last deliveries, and sizes
+    async getRequisitionPlanData() {
+        // 1. Get all operational staff with roles
+        const { data: people } = await safeQuery(() =>
+            supabase.from('person')
+                .select('person_id, first_name, last_name, document_id, role_id, person_role(role_id, name)')
+                .eq('active', true)
+                .not('role_id', 'is', null)
+                .order('first_name')
+        );
+
+        if (!people || people.length === 0) return { people: [], plan: [] };
+
+        // Filter out community members
+        const staff = people.filter(p => {
+            const rn = p.person_role?.name?.toLowerCase() || '';
+            return !rn.includes('comunidad');
+        });
+
+        // 2. Get all role requirements
+        const roleIds = [...new Set(staff.map(p => p.role_id).filter(Boolean))];
+        const { data: allReqs } = await safeQuery(() =>
+            supabase.from('epp_role_requirement')
+                .select('*, safety_equipment(safety_id, name, code)')
+                .in('role_id', roleIds)
+        );
+
+        // 3. Get all latest delivery items for these people
+        const personIds = staff.map(p => p.person_id);
+        const { data: allDeliveries } = await safeQuery(() =>
+            supabase.from('epp_delivery_item')
+                .select('*, epp_delivery(delivery_date), safety_equipment:safety_id(name, code)')
+                .in('person_id', personIds)
+                .order('created_at', { ascending: false })
+        );
+
+        // Build per-person plan
+        const now = new Date();
+        const thirtyDays = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+        const planItems = [];
+
+        for (const person of staff) {
+            const roleReqs = (allReqs || []).filter(r => r.role_id === person.role_id);
+            const personDeliveries = (allDeliveries || []).filter(d => d.person_id === person.person_id);
+
+            for (const req of roleReqs) {
+                // Find latest delivery for this EPP
+                const lastDelivery = personDeliveries.find(d => d.safety_id === req.safety_id);
+
+                let status = 'MISSING';
+                let expiresAt = null;
+                if (lastDelivery) {
+                    if (lastDelivery.expires_at) {
+                        expiresAt = new Date(lastDelivery.expires_at);
+                    } else {
+                        expiresAt = new Date(lastDelivery.created_at);
+                        expiresAt.setMonth(expiresAt.getMonth() + (req.renewal_months || 6));
+                    }
+
+                    if (expiresAt < now) status = 'EXPIRED';
+                    else if (expiresAt < thirtyDays) status = 'EXPIRING';
+                    else status = 'OK';
+                }
+
+                // Only include items that need action (not OK)
+                const needsAction = status !== 'OK';
+
+                planItems.push({
+                    person_id: person.person_id,
+                    first_name: person.first_name,
+                    last_name: person.last_name,
+                    role: person.person_role?.name || 'Sin Rol',
+                    safety_id: req.safety_id,
+                    epp_name: req.safety_equipment?.name || 'EPP',
+                    epp_code: req.safety_equipment?.code || '',
+                    body_zone: req.body_zone,
+                    renewal_months: req.renewal_months || 6,
+                    status,
+                    expires_at: expiresAt?.toISOString().split('T')[0] || null,
+                    last_size: lastDelivery?.size || '',
+                    last_delivery_date: lastDelivery?.created_at ? new Date(lastDelivery.created_at).toISOString().split('T')[0] : null,
+                    needs_action: needsAction,
+                    include_in_plan: needsAction, // default checked if needs action
+                    quantity: 1,
+                });
+            }
+        }
+
+        return { people: staff, plan: planItems };
+    },
+
     async getDeliveryHistory(filters = {}) {
-        let query = supabase
-            .from('epp_delivery')
-            .select(`
-                *,
-                epp_delivery_item (
+        const { data, error } = await safeQuery(() => {
+            let query = supabase
+                .from('epp_delivery')
+                .select(`
                     *,
-                    person:person_id (person_id, first_name, last_name),
-                    safety_equipment:safety_id (name, code)
-                )
-            `)
-            .order('delivery_date', { ascending: false });
+                    epp_delivery_item (
+                        *,
+                        person:person_id (person_id, first_name, last_name),
+                        safety_equipment:safety_id (name, code)
+                    )
+                `)
+                .order('delivery_date', { ascending: false });
 
-        if (filters.startDate) query = query.gte('delivery_date', filters.startDate);
-        if (filters.endDate) query = query.lte('delivery_date', filters.endDate);
+            if (filters.startDate) query = query.gte('delivery_date', filters.startDate);
+            if (filters.endDate) query = query.lte('delivery_date', filters.endDate);
 
-        const { data, error } = await query.limit(100);
+            return query.limit(100);
+        });
+
         if (error) throw error;
         return data || [];
+    },
+
+    async updateDelivery(deliveryId, { delivery_date, notes }) {
+        const { data, error } = await safeQuery(() =>
+            supabase.from('epp_delivery')
+                .update({ delivery_date, notes })
+                .eq('delivery_id', deliveryId)
+                .select()
+                .single()
+        );
+        if (error) throw error;
+        return data;
+    },
+
+    async deleteDelivery(deliveryId) {
+        // Delete items first (cascade)
+        const { error: itemErr } = await safeQuery(() =>
+            supabase.from('epp_delivery_item')
+                .delete()
+                .eq('delivery_id', deliveryId)
+        );
+        if (itemErr) throw itemErr;
+
+        const { error } = await safeQuery(() =>
+            supabase.from('epp_delivery')
+                .delete()
+                .eq('delivery_id', deliveryId)
+        );
+        if (error) throw error;
     },
 
     // ═══════════════════════════════════════════════════════
@@ -342,19 +465,18 @@ export const SSTService = {
     // ═══════════════════════════════════════════════════════
 
     async getPersonCertifications(personId) {
-        const { data, error } = await supabase
-            .from('person_certification')
-            .select('*')
-            .eq('person_id', personId)
-            .order('expires_at', { ascending: true });
-
+        const { data, error } = await safeQuery(() =>
+            supabase.from('person_certification')
+                .select('*')
+                .eq('person_id', personId)
+                .order('expires_at', { ascending: true })
+        );
         if (error) throw error;
         return data || [];
     },
 
     async upsertCertification(certData) {
         if (certData.cert_id) {
-            // Update
             const { data, error } = await supabase
                 .from('person_certification')
                 .update({
@@ -373,7 +495,6 @@ export const SSTService = {
             if (error) throw error;
             return data;
         } else {
-            // Create
             const { data, error } = await supabase
                 .from('person_certification')
                 .insert([certData])
@@ -403,21 +524,21 @@ export const SSTService = {
         thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
         const isoDate = thirtyDaysFromNow.toISOString().split('T')[0];
 
-        // Expiring EPP deliveries
-        const { data: eppAlerts } = await supabase
-            .from('epp_delivery_item')
-            .select('*, person:person_id(first_name, last_name), safety_equipment:safety_id(name)')
-            .lte('expires_at', isoDate)
-            .order('expires_at', { ascending: true })
-            .limit(50);
+        const { data: eppAlerts } = await safeQuery(() =>
+            supabase.from('epp_delivery_item')
+                .select('*, person:person_id(first_name, last_name), safety_equipment:safety_id(name)')
+                .lte('expires_at', isoDate)
+                .order('expires_at', { ascending: true })
+                .limit(50)
+        );
 
-        // Expiring certifications
-        const { data: certAlerts } = await supabase
-            .from('person_certification')
-            .select('*, person:person_id(first_name, last_name)')
-            .lte('expires_at', isoDate)
-            .order('expires_at', { ascending: true })
-            .limit(50);
+        const { data: certAlerts } = await safeQuery(() =>
+            supabase.from('person_certification')
+                .select('*, person:person_id(first_name, last_name)')
+                .lte('expires_at', isoDate)
+                .order('expires_at', { ascending: true })
+                .limit(50)
+        );
 
         return {
             eppAlerts: eppAlerts || [],
@@ -426,12 +547,11 @@ export const SSTService = {
     },
 
     async getEPPAnalytics() {
-        // Get all delivery items
-        const { data: items } = await supabase
-            .from('epp_delivery_item')
-            .select('*, safety_equipment:safety_id(name, code)');
+        const { data: items } = await safeQuery(() =>
+            supabase.from('epp_delivery_item')
+                .select('*, safety_equipment:safety_id(name, code)')
+        );
 
-        // Analytics: consumption by EPP
         const byEPP = {};
         (items || []).forEach(item => {
             const name = item.safety_equipment?.name || 'Desconocido';
@@ -445,7 +565,6 @@ export const SSTService = {
             }
         });
 
-        // Monthly trend
         const monthlyMap = {};
         (items || []).forEach(item => {
             const month = new Date(item.created_at).toISOString().slice(0, 7);
@@ -483,7 +602,7 @@ export const SSTService = {
     async getOperationalRoles() {
         const { data, error } = await supabase
             .from('person_role')
-            .select('role_id, name')
+            .select('role_id, name, description')
             .neq('name', 'Miembro de Comunidad')
             .neq('name', 'Comunidad')
             .order('name');

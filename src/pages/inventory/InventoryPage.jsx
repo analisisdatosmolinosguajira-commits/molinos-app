@@ -8,6 +8,8 @@ import KardexModal from '../../components/inventory/KardexModal';
 import BatchMovementForm from '../../components/inventory/BatchMovementForm';
 import MovementHistoryTable from '../../components/inventory/MovementHistoryTable';
 import OrderPlanningTab from '../../components/inventory/OrderPlanningTab';
+import SupplyBoxesTab from '../../components/inventory/SupplyBoxesTab';
+import PermissionGate from '../../components/auth/PermissionGate';
 
 export default function InventoryPage() {
     const navigate = useNavigate();
@@ -61,6 +63,7 @@ export default function InventoryPage() {
         { id: 'epp', label: 'EPP', icon: Shield },
         { id: 'proveedores', label: 'Proveedores', icon: Users },
         { id: 'movimientos', label: 'Movimientos', icon: TrendingUp },
+        { id: 'cajas', label: 'Cajas', icon: Package },
     ];
 
     const normalizeCategory = (cat) => {
@@ -258,14 +261,16 @@ export default function InventoryPage() {
                             />
                         </div>
                         {/* Only show Nuevo button in inventory tabs, not in Movimientos or Planificacion */}
-                        {activeCategory !== 'movimientos' && activeCategory !== 'planificacion' && (
-                            <button
-                                onClick={handleCreate}
-                                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
-                            >
-                                <Plus size={16} />
-                                Nuevo
-                            </button>
+                        {activeCategory !== 'movimientos' && activeCategory !== 'planificacion' && activeCategory !== 'cajas' && (
+                            <PermissionGate module="inventario" action="create">
+                                <button
+                                    onClick={handleCreate}
+                                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
+                                >
+                                    <Plus size={16} />
+                                    Nuevo
+                                </button>
+                            </PermissionGate>
                         )}
                         {activeCategory === 'movimientos' && (
                             <button
@@ -288,7 +293,9 @@ export default function InventoryPage() {
                 </div>
 
                 {/* Movimientos and Planificacion Content */}
-                {activeCategory === 'planificacion' ? (
+                {activeCategory === 'cajas' ? (
+                    <SupplyBoxesTab />
+                ) : activeCategory === 'planificacion' ? (
                     <OrderPlanningTab onNotification={(notif) => alert(notif.message)} />
                 ) : activeCategory === 'movimientos' ? (
                     <div className="space-y-6">
@@ -386,20 +393,24 @@ export default function InventoryPage() {
                                                         <FolderOpen size={16} />
                                                     </button>
                                                 )}
-                                                <button
-                                                    onClick={() => handleEdit(item)}
-                                                    className="p-1.5 text-slate-600 hover:bg-slate-100 rounded transition-colors"
-                                                    title="Editar"
-                                                >
-                                                    <Edit2 size={16} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(item)}
-                                                    className="p-1.5 text-rose-600 hover:bg-rose-50 rounded transition-colors"
-                                                    title="Eliminar"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
+                                                <PermissionGate module="inventario" action="update">
+                                                    <button
+                                                        onClick={() => handleEdit(item)}
+                                                        className="p-1.5 text-slate-600 hover:bg-slate-100 rounded transition-colors"
+                                                        title="Editar"
+                                                    >
+                                                        <Edit2 size={16} />
+                                                    </button>
+                                                </PermissionGate>
+                                                <PermissionGate module="inventario" action="delete">
+                                                    <button
+                                                        onClick={() => handleDelete(item)}
+                                                        className="p-1.5 text-rose-600 hover:bg-rose-50 rounded transition-colors"
+                                                        title="Eliminar"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </PermissionGate>
                                             </div>
                                         </td>
                                     </tr>
