@@ -142,7 +142,7 @@ const InventoryItemModal = ({ category, item, onClose, onSave }) => {
         epp: 'from-emerald-600 to-teal-700'
     }[category] || 'from-slate-600 to-slate-700');
 
-    const inputCls = "w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all";
+    const inputCls = "w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all";
     const labelCls = "block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5";
 
     return createPortal(
@@ -350,7 +350,7 @@ const InventoryItemModal = ({ category, item, onClose, onSave }) => {
                             <button type="button" onClick={onClose} className="px-5 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
                                 Cancelar
                             </button>
-                            <button type="submit" disabled={saving || loadingCode} className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50 font-bold shadow-lg shadow-indigo-500/25 active:scale-95">
+                            <button type="submit" disabled={saving || loadingCode} className="px-6 py-2.5 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-colors flex items-center gap-2 disabled:opacity-50 font-bold shadow-lg shadow-indigo-500/25 active:scale-95">
                                 <Save size={18} />
                                 {saving ? 'Guardando...' : (isEdit ? 'Actualizar' : 'Crear')}
                             </button>

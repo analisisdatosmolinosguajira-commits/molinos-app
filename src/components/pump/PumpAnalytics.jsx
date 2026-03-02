@@ -79,7 +79,7 @@ export default function PumpAnalytics({ analytics }) {
         const colors = {
             slate: 'bg-slate-50 border-slate-200 text-slate-700',
             green: 'bg-green-50 border-green-200 text-green-700',
-            blue: 'bg-blue-50 border-blue-200 text-blue-700',
+            blue: 'bg-brand-50 border-brand-200 text-brand-700',
             purple: 'bg-purple-50 border-purple-200 text-purple-700',
             orange: 'bg-orange-50 border-orange-200 text-orange-700'
         };
@@ -167,9 +167,9 @@ export default function PumpAnalytics({ analytics }) {
                         <p className="text-2xl font-bold text-green-700">{workOrderStats.completed}</p>
                         <p className="text-xs text-green-600 uppercase font-medium mt-1">Completadas</p>
                     </div>
-                    <div className="text-center p-4 bg-blue-50 rounded-lg">
-                        <p className="text-2xl font-bold text-blue-700">{workOrderStats.inProgress}</p>
-                        <p className="text-xs text-blue-600 uppercase font-medium mt-1">En Progreso</p>
+                    <div className="text-center p-4 bg-brand-50 rounded-lg">
+                        <p className="text-2xl font-bold text-brand-700">{workOrderStats.inProgress}</p>
+                        <p className="text-xs text-brand-600 uppercase font-medium mt-1">En Progreso</p>
                     </div>
                     <div className="text-center p-4 bg-yellow-50 rounded-lg">
                         <p className="text-2xl font-bold text-yellow-700">{workOrderStats.pending}</p>

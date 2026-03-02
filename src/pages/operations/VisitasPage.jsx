@@ -110,12 +110,12 @@ const VisitasPage = () => {
         <div
             onClick={() => setSelectedId(visit.id)}
             className={`p-4 border-b border-slate-100 cursor-pointer transition-all hover:bg-slate-50 relative group
-                ${selectedId === visit.id ? 'bg-indigo-50/60 border-indigo-200' : ''}
+                ${selectedId === visit.id ? 'bg-brand-50/60 border-brand-200' : ''}
             `}
         >
             <div className="flex justify-between items-start mb-2">
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wide
-                    ${visit.type === 'LOGISTICA' ? 'bg-indigo-100 text-indigo-700' :
+                    ${visit.type === 'LOGISTICA' ? 'bg-brand-100 text-brand-700' :
                         visit.type === 'DIAGNOSTICO' ? 'bg-purple-100 text-purple-700' :
                             visit.type === 'REPARACION' ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-700'}
                 `}>
@@ -135,7 +135,7 @@ const VisitasPage = () => {
 
             {/* Activity Badge */}
             {visit.linkedActivity && (
-                <div className="mb-2 p-2 rounded-lg border flex items-center gap-2 text-xs bg-blue-50 border-blue-200 text-blue-800">
+                <div className="mb-2 p-2 rounded-lg border flex items-center gap-2 text-xs bg-brand-50 border-brand-200 text-blue-800">
                     <Calendar size={12} />
                     <span className="font-medium truncate">
                         Actividad: {visit.linkedActivity.title}
@@ -168,7 +168,7 @@ const VisitasPage = () => {
                             >
                                 <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
                             </button>
-                            <button className="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg shadow-sm transition-all hover:scale-105">
+                            <button className="bg-brand-600 hover:bg-brand-700 text-white p-2 rounded-lg shadow-sm transition-all hover:scale-105">
                                 <Plus size={20} />
                             </button>
                         </div>
@@ -180,7 +180,7 @@ const VisitasPage = () => {
                         <input
                             type="text"
                             placeholder="Buscar visita, orden o lugar..."
-                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-100 transition-all placeholder:text-slate-400"
+                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-brand-100 transition-all placeholder:text-slate-400"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />

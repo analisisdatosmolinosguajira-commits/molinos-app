@@ -76,7 +76,7 @@ const CreateCommunityModal = ({ isOpen, onClose, onSave, initialData = null }) =
                             required
                             type="text"
                             placeholder="Ej. Comunidad San José"
-                            className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                            className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all"
                             value={formData.name}
                             onChange={e => setFormData({ ...formData, name: e.target.value })}
                         />
@@ -86,7 +86,7 @@ const CreateCommunityModal = ({ isOpen, onClose, onSave, initialData = null }) =
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Departamento</label>
                             <select
-                                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none bg-white"
+                                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none bg-white"
                                 value={formData.department}
                                 onChange={e => setFormData({ ...formData, department: e.target.value })}
                             >
@@ -99,7 +99,7 @@ const CreateCommunityModal = ({ isOpen, onClose, onSave, initialData = null }) =
                                 required
                                 type="text"
                                 placeholder="Ej. Uribia"
-                                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
+                                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none"
                                 value={formData.municipality}
                                 onChange={e => setFormData({ ...formData, municipality: e.target.value })}
                             />
@@ -113,7 +113,7 @@ const CreateCommunityModal = ({ isOpen, onClose, onSave, initialData = null }) =
                                 type="number"
                                 step="any"
                                 placeholder="Ej. 11.543..."
-                                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
+                                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none"
                                 value={formData.latitude}
                                 onChange={e => setFormData({ ...formData, latitude: e.target.value })}
                             />
@@ -124,7 +124,7 @@ const CreateCommunityModal = ({ isOpen, onClose, onSave, initialData = null }) =
                                 type="number"
                                 step="any"
                                 placeholder="Ej. -72.123..."
-                                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
+                                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none"
                                 value={formData.longitude}
                                 onChange={e => setFormData({ ...formData, longitude: e.target.value })}
                             />
@@ -136,7 +136,7 @@ const CreateCommunityModal = ({ isOpen, onClose, onSave, initialData = null }) =
                         <textarea
                             rows={2}
                             placeholder="Referencias para llegar..."
-                            className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none resize-none"
+                            className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none resize-none"
                             value={formData.location_description}
                             onChange={e => setFormData({ ...formData, location_description: e.target.value })}
                         />
@@ -147,7 +147,7 @@ const CreateCommunityModal = ({ isOpen, onClose, onSave, initialData = null }) =
                         <textarea
                             rows={3}
                             placeholder="Información relevante..."
-                            className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none resize-none"
+                            className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none resize-none"
                             value={formData.notes}
                             onChange={e => setFormData({ ...formData, notes: e.target.value })}
                         />
@@ -164,7 +164,7 @@ const CreateCommunityModal = ({ isOpen, onClose, onSave, initialData = null }) =
                         <button
                             type="submit"
                             disabled={saving}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-xl font-medium shadow-sm transition-all hover:scale-105 active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                            className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2 rounded-xl font-medium shadow-sm transition-all hover:scale-105 active:scale-95 disabled:opacity-50 flex items-center gap-2"
                         >
                             {saving && <Loader size={16} className="animate-spin" />}
                             {initialData ? 'Guardar Cambios' : 'Crear Comunidad'}

@@ -38,7 +38,7 @@ const MillTable = ({ mills, onEdit, onDelete, loading }) => {
         return (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-12">
                 <div className="flex flex-col items-center justify-center">
-                    <Loader className="animate-spin text-blue-600 mb-3" size={32} />
+                    <Loader className="animate-spin text-brand-600 mb-3" size={32} />
                     <p className="text-slate-500">Cargando molinos...</p>
                 </div>
             </div>
@@ -160,7 +160,7 @@ const MillTable = ({ mills, onEdit, onDelete, loading }) => {
                                     <div className="flex items-center justify-center gap-2" onClick={(e) => e.stopPropagation()}>
                                         <button
                                             onClick={() => navigate(`/molinos/${mill.mill_id}`)}
-                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                            className="p-2 text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
                                             title="Ver detalles"
                                         >
                                             <Eye size={18} />

@@ -39,7 +39,7 @@ const PumpTable = ({ pumps, onEdit, onDelete, loading }) => {
     const getStatusColor = (status) => {
         const colors = {
             'instalada': 'text-green-700 bg-green-50',
-            'almacenada': 'text-blue-700 bg-blue-50',
+            'almacenada': 'text-brand-700 bg-brand-50',
             'en_reparacion': 'text-yellow-700 bg-yellow-50',
             'dañada': 'text-red-700 bg-red-50',
             'descartada': 'text-gray-700 bg-gray-50'
@@ -51,7 +51,7 @@ const PumpTable = ({ pumps, onEdit, onDelete, loading }) => {
         return (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-12">
                 <div className="flex flex-col items-center justify-center">
-                    <Loader className="animate-spin text-blue-600 mb-3" size={32} />
+                    <Loader className="animate-spin text-brand-600 mb-3" size={32} />
                     <p className="text-slate-500">Cargando bombas...</p>
                 </div>
             </div>
@@ -143,7 +143,7 @@ const PumpTable = ({ pumps, onEdit, onDelete, loading }) => {
                                     <div className="flex items-center justify-center gap-2" onClick={(e) => e.stopPropagation()}>
                                         <button
                                             onClick={() => navigate(`/bombas/${pump.pump_id}`)}
-                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                            className="p-2 text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
                                             title="Ver detalles"
                                         >
                                             <Eye size={18} />

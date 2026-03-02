@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Wind, Loader2, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Loader2, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
     const { isAuthenticated, loading: authLoading, signIn } = useAuth();
@@ -39,22 +39,33 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-brand-950 relative overflow-hidden">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-brand-950 to-slate-900 relative overflow-hidden">
             {/* Background decorative elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-brand-600/10 rounded-full blur-3xl" />
-                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-social-600/10 rounded-full blur-3xl" />
+                <div className="absolute -top-40 -right-40 w-96 h-96 bg-brand-600/10 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent-500/8 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-500/5 rounded-full blur-3xl" />
+                {/* Grid pattern overlay */}
+                <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(5,150,105,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(5,150,105,0.3) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
             </div>
 
             <div className="relative w-full max-w-md mx-4">
                 {/* Logo */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-600 rounded-2xl shadow-2xl shadow-brand-500/30 mb-4">
-                        <Wind className="text-white" size={32} />
+                    <div className="inline-flex items-center justify-center w-18 h-18 rounded-2xl shadow-2xl shadow-brand-500/20 mb-4 bg-gradient-to-br from-brand-500 to-accent-500 p-4">
+                        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-10 h-10">
+                            <circle cx="32" cy="14" r="5" fill="white" />
+                            <line x1="32" y1="19" x2="32" y2="36" stroke="white" strokeWidth="3.5" strokeLinecap="round" />
+                            <line x1="32" y1="24" x2="14" y2="30" stroke="white" strokeWidth="3" strokeLinecap="round" />
+                            <line x1="32" y1="24" x2="50" y2="30" stroke="white" strokeWidth="3" strokeLinecap="round" />
+                            <path d="M14 30 Q8 24 11 18" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.7" />
+                            <path d="M50 30 Q56 24 53 18" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.7" />
+                            <line x1="32" y1="36" x2="18" y2="54" stroke="white" strokeWidth="3" strokeLinecap="round" />
+                            <line x1="32" y1="36" x2="46" y2="54" stroke="white" strokeWidth="3" strokeLinecap="round" />
+                        </svg>
                     </div>
                     <h1 className="text-3xl font-bold text-white tracking-tight">Molinos</h1>
-                    <p className="text-slate-400 text-sm mt-1">Gestión Comunitaria — La Guajira</p>
+                    <p className="text-emerald-300/60 text-sm mt-1">Gestión Comunitaria — La Guajira</p>
                 </div>
 
                 {/* Card */}
@@ -129,8 +140,8 @@ export default function LoginPage() {
                     </p>
                 </div>
 
-                <p className="text-center text-slate-600 text-xs mt-6">
-                    © 2026 Proyecto Molinos de Viento — Análisis de Datos
+                <p className="text-center text-emerald-400/30 text-xs mt-6">
+                    © 2026 Proyecto Molinos de Viento · SENA
                 </p>
             </div>
         </div>

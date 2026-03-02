@@ -97,7 +97,7 @@ export default function PumpTechSpecsTab({ pump }) {
 
             {/* Additional Notes/Documentation */}
             {pump.notes && (
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                <div className="bg-brand-50 border border-brand-200 rounded-xl p-6">
                     <h4 className="text-sm font-bold text-blue-900 uppercase tracking-wider mb-3">
                         Notas Adicionales
                     </h4>

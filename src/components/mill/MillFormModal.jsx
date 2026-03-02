@@ -317,7 +317,7 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
                                     placeholder="Ej: LAG-001"
                                     pattern="^[A-Z]{3}-\d{3}$"
                                     disabled={loading}
-                                    className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono uppercase ${errors.code ? 'border-red-300 bg-red-50' : 'border-slate-300'
+                                    className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 font-mono uppercase ${errors.code ? 'border-red-300 bg-red-50' : 'border-slate-300'
                                         }`}
                                 />
                                 {errors.code ? (
@@ -339,7 +339,7 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
                                     onChange={handleChange}
                                     placeholder="Ej: REG-2024-001"
                                     disabled={loading}
-                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                 />
                             </div>
 
@@ -355,7 +355,7 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
                                     onChange={handleChange}
                                     placeholder="Ej: Molino Central"
                                     disabled={loading}
-                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                 />
                             </div>
                         </div>
@@ -380,7 +380,7 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
                                     onChange={handleChange}
                                     placeholder="Ej: TIPO A-20"
                                     disabled={loading}
-                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                 />
                             </div>
 
@@ -396,7 +396,7 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
                                     onChange={handleChange}
                                     placeholder="Ej: Empresas Varias"
                                     disabled={loading}
-                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                 />
                             </div>
                         </div>
@@ -419,7 +419,7 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
                                     value={formData.community_id}
                                     onChange={handleChange}
                                     disabled={loading}
-                                    className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.community_id ? 'border-red-300 bg-red-50' : 'border-slate-300'
+                                    className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 ${errors.community_id ? 'border-red-300 bg-red-50' : 'border-slate-300'
                                         }`}
                                 >
                                     <option value="">Seleccionar comunidad...</option>
@@ -446,7 +446,7 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
                                     placeholder="Coordenadas, referencias, cómo llegar..."
                                     rows={3}
                                     disabled={loading}
-                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                 />
                             </div>
 
@@ -465,7 +465,7 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
                                         placeholder="11.123456"
                                         step="0.000001"
                                         disabled={loading}
-                                        className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                     />
                                 </div>
 
@@ -482,7 +482,7 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
                                         placeholder="-72.123456"
                                         step="0.000001"
                                         disabled={loading}
-                                        className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                     />
                                 </div>
                             </div>
@@ -506,7 +506,7 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
                                     value={formData.status}
                                     onChange={handleChange}
                                     disabled={loading}
-                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                 >
                                     <option value="OPERATIONAL">Operativo</option>
                                     <option value="NON_OPERATIONAL">Inoperativo</option>
@@ -528,7 +528,7 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
                                     onChange={handleChange}
                                     max={new Date().toISOString().split('T')[0]}
                                     disabled={loading}
-                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                 />
                             </div>
 
@@ -545,7 +545,7 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
                                     onChange={handleChange}
                                     max={new Date().toISOString().split('T')[0]}
                                     disabled={loading}
-                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                 />
                             </div>
                         </div>
@@ -561,7 +561,7 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
                             <select
                                 onChange={(e) => { handleAddComponent(e.target.value); e.target.value = ''; }}
                                 disabled={loading}
-                                className="px-4 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
+                                className="px-4 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500"
                             >
                                 <option value="">+ Agregar Componente</option>
                                 {availableComponents.filter(ac =>
@@ -640,7 +640,7 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
                                     placeholder="Observaciones, historial, comentarios..."
                                     rows={3}
                                     disabled={loading}
-                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                 />
                             </div>
 
@@ -657,7 +657,7 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
                                     onChange={handleChange}
                                     placeholder="https://..."
                                     disabled={loading}
-                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                 />
                                 <p className="text-xs text-slate-500 mt-1">Enlace a documentación externa (planos, manuales, etc.)</p>
                             </div>
@@ -687,7 +687,7 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
                     <button
                         onClick={handleSubmit}
                         disabled={loading}
-                        className="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-bold shadow-lg shadow-blue-600/20 disabled:opacity-50 flex items-center gap-2"
+                        className="px-6 py-2.5 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-colors font-bold shadow-lg shadow-blue-600/20 disabled:opacity-50 flex items-center gap-2"
                     >
                         {loading && <Loader className="animate-spin" size={16} />}
                         {loading ? 'Guardando...' : (isEdit ? 'Actualizar Molino' : 'Crear Molino')}

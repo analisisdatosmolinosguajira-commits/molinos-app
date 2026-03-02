@@ -107,7 +107,7 @@ const JourneyPage = () => {
                             e.stopPropagation();
                             handleEditJourney(journey);
                         }}
-                        className="p-2 bg-white/90 hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 rounded-full shadow-sm border border-slate-200 hover:border-indigo-100 transition-all"
+                        className="p-2 bg-white/90 hover:bg-brand-50 text-slate-400 hover:text-brand-600 rounded-full shadow-sm border border-slate-200 hover:border-brand-100 transition-all"
                         title="Editar viaje"
                     >
                         <Pencil size={16} />
@@ -142,7 +142,7 @@ const JourneyPage = () => {
                 </span>
             </div>
 
-            <h3 className="font-bold text-slate-800 mb-1 group-hover:text-indigo-600 transition-colors">
+            <h3 className="font-bold text-slate-800 mb-1 group-hover:text-brand-600 transition-colors">
                 {journey.title}
             </h3>
 
@@ -177,7 +177,7 @@ const JourneyPage = () => {
 
             {/* Linked Activity */}
             {journey.linkedActivity && (
-                <div className="text-xs bg-indigo-50 text-indigo-700 px-3 py-2 rounded-lg border border-indigo-100 flex items-center gap-2 truncate">
+                <div className="text-xs bg-brand-50 text-brand-700 px-3 py-2 rounded-lg border border-brand-100 flex items-center gap-2 truncate">
                     <FileText size={12} />
                     <span className="truncate">Actividad: {journey.linkedActivity.title}</span>
                 </div>
@@ -228,7 +228,7 @@ const JourneyPage = () => {
                                     <input
                                         type="text"
                                         placeholder="Buscar viajes..."
-                                        className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-100 focus:border-indigo-300 w-full md:w-64 outline-none"
+                                        className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-brand-100 focus:border-brand-300 w-full md:w-64 outline-none"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
@@ -242,7 +242,7 @@ const JourneyPage = () => {
                                 <PermissionGate module="jornadas" action="create">
                                     <button
                                         onClick={() => setIsCreateModalOpen(true)}
-                                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl shadow-sm font-medium flex items-center gap-2 transition-all hover:translate-y-[-1px] whitespace-nowrap ml-auto md:ml-0">
+                                        className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl shadow-sm font-medium flex items-center gap-2 transition-all hover:translate-y-[-1px] whitespace-nowrap ml-auto md:ml-0">
                                         <Plus size={20} />
                                         <span className="hidden sm:inline">Nuevo Viaje</span>
                                     </button>
@@ -281,14 +281,14 @@ const JourneyPage = () => {
                             <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
                                 <button
                                     onClick={() => setViewMode('list')}
-                                    className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
+                                    className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-brand-50 text-brand-600' : 'text-slate-400 hover:text-slate-600'}`}
                                     title="Vista de Lista"
                                 >
                                     <AlignLeft size={20} />
                                 </button>
                                 <button
                                     onClick={() => setViewMode('calendar')}
-                                    className={`p-2 rounded-lg transition-all ${viewMode === 'calendar' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
+                                    className={`p-2 rounded-lg transition-all ${viewMode === 'calendar' ? 'bg-brand-50 text-brand-600' : 'text-slate-400 hover:text-slate-600'}`}
                                     title="Vista de Calendario"
                                 >
                                     <Calendar size={20} />
@@ -299,7 +299,7 @@ const JourneyPage = () => {
                         {/* Content */}
                         {loading ? (
                             <div className="flex justify-center py-20">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
                             </div>
                         ) : viewMode === 'calendar' ? (
                             <JourneyCalendar journeys={filteredJourneys} />

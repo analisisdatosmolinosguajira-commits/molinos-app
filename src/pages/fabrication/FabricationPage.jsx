@@ -11,8 +11,8 @@ import PumpOrdersManager from './PumpOrdersManager';
 
 const STATUS_CONFIG = {
     'pendiente': { label: 'Pendiente', bg: 'bg-amber-100', text: 'text-amber-700', border: 'border-amber-200', dot: 'bg-amber-500' },
-    'planificada': { label: 'Planificada', bg: 'bg-violet-100', text: 'text-violet-700', border: 'border-violet-200', dot: 'bg-violet-500' },
-    'en_proceso': { label: 'En Proceso', bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200', dot: 'bg-blue-500' },
+    'planificada': { label: 'Planificada', bg: 'bg-violet-100', text: 'text-violet-700', border: 'border-violet-200', dot: 'bg-brand-500' },
+    'en_proceso': { label: 'En Proceso', bg: 'bg-brand-100', text: 'text-brand-700', border: 'border-brand-200', dot: 'bg-brand-500' },
     'terminada': { label: 'Terminada', bg: 'bg-emerald-100', text: 'text-emerald-700', border: 'border-emerald-200', dot: 'bg-emerald-500' },
     'cancelada': { label: 'Cancelada', bg: 'bg-red-100', text: 'text-red-700', border: 'border-red-200', dot: 'bg-red-500' }
 };
@@ -52,7 +52,7 @@ const OrderCard = ({ order, onClick, onDelete }) => {
     return (
         <div
             onClick={onClick}
-            className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-indigo-200 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer overflow-hidden"
+            className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-brand-200 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer overflow-hidden"
         >
             <div className={`h-1 ${STATUS_CONFIG[order.status]?.dot || 'bg-slate-300'}`} />
             <div className="p-5">
@@ -99,7 +99,7 @@ const OrderCard = ({ order, onClick, onDelete }) => {
                 </div>
 
                 {order.relatedActivity && (
-                    <div className="mt-3 pt-3 border-t border-slate-50 flex items-center gap-1.5 text-xs text-indigo-600">
+                    <div className="mt-3 pt-3 border-t border-slate-50 flex items-center gap-1.5 text-xs text-brand-600">
                         <Activity size={12} />
                         <span className="truncate font-medium">{order.relatedActivity.title}</span>
                     </div>
@@ -220,7 +220,7 @@ export default function FabricationPage() {
                         {pageTab === 'ORDERS' && (
                             <button
                                 onClick={() => { setEditingOrderId(null); setModalOpen(true); }}
-                                className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-indigo-500/30 transition-all active:scale-95"
+                                className="bg-brand-600 hover:bg-brand-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-indigo-500/30 transition-all active:scale-95"
                             >
                                 <Plus size={18} />
                                 Nueva Orden
@@ -269,7 +269,7 @@ export default function FabricationPage() {
                             <input
                                 type="text"
                                 placeholder="Buscar pieza, código, cuadrilla..."
-                                className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
+                                className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all"
                                 value={searchQuery}
                                 onChange={e => setSearchQuery(e.target.value)}
                             />

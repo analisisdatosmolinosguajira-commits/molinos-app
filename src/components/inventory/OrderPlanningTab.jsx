@@ -508,7 +508,7 @@ export default function OrderPlanningTab({ onNotification }) {
                                             <td className="px-6 py-4 font-medium text-slate-800">{order.title}</td>
                                             <td className="px-6 py-4">
                                                 <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${order.status === 'recibido' ? 'bg-green-100 text-green-700' :
-                                                    order.status === 'pedido' ? 'bg-blue-100 text-blue-700' :
+                                                    order.status === 'pedido' ? 'bg-brand-100 text-brand-700' :
                                                         'bg-orange-100 text-orange-700'
                                                     }`}>
                                                     {order.status === 'recibido' ? 'Recibido' : order.status === 'pedido' ? 'Solicitado' : 'Borrador'}

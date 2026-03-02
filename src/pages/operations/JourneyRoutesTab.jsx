@@ -59,7 +59,7 @@ const JourneyRoutesTab = ({ activity }) => {
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
                 <div className="flex items-start gap-4">
-                    <div className="bg-white p-3 rounded-xl shadow-sm border border-blue-100 text-blue-600">
+                    <div className="bg-white p-3 rounded-xl shadow-sm border border-blue-100 text-brand-600">
                         <Navigation size={24} />
                     </div>
                     <div className="flex-1">
@@ -87,7 +87,7 @@ const JourneyRoutesTab = ({ activity }) => {
                             {/* Header */}
                             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 border-b border-slate-100">
                                 <div className="flex items-start gap-3">
-                                    <div className="bg-white p-2 rounded-lg shadow-sm border border-blue-100 text-blue-600">
+                                    <div className="bg-white p-2 rounded-lg shadow-sm border border-blue-100 text-brand-600">
                                         <MapPin size={20} />
                                     </div>
                                     <div className="flex-1 min-w-0">

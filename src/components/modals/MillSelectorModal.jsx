@@ -92,7 +92,7 @@ const MillSelectorModal = ({ onSelect, onClose, filter }) => {
                             placeholder="Buscar molino por código, nombre o comunidad..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                             autoFocus
                         />
                     </div>
@@ -102,7 +102,7 @@ const MillSelectorModal = ({ onSelect, onClose, filter }) => {
                 <div className="flex-1 overflow-y-auto p-6">
                     {loading ? (
                         <div className="flex flex-col items-center justify-center py-12">
-                            <Loader className="animate-spin text-blue-600 mb-3" size={32} />
+                            <Loader className="animate-spin text-brand-600 mb-3" size={32} />
                             <p className="text-slate-500">Cargando molinos...</p>
                         </div>
                     ) : error ? (
@@ -110,7 +110,7 @@ const MillSelectorModal = ({ onSelect, onClose, filter }) => {
                             <p className="text-red-600">{error}</p>
                             <button
                                 onClick={loadMills}
-                                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                className="mt-4 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700"
                             >
                                 Reintentar
                             </button>
@@ -127,11 +127,11 @@ const MillSelectorModal = ({ onSelect, onClose, filter }) => {
                                 <button
                                     key={mill.mill_id}
                                     onClick={() => onSelect(mill.mill_id)}
-                                    className="w-full p-4 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-xl transition-all text-left group"
+                                    className="w-full p-4 bg-slate-50 hover:bg-brand-50 border border-slate-200 hover:border-brand-300 rounded-xl transition-all text-left group"
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3 flex-1">
-                                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 group-hover:bg-blue-200 transition-colors">
+                                            <div className="w-10 h-10 bg-brand-100 rounded-lg flex items-center justify-center text-brand-600 group-hover:bg-blue-200 transition-colors">
                                                 <MapPin size={20} />
                                             </div>
                                             <div className="flex-1">

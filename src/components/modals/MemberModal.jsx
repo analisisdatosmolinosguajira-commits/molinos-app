@@ -146,7 +146,7 @@ const MemberModal = ({ isOpen, onClose, onSave, initialMember = null }) => {
                                     <input
                                         type="text"
                                         placeholder="Nombre o Cédula..."
-                                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none"
+                                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         autoFocus
@@ -175,11 +175,11 @@ const MemberModal = ({ isOpen, onClose, onSave, initialMember = null }) => {
                                                 }}
                                                 className="w-full text-left p-3 hover:bg-white transition-colors flex items-center gap-3 group"
                                             >
-                                                <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors">
+                                                <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs group-hover:bg-brand-100 group-hover:text-brand-600 transition-colors">
                                                     {person.first_name?.[0]}
                                                 </div>
                                                 <div>
-                                                    <p className="font-medium text-slate-700 text-sm group-hover:text-indigo-700">{person.first_name} {person.last_name}</p>
+                                                    <p className="font-medium text-slate-700 text-sm group-hover:text-brand-700">{person.first_name} {person.last_name}</p>
                                                     <p className="text-xs text-slate-400 font-mono">{person.document_id}</p>
                                                 </div>
                                                 <ChevronRight className="ml-auto text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" size={16} />
@@ -191,7 +191,7 @@ const MemberModal = ({ isOpen, onClose, onSave, initialMember = null }) => {
                                         <p className="text-sm text-slate-500 mb-3">No encontramos a esa persona.</p>
                                         <button
                                             onClick={() => setCreatePersonOpen(true)}
-                                            className="flex items-center gap-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg font-medium text-sm transition-colors"
+                                            className="flex items-center gap-2 text-brand-600 bg-brand-50 hover:bg-brand-100 px-4 py-2 rounded-lg font-medium text-sm transition-colors"
                                         >
                                             <Plus size={16} /> Crear Nueva Persona
                                         </button>
@@ -208,18 +208,18 @@ const MemberModal = ({ isOpen, onClose, onSave, initialMember = null }) => {
                     {/* Step 2: Select Role */}
                     {step === 2 && selectedPerson && (
                         <div className="space-y-6">
-                            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+                            <div className="bg-brand-50 border border-brand-100 rounded-xl p-4 flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 font-bold">
                                     <User size={20} />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-indigo-500 font-bold uppercase tracking-wider">Persona Seleccionada</p>
+                                    <p className="text-xs text-brand-500 font-bold uppercase tracking-wider">Persona Seleccionada</p>
                                     <p className="font-bold text-indigo-900">{selectedPerson.name || `${selectedPerson.first_name} ${selectedPerson.last_name}`}</p>
                                 </div>
                                 {!initialMember && (
                                     <button
                                         onClick={() => setStep(1)}
-                                        className="ml-auto text-xs text-indigo-400 hover:text-indigo-600 underline"
+                                        className="ml-auto text-xs text-indigo-400 hover:text-brand-600 underline"
                                     >
                                         Cambiar
                                     </button>
@@ -235,12 +235,12 @@ const MemberModal = ({ isOpen, onClose, onSave, initialMember = null }) => {
                                             onClick={() => setSelectedRole(role.role_id)}
                                             className={`p-3 rounded-xl border text-sm font-medium transition-all text-left flex justify-between items-center
                                                 ${selectedRole === role.role_id
-                                                    ? 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-500/20'
+                                                    ? 'border-brand-500 bg-brand-50 text-brand-700 shadow-sm ring-1 ring-brand-500/20'
                                                     : 'border-slate-200 hover:border-slate-300 text-slate-600 hover:bg-slate-50'}
                                             `}
                                         >
                                             {role.name}
-                                            {selectedRole === role.role_id && <Check size={16} className="text-indigo-600" />}
+                                            {selectedRole === role.role_id && <Check size={16} className="text-brand-600" />}
                                         </button>
                                     ))}
                                 </div>
@@ -266,7 +266,7 @@ const MemberModal = ({ isOpen, onClose, onSave, initialMember = null }) => {
                         <button
                             onClick={handleSave}
                             disabled={!selectedRole || status === 'saving'}
-                            className={`bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-medium shadow-sm transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:pointer-events-none flex items-center gap-2`}
+                            className={`bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-xl font-medium shadow-sm transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:pointer-events-none flex items-center gap-2`}
                         >
                             {status === 'saving' && <Loader size={16} className="animate-spin" />}
                             {initialMember ? 'Guardar Cambios' : 'Confirmar & Asignar'}

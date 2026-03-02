@@ -259,7 +259,7 @@ export default function RLSTestPage() {
                     <button
                         onClick={testInsertPump}
                         disabled={testing}
-                        className="flex items-center gap-2 px-4 py-3 bg-blue-50 text-blue-700 font-semibold rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors disabled:opacity-50"
+                        className="flex items-center gap-2 px-4 py-3 bg-brand-50 text-brand-700 font-semibold rounded-lg border border-brand-200 hover:bg-brand-100 transition-colors disabled:opacity-50"
                     >
                         <Plus size={18} />
                         INSERT Pump
@@ -385,7 +385,7 @@ export default function RLSTestPage() {
                         <span><strong>INSERT:</strong> Verifica que se pueden crear registros nuevos en mill y pump</span>
                     </li>
                     <li className="flex items-start gap-2">
-                        <span className="text-blue-600 font-bold">✓</span>
+                        <span className="text-brand-600 font-bold">✓</span>
                         <span><strong>UPDATE:</strong> Verifica que se pueden modificar registros existentes</span>
                     </li>
                     <li className="flex items-start gap-2">

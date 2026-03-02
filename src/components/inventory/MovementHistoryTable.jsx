@@ -7,7 +7,7 @@ export default function MovementHistoryTable({ movements, filters, onFilterChang
     const [pageSize, setPageSize] = useState(20);
 
     const categoryColors = {
-        materiales: 'bg-blue-100 text-blue-700',
+        materiales: 'bg-brand-100 text-brand-700',
         piezas: 'bg-purple-100 text-purple-700',
         herramientas: 'bg-orange-100 text-orange-700',
         epp: 'bg-green-100 text-green-700'
@@ -24,7 +24,7 @@ export default function MovementHistoryTable({ movements, filters, onFilterChang
         IN: { label: 'Ingreso', icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50', sign: '+' },
         OUT: { label: 'Salida', icon: TrendingDown, color: 'text-red-600', bg: 'bg-red-50', sign: '-' },
         USE: { label: 'Uso', icon: TrendingDown, color: 'text-orange-600', bg: 'bg-orange-50', sign: '-' },
-        RETURN: { label: 'Devolución', icon: TrendingUp, color: 'text-blue-600', bg: 'bg-blue-50', sign: '+' },
+        RETURN: { label: 'Devolución', icon: TrendingUp, color: 'text-brand-600', bg: 'bg-brand-50', sign: '+' },
         ADJUST: { label: 'Ajuste', icon: Edit3, color: 'text-yellow-600', bg: 'bg-yellow-50', sign: '±' }
     };
 

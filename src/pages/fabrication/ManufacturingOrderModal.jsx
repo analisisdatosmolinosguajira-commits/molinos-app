@@ -36,7 +36,7 @@ const OrderTab = ({ formData, setFormData, crews, workOrders, errors }) => (
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nombre / Descripción</label>
             <input
                 type="text"
-                className={`w-full px-4 py-2.5 bg-slate-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all ${errors.name ? 'border-red-400' : 'border-slate-200'}`}
+                className={`w-full px-4 py-2.5 bg-slate-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all ${errors.name ? 'border-red-400' : 'border-slate-200'}`}
                 value={formData.name}
                 onChange={e => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Ej. Producción Lote A"
@@ -47,7 +47,7 @@ const OrderTab = ({ formData, setFormData, crews, workOrders, errors }) => (
         <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Estado</label>
             <select
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all"
                 value={formData.status}
                 onChange={e => setFormData({ ...formData, status: e.target.value })}
             >
@@ -60,7 +60,7 @@ const OrderTab = ({ formData, setFormData, crews, workOrders, errors }) => (
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Cantidad Planificada (Global)</label>
             <input
                 type="number" min="1"
-                className={`w-full px-4 py-2.5 bg-slate-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all ${errors.quantityPlanned ? 'border-red-400' : 'border-slate-200'}`}
+                className={`w-full px-4 py-2.5 bg-slate-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all ${errors.quantityPlanned ? 'border-red-400' : 'border-slate-200'}`}
                 value={formData.quantityPlanned}
                 onChange={e => setFormData({ ...formData, quantityPlanned: parseInt(e.target.value) || 0 })}
             />
@@ -73,7 +73,7 @@ const OrderTab = ({ formData, setFormData, crews, workOrders, errors }) => (
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                 <input
                     type="date"
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all"
                     value={formData.startDate}
                     onChange={e => setFormData({ ...formData, startDate: e.target.value })}
                 />
@@ -87,7 +87,7 @@ const OrderTab = ({ formData, setFormData, crews, workOrders, errors }) => (
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                 <input
                     type="date"
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all"
                     value={formData.endDate}
                     onChange={e => setFormData({ ...formData, endDate: e.target.value })}
                 />
@@ -100,7 +100,7 @@ const OrderTab = ({ formData, setFormData, crews, workOrders, errors }) => (
             <div className="relative">
                 <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                 <select
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all"
                     value={formData.crewId}
                     onChange={e => setFormData({ ...formData, crewId: e.target.value })}
                 >
@@ -116,7 +116,7 @@ const OrderTab = ({ formData, setFormData, crews, workOrders, errors }) => (
             <div className="relative">
                 <FileText className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                 <select
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all"
                     value={formData.workOrderId}
                     onChange={e => setFormData({ ...formData, workOrderId: e.target.value })}
                 >
@@ -130,7 +130,7 @@ const OrderTab = ({ formData, setFormData, crews, workOrders, errors }) => (
         <div className="md:col-span-2">
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Notas</label>
             <textarea
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all min-h-[80px] resize-none"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all min-h-[80px] resize-none"
                 placeholder="Detalles técnicos, instrucciones..."
                 value={formData.notes}
                 onChange={e => setFormData({ ...formData, notes: e.target.value })}
@@ -292,7 +292,7 @@ const ProcessesTab = ({ moId, pieces }) => {
                                                                 <span className="font-mono text-slate-400 mr-1">{r.material?.code}</span>
                                                                 {r.material?.name}
                                                             </span>
-                                                            <span className="font-bold text-indigo-600">
+                                                            <span className="font-bold text-brand-600">
                                                                 {parseFloat(r.quantity_required)} {r.material?.unit || 'und'}
                                                             </span>
                                                         </div>
@@ -349,7 +349,7 @@ const ProcessesTab = ({ moId, pieces }) => {
                 <button
                     onClick={handleAdd}
                     disabled={!addPieceId}
-                    className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all font-bold flex items-center gap-2"
+                    className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all font-bold flex items-center gap-2"
                 >
                     <Plus size={16} /> Agregar Pieza
                 </button>
@@ -480,7 +480,7 @@ const ConsumptionTab = ({ moId }) => {
                                         </td>
                                         <td className="px-4 py-2.5 text-right font-mono text-slate-600">{row.planned.toFixed(1)} {row.unit}</td>
                                         <td className="px-4 py-2.5 text-right font-mono text-slate-600">{row.consumed.toFixed(1)} {row.unit}</td>
-                                        <td className={`px-4 py-2.5 text-right font-mono font-bold ${row.diff > 0 ? 'text-blue-600' : row.diff < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                                        <td className={`px-4 py-2.5 text-right font-mono font-bold ${row.diff > 0 ? 'text-brand-600' : row.diff < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
                                             {row.diff > 0 ? `−${row.diff.toFixed(1)}` : row.diff < 0 ? `+${Math.abs(row.diff).toFixed(1)}` : '✓'}
                                         </td>
                                     </tr>
@@ -778,7 +778,7 @@ export default function ManufacturingOrderModal({ isOpen, onClose, orderId = nul
                             <button
                                 onClick={handleSave}
                                 disabled={saving}
-                                className="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-500/25 flex items-center gap-2 disabled:opacity-50 transition-all active:scale-95"
+                                className="px-5 py-2.5 bg-brand-600 text-white rounded-xl text-sm font-bold hover:bg-brand-700 shadow-lg shadow-indigo-500/25 flex items-center gap-2 disabled:opacity-50 transition-all active:scale-95"
                             >
                                 {saving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
                                 {isEditing ? 'Guardar Cambios' : 'Crear Orden'}

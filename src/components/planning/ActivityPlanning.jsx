@@ -160,14 +160,14 @@ const ActivityPlanning = () => {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => setIsGeneratorModalOpen(true)}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors font-medium"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-brand-50 text-brand-700 border border-brand-200 rounded-lg hover:bg-brand-100 transition-colors font-medium"
                     >
                         <Calendar size={18} />
                         Crear nueva asignación semanal
                     </button>
                     <button
                         onClick={handleCreateActivity}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors font-medium shadow-sm"
                     >
                         <Plus size={18} />
                         Nueva Actividad
@@ -186,11 +186,11 @@ const ActivityPlanning = () => {
                     <div className="text-xs text-slate-600 mt-1">Planificadas</div>
                 </div>
                 <div className="bg-white rounded-lg border border-gray-200 p-4">
-                    <div className="text-2xl font-bold text-blue-600">{counts.ASIGNADA}</div>
+                    <div className="text-2xl font-bold text-brand-600">{counts.ASIGNADA}</div>
                     <div className="text-xs text-slate-600 mt-1">Asignadas</div>
                 </div>
                 <div className="bg-white rounded-lg border border-gray-200 p-4">
-                    <div className="text-2xl font-bold text-indigo-600">{counts.EN_EJECUCION}</div>
+                    <div className="text-2xl font-bold text-brand-600">{counts.EN_EJECUCION}</div>
                     <div className="text-xs text-slate-600 mt-1">En Curso</div>
                 </div>
                 <div className="bg-white rounded-lg border border-gray-200 p-4">
@@ -219,14 +219,14 @@ const ActivityPlanning = () => {
                             value={filters.search}
                             onChange={(e) => handleFilterChange('search', e.target.value)}
                             placeholder="Buscar por título o descripción..."
-                            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64"
+                            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 w-64"
                         />
 
                         {/* Status Filter */}
                         <select
                             value={filters.status}
                             onChange={(e) => handleFilterChange('status', e.target.value)}
-                            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                         >
                             <option value="">Todos los estados</option>
                             <option value="PLANIFICADA">Planificada</option>
@@ -240,7 +240,7 @@ const ActivityPlanning = () => {
                         <select
                             value={filters.priority}
                             onChange={(e) => handleFilterChange('priority', e.target.value)}
-                            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                         >
                             <option value="">Todas las prioridades</option>
                             <option value="BAJA">Baja</option>
@@ -311,7 +311,7 @@ const ActivityPlanning = () => {
                     </p>
                     <button
                         onClick={handleCreateActivity}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors font-medium"
                     >
                         <Plus size={18} />
                         Nueva Actividad

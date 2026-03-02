@@ -110,7 +110,7 @@ export default function SupplyBoxManagerModal({ box, onClose, onComplete }) {
                     </button>
                     <button
                         onClick={() => setActiveTab('devolucion')}
-                        className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all ${activeTab === 'devolucion' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500 hover:text-slate-700'
+                        className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all ${activeTab === 'devolucion' ? 'bg-brand-100 text-brand-700' : 'bg-slate-100 text-slate-500 hover:text-slate-700'
                             }`}
                     >
                         <ArrowUpRight size={16} />
@@ -205,7 +205,7 @@ export default function SupplyBoxManagerModal({ box, onClose, onComplete }) {
                         </div>
                         <button
                             onClick={handleSubmit} disabled={submitting || !quantity}
-                            className={`w-full py-2.5 text-sm font-bold text-white rounded-xl disabled:opacity-40 flex items-center justify-center gap-2 ${activeTab === 'entrada' ? 'bg-green-600 hover:bg-green-500' : 'bg-blue-600 hover:bg-blue-500'
+                            className={`w-full py-2.5 text-sm font-bold text-white rounded-xl disabled:opacity-40 flex items-center justify-center gap-2 ${activeTab === 'entrada' ? 'bg-green-600 hover:bg-green-500' : 'bg-brand-600 hover:bg-brand-500'
                                 }`}
                         >
                             {submitting && <Loader2 size={14} className="animate-spin" />}

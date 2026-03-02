@@ -45,7 +45,7 @@ const CreatePersonModal = ({ isOpen, onClose, onSave }) => {
                                 required
                                 type="text"
                                 placeholder="Ej. Juan"
-                                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all"
                                 value={formData.firstName}
                                 onChange={e => setFormData({ ...formData, firstName: e.target.value })}
                             />
@@ -55,7 +55,7 @@ const CreatePersonModal = ({ isOpen, onClose, onSave }) => {
                             <input
                                 type="text"
                                 placeholder="Ej. Perez"
-                                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all"
                                 value={formData.lastName}
                                 onChange={e => setFormData({ ...formData, lastName: e.target.value })}
                             />
@@ -68,7 +68,7 @@ const CreatePersonModal = ({ isOpen, onClose, onSave }) => {
                             required
                             type="text"
                             placeholder="Ej. 12345678"
-                            className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                            className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all"
                             value={formData.documentId}
                             onChange={e => setFormData({ ...formData, documentId: e.target.value })}
                         />
@@ -79,7 +79,7 @@ const CreatePersonModal = ({ isOpen, onClose, onSave }) => {
                         <input
                             type="tel"
                             placeholder="Ej. 3001234567"
-                            className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                            className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all"
                             value={formData.phone}
                             onChange={e => setFormData({ ...formData, phone: e.target.value })}
                         />
@@ -96,7 +96,7 @@ const CreatePersonModal = ({ isOpen, onClose, onSave }) => {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-xl font-medium shadow-sm transition-all hover:scale-105 active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                            className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2 rounded-xl font-medium shadow-sm transition-all hover:scale-105 active:scale-95 disabled:opacity-50 flex items-center gap-2"
                         >
                             {saving && <Loader size={16} className="animate-spin" />}
                             Guardar Persona

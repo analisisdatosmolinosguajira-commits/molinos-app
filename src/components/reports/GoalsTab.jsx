@@ -8,7 +8,7 @@ import { ReportsService } from '../../services/reports';
 
 const METRIC_OPTIONS = [
     { key: 'new_interventions', label: 'Intervenciones nuevas', icon: Zap, color: 'text-emerald-600 bg-emerald-50' },
-    { key: 'completed_work_orders', label: 'OTs completadas', icon: Wrench, color: 'text-blue-600 bg-blue-50' },
+    { key: 'completed_work_orders', label: 'OTs completadas', icon: Wrench, color: 'text-brand-600 bg-brand-50' },
     { key: 'pieces_fabricated', label: 'Piezas fabricadas (total)', icon: Hammer, color: 'text-violet-600 bg-violet-50' },
     { key: 'distinct_piece_types', label: 'Tipos de pieza distintos', icon: Award, color: 'text-amber-600 bg-amber-50' },
     { key: 'pumps_fabricated', label: 'Bombas fabricadas', icon: Cpu, color: 'text-cyan-600 bg-cyan-50' },

@@ -105,7 +105,7 @@ const JourneyCalendar = ({ journeys }) => {
 
     const StatusDot = ({ status }) => {
         const color =
-            ['IN_PROGRESS', 'EN_CURSO', 'ACTIVE'].includes(status) ? 'bg-blue-500' :
+            ['IN_PROGRESS', 'EN_CURSO', 'ACTIVE'].includes(status) ? 'bg-brand-500' :
                 ['COMPLETED', 'COMPLETADO'].includes(status) ? 'bg-emerald-500' :
                     ['CANCELLED', 'CANCELADO'].includes(status) ? 'bg-red-500' :
                         'bg-slate-400'; // Planned
@@ -159,7 +159,7 @@ const JourneyCalendar = ({ journeys }) => {
                         >
                             <div className="flex justify-between items-start mb-2">
                                 <span className={`text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full 
-                                    ${isDayToday ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700'}`}>
+                                    ${isDayToday ? 'bg-brand-600 text-white shadow-md' : 'text-slate-700'}`}>
                                     {day.date.getDate()}
                                 </span>
                                 {dayJourneys.length > 0 && (
@@ -177,11 +177,11 @@ const JourneyCalendar = ({ journeys }) => {
                                             e.stopPropagation();
                                             navigate(`/visitas/${j.id}`);
                                         }}
-                                        className="text-xs p-1.5 rounded-md bg-white border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-200 group cursor-pointer transition-all"
+                                        className="text-xs p-1.5 rounded-md bg-white border border-slate-200 shadow-sm hover:shadow-md hover:border-brand-200 group cursor-pointer transition-all"
                                     >
                                         <div className="flex items-center gap-1.5 mb-0.5">
                                             <StatusDot status={j.status} />
-                                            <span className="font-semibold text-slate-700 truncate group-hover:text-indigo-600">
+                                            <span className="font-semibold text-slate-700 truncate group-hover:text-brand-600">
                                                 {j.title}
                                             </span>
                                         </div>
@@ -199,7 +199,7 @@ const JourneyCalendar = ({ journeys }) => {
                                     </div>
                                 ))}
                                 {dayJourneys.length > 3 && (
-                                    <button className="text-[10px] text-slate-400 hover:text-indigo-600 font-medium w-full text-center">
+                                    <button className="text-[10px] text-slate-400 hover:text-brand-600 font-medium w-full text-center">
                                         + {dayJourneys.length - 3} más
                                     </button>
                                 )}

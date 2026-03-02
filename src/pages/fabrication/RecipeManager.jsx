@@ -116,7 +116,7 @@ export default function RecipeManager() {
             <div className="w-72 border-r border-slate-100 flex flex-col bg-slate-50/50 shrink-0">
                 <div className="p-4 border-b border-slate-100">
                     <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-3">
-                        <BookOpen size={18} className="text-indigo-500" />
+                        <BookOpen size={18} className="text-brand-500" />
                         Catálogo de Recetas
                     </h3>
                     <div className="relative">
@@ -124,7 +124,7 @@ export default function RecipeManager() {
                         <input
                             type="text"
                             placeholder="Buscar pieza..."
-                            className="w-full pl-8 pr-3 py-1.5 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
+                            className="w-full pl-8 pr-3 py-1.5 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400"
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
                         />
@@ -141,7 +141,7 @@ export default function RecipeManager() {
                                     key={piece.piece_id}
                                     onClick={() => setSelectedPieceId(piece.piece_id)}
                                     className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-2 transition-all ${selectedPieceId === piece.piece_id
-                                            ? 'bg-indigo-600 text-white shadow-md'
+                                            ? 'bg-brand-600 text-white shadow-md'
                                             : 'hover:bg-white text-slate-700'
                                         }`}
                                 >
@@ -153,7 +153,7 @@ export default function RecipeManager() {
                                     {recipeCounts[piece.piece_id] && (
                                         <span className={`text-xs font-bold px-1.5 py-0.5 rounded-md ${selectedPieceId === piece.piece_id
                                                 ? 'bg-white/20 text-white'
-                                                : 'bg-indigo-50 text-indigo-600'
+                                                : 'bg-brand-50 text-brand-600'
                                             }`}>
                                             {recipeCounts[piece.piece_id]}
                                         </span>
@@ -172,7 +172,7 @@ export default function RecipeManager() {
                     <div className="flex-1 p-6 overflow-y-auto">
                         <div className="flex items-center justify-between mb-4">
                             <h4 className="font-bold text-slate-800 flex items-center gap-2">
-                                <Layers size={18} className="text-indigo-500" />
+                                <Layers size={18} className="text-brand-500" />
                                 Receta: {selectedPiece?.name}
                             </h4>
                             <span className="text-xs text-slate-400 font-medium">{recipe.length} materiales</span>
@@ -184,7 +184,7 @@ export default function RecipeManager() {
                             <>
                                 <div className="space-y-2 mb-4">
                                     {recipe.map(item => (
-                                        <div key={item.id} className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 group hover:border-indigo-200 transition-all">
+                                        <div key={item.id} className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 group hover:border-brand-200 transition-all">
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-semibold text-slate-700 truncate">
                                                     {item.material?.code} — {item.material?.name}
@@ -195,7 +195,7 @@ export default function RecipeManager() {
                                                 <div className="flex items-center gap-1">
                                                     <input
                                                         type="number"
-                                                        className="w-20 px-2 py-1 text-sm border border-indigo-300 rounded-lg bg-white outline-none"
+                                                        className="w-20 px-2 py-1 text-sm border border-brand-300 rounded-lg bg-white outline-none"
                                                         value={editQty}
                                                         onChange={e => setEditQty(e.target.value)}
                                                         autoFocus
@@ -208,7 +208,7 @@ export default function RecipeManager() {
                                                 <div className="flex items-center gap-1">
                                                     <button
                                                         onClick={() => { setEditingId(item.id); setEditQty(item.quantity_required.toString()); }}
-                                                        className="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold hover:bg-indigo-100 transition-colors"
+                                                        className="px-2.5 py-1 bg-brand-50 text-brand-700 rounded-lg text-xs font-bold hover:bg-brand-100 transition-colors"
                                                     >
                                                         {parseFloat(item.quantity_required)}
                                                     </button>
@@ -228,7 +228,7 @@ export default function RecipeManager() {
                                 </div>
 
                                 {/* Add Material Row */}
-                                <div className="flex items-center gap-2 p-2.5 bg-indigo-50/50 rounded-xl border border-dashed border-indigo-200">
+                                <div className="flex items-center gap-2 p-2.5 bg-brand-50/50 rounded-xl border border-dashed border-brand-200">
                                     <select
                                         className="flex-1 px-2 py-1.5 text-sm border border-slate-200 rounded-lg bg-white outline-none"
                                         value={newRow.materialId}
@@ -249,7 +249,7 @@ export default function RecipeManager() {
                                     <button
                                         onClick={handleAdd}
                                         disabled={!newRow.materialId || !newRow.quantity}
-                                        className="p-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                        className="p-1.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                                     >
                                         <Plus size={16} />
                                     </button>

@@ -116,7 +116,7 @@ const ResourceRequirementsForm = ({ activityId, initialResources = [], onUpdate 
                         <select
                             value={newResource.resource_type}
                             onChange={(e) => setNewResource({ ...newResource, resource_type: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                         >
                             {resourceTypes.map(type => (
                                 <option key={type.value} value={type.value}>
@@ -134,7 +134,7 @@ const ResourceRequirementsForm = ({ activityId, initialResources = [], onUpdate 
                             value={newResource.resource_name}
                             onChange={(e) => setNewResource({ ...newResource, resource_name: e.target.value })}
                             placeholder="Ej: Rodamiento 6205"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                         />
                     </div>
 
@@ -146,7 +146,7 @@ const ResourceRequirementsForm = ({ activityId, initialResources = [], onUpdate 
                             min="1"
                             value={newResource.quantity_needed}
                             onChange={(e) => setNewResource({ ...newResource, quantity_needed: parseInt(e.target.value) || 1 })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                         />
                     </div>
 
@@ -158,7 +158,7 @@ const ResourceRequirementsForm = ({ activityId, initialResources = [], onUpdate 
                             value={newResource.notes}
                             onChange={(e) => setNewResource({ ...newResource, notes: e.target.value })}
                             placeholder="Especificaciones adicionales"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                         />
                     </div>
                 </div>
@@ -167,7 +167,7 @@ const ResourceRequirementsForm = ({ activityId, initialResources = [], onUpdate 
                 <button
                     type="button"
                     onClick={handleAddResource}
-                    className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                    className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors font-medium"
                 >
                     <Plus size={18} />
                     Agregar Recurso

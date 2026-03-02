@@ -204,7 +204,7 @@ const JourneyDetail = () => {
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`pb - 3 text - sm font - medium flex items - center gap - 2 border - b - 2 transition - all
                                     ${activeTab === tab.id
-                                        ? 'border-indigo-600 text-indigo-600'
+                                        ? 'border-brand-600 text-brand-600'
                                         : 'border-transparent text-slate-500 hover:text-slate-700'
                                     }
 `}
@@ -229,7 +229,7 @@ const JourneyDetail = () => {
                                 </h3>
                                 <button
                                     onClick={loadVehiclesForModal}
-                                    className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-lg hover:bg-blue-100 font-medium"
+                                    className="text-xs bg-brand-50 text-brand-600 px-2 py-1 rounded-lg hover:bg-brand-100 font-medium"
                                 >
                                     + Asignar
                                 </button>
@@ -462,7 +462,7 @@ const JourneyDetail = () => {
                             <input
                                 type="text"
                                 placeholder="Buscar por placa o modelo..."
-                                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                                 value={vehicleSearch}
                                 onChange={(e) => setVehicleSearch(e.target.value)}
                             />
@@ -484,7 +484,7 @@ const JourneyDetail = () => {
                                 <button
                                     key={v.vehicle_id}
                                     onClick={() => handleAssignVehicle(v.vehicle_id)}
-                                    className="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 transition-all flex justify-between items-center group"
+                                    className="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-brand-50 hover:border-brand-200 hover:text-brand-700 transition-all flex justify-between items-center group"
                                 >
                                     <div>
                                         <p className="font-bold">{v.plate_number}</p>
@@ -540,7 +540,7 @@ const JourneyDetail = () => {
                                 />
                                 <label htmlFor="incident" className="text-sm text-slate-700">¿Reportar como incidencia?</label>
                             </div>
-                            <button type="submit" className="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 mt-2">
+                            <button type="submit" className="w-full bg-brand-600 text-white py-3 rounded-xl font-bold hover:bg-brand-700 mt-2">
                                 Guardar Registro
                             </button>
                         </form>

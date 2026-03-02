@@ -214,7 +214,7 @@ function TabSummary({ activity, onRefresh, onOpenDelivery }) {
 
                     {activity.status !== 'COMPLETADA' && activity.status !== 'CANCELADA' && (activity.activityTypeName === 'Entrega de Materiales' || activity.activity_type_id == 10) ? (
                         <button onClick={onOpenDelivery}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-colors">
+                            className="flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl transition-colors">
                             <ClipboardList size={18} />
                             Ruta de Entrega
                         </button>
@@ -814,8 +814,8 @@ function TabDailyExecution({ activity }) {
                             return (
                                 <button key={d} onClick={() => setSelectedDate(d)}
                                     className={`px-4 py-3 rounded-xl text-sm font-bold whitespace-nowrap transition-all flex flex-col items-center min-w-[80px] border ${selectedDate === d
-                                        ? 'bg-blue-600 text-white shadow-md border-blue-600'
-                                        : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border-slate-200 hover:border-blue-300 hover:text-blue-700'
+                                        ? 'bg-brand-600 text-white shadow-md border-blue-600'
+                                        : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border-slate-200 hover:border-brand-300 hover:text-brand-700'
                                         }`}>
                                     <span className="capitalize text-xs font-semibold tracking-wide opacity-90 mb-1">{weekdayName}</span>
                                     <span className="text-lg">{day}/{month}</span>

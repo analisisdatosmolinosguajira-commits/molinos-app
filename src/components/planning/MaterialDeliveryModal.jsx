@@ -228,7 +228,7 @@ export default function MaterialDeliveryModal({ isOpen, onClose, activity, onSuc
             {!isLocked && (
                 <button
                     onClick={() => addResource(stopIndex, listName, { [quantityField]: 1 })}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-brand-600 bg-brand-50 rounded-lg hover:bg-brand-100 transition-colors"
                 >
                     <Plus size={14} /> Agregar Item
                 </button>
@@ -243,7 +243,7 @@ export default function MaterialDeliveryModal({ isOpen, onClose, activity, onSuc
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-slate-50/50">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-indigo-100 text-indigo-700 rounded-xl">
+                        <div className="p-2 bg-brand-100 text-brand-700 rounded-xl">
                             <Truck size={24} />
                         </div>
                         <div>
@@ -274,7 +274,7 @@ export default function MaterialDeliveryModal({ isOpen, onClose, activity, onSuc
 
                     {loading ? (
                         <div className="py-12 flex justify-center">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
                         </div>
                     ) : (
                         <div className="space-y-4">
@@ -465,7 +465,7 @@ export default function MaterialDeliveryModal({ isOpen, onClose, activity, onSuc
                     <div className="mt-6 flex justify-center">
                         <button
                             onClick={addStop}
-                            className="inline-flex items-center gap-2 px-6 py-3 border-2 border-dashed border-slate-300 text-slate-600 rounded-xl hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all font-medium"
+                            className="inline-flex items-center gap-2 px-6 py-3 border-2 border-dashed border-slate-300 text-slate-600 rounded-xl hover:border-brand-400 hover:text-brand-600 hover:bg-brand-50 transition-all font-medium"
                         >
                             <Navigation size={18} />
                             Añadir Comunidad a la Ruta
@@ -485,7 +485,7 @@ export default function MaterialDeliveryModal({ isOpen, onClose, activity, onSuc
                     <button
                         onClick={handleSave}
                         disabled={saving || loading}
-                        className="px-6 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-lg shadow-indigo-200 transition-all disabled:opacity-50 flex items-center gap-2"
+                        className="px-6 py-2.5 text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow-lg shadow-indigo-200 transition-all disabled:opacity-50 flex items-center gap-2"
                     >
                         {saving ? 'Guardando...' : 'Guardar Planificada'}
                         {!saving && <Save size={18} />}

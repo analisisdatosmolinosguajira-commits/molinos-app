@@ -40,7 +40,7 @@ const CrewTimeline = ({ activities = [], viewMode = 'month' }) => {
 
     const getStatusColor = (status) => {
         const colors = {
-            'PLANIFICADA': 'bg-blue-500',
+            'PLANIFICADA': 'bg-brand-500',
             'EN_EJECUCION': 'bg-yellow-500',
             'COMPLETADA': 'bg-green-500',
             'CANCELADA': 'bg-red-500'
@@ -107,7 +107,7 @@ const CrewTimeline = ({ activities = [], viewMode = 'month' }) => {
                             {bar.priority && (
                                 <span className={`text-xs font-medium ${bar.priority === 'ALTA' ? 'text-red-600' :
                                         bar.priority === 'MEDIA' ? 'text-yellow-600' :
-                                            'text-blue-600'
+                                            'text-brand-600'
                                     }`}>
                                     {bar.priority}
                                 </span>
@@ -122,7 +122,7 @@ const CrewTimeline = ({ activities = [], viewMode = 'month' }) => {
                 <span className="text-xs text-slate-500 font-medium">Estados:</span>
                 <div className="flex items-center gap-3 flex-wrap">
                     <div className="flex items-center gap-1.5">
-                        <div className="w-3 h-3 rounded bg-blue-500"></div>
+                        <div className="w-3 h-3 rounded bg-brand-500"></div>
                         <span className="text-xs text-slate-600">Planificada</span>
                     </div>
                     <div className="flex items-center gap-1.5">

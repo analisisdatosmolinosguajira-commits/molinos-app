@@ -68,8 +68,8 @@ const KardexModal = ({ category, item, onClose }) => {
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-gradient-to-r from-indigo-50 to-white flex-shrink-0 rounded-t-2xl">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-indigo-100 rounded-lg">
-                            <Package size={24} className="text-indigo-600" />
+                        <div className="p-2 bg-brand-100 rounded-lg">
+                            <Package size={24} className="text-brand-600" />
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-slate-800">Kardex - {item.name}</h2>
@@ -89,7 +89,7 @@ const KardexModal = ({ category, item, onClose }) => {
                 <div className="overflow-y-auto flex-1 min-h-0 p-6">
                     {loading ? (
                         <div className="flex items-center justify-center py-20">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600"></div>
                         </div>
                     ) : movements.length === 0 ? (
                         <div className="text-center py-20">
@@ -102,7 +102,7 @@ const KardexModal = ({ category, item, onClose }) => {
                     ) : (
                         <div className="space-y-4">
                             {/* Summary Card */}
-                            <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-4 rounded-xl border border-indigo-100">
+                            <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-4 rounded-xl border border-brand-100">
                                 <div className="grid grid-cols-3 gap-4">
                                     <div>
                                         <p className="text-xs text-slate-600 mb-1">Stock Actual</p>

@@ -21,7 +21,7 @@ const CERT_TYPES = [
 const CONDITION_LABELS = {
     NUEVO: { label: 'Nuevo', color: 'bg-green-100 text-green-700' },
     REPOSICION: { label: 'Reposición', color: 'bg-yellow-100 text-yellow-700' },
-    ACTIVIDAD_ESPECIFICA: { label: 'Act. Específica', color: 'bg-blue-100 text-blue-700' },
+    ACTIVIDAD_ESPECIFICA: { label: 'Act. Específica', color: 'bg-brand-100 text-brand-700' },
 };
 
 export default function PersonSSTDetail() {

@@ -9,8 +9,8 @@ import PumpModelManager from './PumpModelManager';
 
 const STATUS_CONFIG = {
     'pendiente': { label: 'Pendiente', bg: 'bg-amber-100', text: 'text-amber-700', border: 'border-amber-200', dot: 'bg-amber-500' },
-    'planificada': { label: 'Planificada', bg: 'bg-violet-100', text: 'text-violet-700', border: 'border-violet-200', dot: 'bg-violet-500' },
-    'en_proceso': { label: 'En Proceso', bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200', dot: 'bg-blue-500' },
+    'planificada': { label: 'Planificada', bg: 'bg-violet-100', text: 'text-violet-700', border: 'border-violet-200', dot: 'bg-brand-500' },
+    'en_proceso': { label: 'En Proceso', bg: 'bg-brand-100', text: 'text-brand-700', border: 'border-brand-200', dot: 'bg-brand-500' },
     'terminada': { label: 'Terminada', bg: 'bg-emerald-100', text: 'text-emerald-700', border: 'border-emerald-200', dot: 'bg-emerald-500' },
     'cancelada': { label: 'Cancelada', bg: 'bg-red-100', text: 'text-red-700', border: 'border-red-200', dot: 'bg-red-500' }
 };

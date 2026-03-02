@@ -130,26 +130,26 @@ export default function CreateMovementFromActivityModal({ activity, isOpen, onCl
                     )}
 
                     {/* Activity Info Card */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <div className="bg-brand-50 border border-brand-200 rounded-xl p-4">
                         <h3 className="font-bold text-blue-900 mb-2 flex items-center gap-2">
                             <Calendar size={18} />
                             Información de la Actividad
                         </h3>
                         <div className="grid grid-cols-2 gap-3 text-sm">
                             <div>
-                                <p className="text-blue-700 font-medium">Tipo</p>
+                                <p className="text-brand-700 font-medium">Tipo</p>
                                 <p className="text-blue-900">{activity?.activity_type?.name || 'N/A'}</p>
                             </div>
                             <div>
-                                <p className="text-blue-700 font-medium">Estado</p>
+                                <p className="text-brand-700 font-medium">Estado</p>
                                 <p className="text-blue-900">{activity?.status || 'N/A'}</p>
                             </div>
                             <div>
-                                <p className="text-blue-700 font-medium">Cuadrilla</p>
+                                <p className="text-brand-700 font-medium">Cuadrilla</p>
                                 <p className="text-blue-900">{activity?.crew?.name || 'Sin asignar'}</p>
                             </div>
                             <div>
-                                <p className="text-blue-700 font-medium">Ubicación</p>
+                                <p className="text-brand-700 font-medium">Ubicación</p>
                                 <p className="text-blue-900">
                                     {activity?.target_community?.name || activity?.target_mill?.name || 'N/A'}
                                 </p>

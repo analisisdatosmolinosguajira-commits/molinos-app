@@ -206,7 +206,7 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
                                     placeholder="Ej: ABC-123"
                                     pattern="^[A-Z0-9-]+$"
                                     disabled={loading}
-                                    className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono uppercase ${errors.serial_number ? 'border-red-300 bg-red-50' : 'border-slate-300'
+                                    className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 font-mono uppercase ${errors.serial_number ? 'border-red-300 bg-red-50' : 'border-slate-300'
                                         }`}
                                 />
                                 {errors.serial_number ? (
@@ -228,7 +228,7 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
                                     onChange={handleChange}
                                     placeholder="Ej: M-200"
                                     disabled={loading}
-                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                 />
                             </div>
 
@@ -242,7 +242,7 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
                                     value={formData.type}
                                     onChange={handleChange}
                                     disabled={loading}
-                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                 >
                                     <option value="">Seleccionar tipo/tamaño...</option>
                                     <option value="3 Pulgadas">3 Pulgadas</option>
@@ -264,7 +264,7 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
                                     value={formData.origin}
                                     onChange={handleChange}
                                     disabled={loading}
-                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                 >
                                     <option value="">Seleccionar origen...</option>
                                     <option value="nueva">Nueva (Comprada)</option>
@@ -284,7 +284,7 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
                                     value={formData.status}
                                     onChange={handleChange}
                                     disabled={loading}
-                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                 >
                                     <option value="almacenada">En Almacén</option>
                                     <option value="instalada">Instalada</option>
@@ -313,7 +313,7 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
                                     value={formData.supplier_id}
                                     onChange={handleChange}
                                     disabled={loading}
-                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                 >
                                     <option value="">Seleccionar proveedor...</option>
                                     {suppliers.map(s => (
@@ -338,7 +338,7 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
                                     onChange={handleChange}
                                     max={new Date().toISOString().split('T')[0]}
                                     disabled={loading}
-                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                 />
                             </div>
 
@@ -355,7 +355,7 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
                                     placeholder="ID de la orden"
                                     min="1"
                                     disabled={loading}
-                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                 />
                                 <p className="text-xs text-slate-500 mt-1">Opcional - Solo si fue fabricada en taller</p>
                             </div>
@@ -374,7 +374,7 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
                                         onChange={handleChange}
                                         placeholder="Ej: Estante A3, Bodega Principal"
                                         disabled={loading}
-                                        className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                     />
                                     <p className="text-xs text-slate-500 mt-1">Ubicación física en el almacén</p>
                                 </div>
@@ -404,7 +404,7 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
                                     max="500"
                                     step="0.1"
                                     disabled={loading}
-                                    className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.max_depth ? 'border-red-300 bg-red-50' : 'border-slate-300'
+                                    className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 ${errors.max_depth ? 'border-red-300 bg-red-50' : 'border-slate-300'
                                         }`}
                                 />
                                 {errors.max_depth && (
@@ -425,7 +425,7 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
                                     placeholder="1000"
                                     min="0"
                                     disabled={loading}
-                                    className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.capacity ? 'border-red-300 bg-red-50' : 'border-slate-300'
+                                    className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 ${errors.capacity ? 'border-red-300 bg-red-50' : 'border-slate-300'
                                         }`}
                                 />
                                 {errors.capacity && (
@@ -471,7 +471,7 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
                     <button
                         onClick={handleSubmit}
                         disabled={loading}
-                        className="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-bold shadow-lg shadow-blue-600/20 disabled:opacity-50 flex items-center gap-2"
+                        className="px-6 py-2.5 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-colors font-bold shadow-lg shadow-blue-600/20 disabled:opacity-50 flex items-center gap-2"
                     >
                         {loading && <Loader className="animate-spin" size={16} />}
                         {loading ? 'Guardando...' : (isEdit ? 'Actualizar Bomba' : 'Registrar Bomba')}

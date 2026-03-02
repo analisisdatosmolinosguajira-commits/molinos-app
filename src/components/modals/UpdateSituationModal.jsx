@@ -12,7 +12,7 @@ const UpdateSituationModal = ({ isOpen, onClose, situation, onSuccess, service =
     const [error, setError] = useState(null);
 
     const statusOptions = [
-        { value: 'active', label: 'Activo', color: 'bg-blue-100 text-blue-700', icon: '🔵' },
+        { value: 'active', label: 'Activo', color: 'bg-brand-100 text-brand-700', icon: '🔵' },
         { value: 'monitoring', label: 'Monitoreando', color: 'bg-purple-100 text-purple-700', icon: '🟣' },
         { value: 'resolved', label: 'Resuelto', color: 'bg-gray-100 text-gray-700', icon: '✅' }
     ];

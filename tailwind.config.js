@@ -10,44 +10,57 @@ export default {
                 sans: ['Inter', 'sans-serif'],
             },
             colors: {
-                // Semantic Colors for the Project
+                // 🎨 Dark Green Futuristic Design System — SENA Molinos
                 brand: {
-                    50: '#f0f9ff',
-                    100: '#e0f2fe',
-                    200: '#bae6fd',
-                    300: '#7dd3fc',
-                    400: '#38bdf8',
-                    500: '#0ea5e9',
-                    600: '#0284c7', // Primary Technical Blue
-                    700: '#0369a1',
-                    800: '#075985',
-                    900: '#0c4a6e',
+                    50: '#ecfdf5',
+                    100: '#d1fae5',
+                    200: '#a7f3d0',
+                    300: '#6ee7b7',
+                    400: '#34d399',
+                    500: '#10b981',
+                    600: '#059669', // Primary — SENA Green
+                    700: '#047857',
+                    800: '#065f46',
+                    900: '#064e3b',
+                    950: '#022c22',
+                },
+                accent: {
+                    50: '#f0fdfa',
+                    100: '#ccfbf1',
+                    200: '#99f6e4',
+                    300: '#5eead4',
+                    400: '#2dd4bf',
+                    500: '#14b8a6', // Teal accent (tech / futuristic)
+                    600: '#0d9488',
                 },
                 social: {
-                    500: '#8b5cf6', // Violet/Purple for Social/Community aspects
-                    600: '#7c3aed',
+                    50: '#f5f3ff',
                     100: '#ede9fe',
+                    500: '#8b5cf6',
+                    600: '#7c3aed',
                 },
                 technical: {
-                    500: '#0ea5e9', // Blue for technical/mechanical aspects
-                    600: '#0284c7',
-                    100: '#e0f2fe',
+                    100: '#d1fae5',
+                    500: '#10b981',
+                    600: '#059669',
                 },
-                // Status Indications
                 status: {
-                    operational: '#22c55e', // Green
-                    maintenance: '#f59e0b', // Amber
-                    inactive: '#ef4444',    // Red
+                    operational: '#10b981',
+                    maintenance: '#f59e0b',
+                    inactive: '#ef4444',
                 },
                 slate: {
-                    850: '#1e293b', // Custom dark slate for sophisticated backgrounds
-                    900: '#0f172a',
+                    850: '#1a2e2a',
+                    900: '#0f1f1b',
+                    950: '#0a1612',
                 }
             },
             boxShadow: {
-                'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
-                'glow': '0 0 15px rgba(14, 165, 233, 0.3)',
-                'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+                'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.06)',
+                'glow': '0 0 20px rgba(5, 150, 105, 0.25)',
+                'glow-accent': '0 0 20px rgba(20, 184, 166, 0.2)',
+                'glass': '0 8px 32px 0 rgba(6, 78, 59, 0.08)',
+                'neon': '0 0 30px rgba(16, 185, 129, 0.15), 0 0 60px rgba(5, 150, 105, 0.05)',
             },
             animation: {
                 'fade-in': 'fadeIn 0.5s ease-out forwards',

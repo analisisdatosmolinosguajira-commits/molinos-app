@@ -321,7 +321,7 @@ export default function ConcertationForm({ concertationId, onBack }) {
                     {isEditing && formData.status === 'pendiente' && (
                         <button
                             onClick={handleStart}
-                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold"
+                            className="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 font-bold"
                         >
                             <Play size={16} /> Iniciar Concertación
                         </button>
@@ -338,7 +338,7 @@ export default function ConcertationForm({ concertationId, onBack }) {
                     <button
                         onClick={handleSubmit}
                         disabled={saving}
-                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold disabled:opacity-50"
+                        className="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 font-bold disabled:opacity-50"
                     >
                         <Save size={18} />
                         {saving ? 'Guardando...' : 'Guardar'}
@@ -376,7 +376,7 @@ export default function ConcertationForm({ concertationId, onBack }) {
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Comunidad *</label>
                                     <select
-                                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-brand-500"
                                         value={formData.community_id}
                                         onChange={(e) => setFormData({ ...formData, community_id: e.target.value, diagnosis_id: '' })}
                                         disabled={isEditing} // Lock community after creation? Usually safer.
@@ -390,7 +390,7 @@ export default function ConcertationForm({ concertationId, onBack }) {
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Diagnóstico Relacionado (Opcional)</label>
                                     <select
-                                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-brand-500"
                                         value={formData.diagnosis_id}
                                         onChange={(e) => setFormData({ ...formData, diagnosis_id: e.target.value })}
                                         disabled={!formData.community_id}
@@ -407,7 +407,7 @@ export default function ConcertationForm({ concertationId, onBack }) {
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Fecha Programada / Reunión</label>
                                     <input
                                         type="date"
-                                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-brand-500"
                                         value={formData.meeting_date ? new Date(formData.meeting_date).toISOString().split('T')[0] : ''}
                                         onChange={(e) => setFormData({ ...formData, meeting_date: e.target.value })}
                                     />
@@ -433,7 +433,7 @@ export default function ConcertationForm({ concertationId, onBack }) {
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Decisión</label>
                                     <select
-                                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-brand-500"
                                         value={formData.decision}
                                         onChange={(e) => setFormData({ ...formData, decision: e.target.value })}
                                     >
@@ -449,7 +449,7 @@ export default function ConcertationForm({ concertationId, onBack }) {
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Condiciones / Acuerdos</label>
                                 <textarea
-                                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 h-24"
+                                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-brand-500 h-24"
                                     value={formData.conditions || ''}
                                     onChange={(e) => setFormData({ ...formData, conditions: e.target.value })}
                                     placeholder="Especifique las condiciones acordadas..."
@@ -459,7 +459,7 @@ export default function ConcertationForm({ concertationId, onBack }) {
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Notas / Conclusiones</label>
                                 <textarea
-                                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 h-24"
+                                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-brand-500 h-24"
                                     value={formData.notes || ''}
                                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                                     placeholder="Notas generales o conclusiones finales..."
@@ -540,7 +540,7 @@ export default function ConcertationForm({ concertationId, onBack }) {
                             {/* Personnel */}
                             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col h-[500px]">
                                 <h3 className="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
-                                    <Users size={20} className="text-blue-600" />
+                                    <Users size={20} className="text-brand-600" />
                                     Personal Operativo
                                 </h3>
 
@@ -563,7 +563,7 @@ export default function ConcertationForm({ concertationId, onBack }) {
                                             const select = document.getElementById('personSelect');
                                             if (select.value) handleAddPerson(select.value);
                                         }}
-                                        className="bg-blue-100 text-blue-700 p-2 rounded-lg hover:bg-blue-200"
+                                        className="bg-brand-100 text-brand-700 p-2 rounded-lg hover:bg-blue-200"
                                     >
                                         <Plus size={20} />
                                     </button>

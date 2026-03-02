@@ -42,7 +42,7 @@ const FailureHistoryTimeline = ({ millId }) => {
     };
 
     const typeConfig = {
-        work_order: { icon: Wrench, label: 'Falla / Work Order', color: 'text-blue-600', bg: 'bg-blue-50' },
+        work_order: { icon: Wrench, label: 'Falla / Work Order', color: 'text-brand-600', bg: 'bg-brand-50' },
         component_issue: { icon: AlertTriangle, label: 'Problema de Componente', color: 'text-amber-600', bg: 'bg-amber-50' },
         failure_report: { icon: AlertTriangle, label: 'Reporte Manual', color: 'text-purple-600', bg: 'bg-purple-50' }
     };

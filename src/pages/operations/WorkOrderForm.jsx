@@ -571,7 +571,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
         <button
             onClick={() => setActiveTab(id)}
             className={`flex items - center gap - 2 px - 4 py - 3 font - medium transition - all relative ${activeTab === id
-                ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50'
+                ? 'text-brand-600 border-b-2 border-brand-600 bg-brand-50/50'
                 : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
                 } `}
         >
@@ -645,7 +645,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
                         <button
                             onClick={handleTransitionToCompleted}
                             disabled={saving}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-500/30 flex items-center gap-2 disabled:opacity-50 transition-all active:scale-95"
+                            className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-500/30 flex items-center gap-2 disabled:opacity-50 transition-all active:scale-95"
                         >
                             <CheckCircle size={20} />
                             Completar Orden
@@ -655,7 +655,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
                     <button
                         onClick={handleSubmit}
                         disabled={saving}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-500/30 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+                        className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-500/30 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
                     >
                         {saving ? <Activity className="animate-spin" /> : <Save size={20} />}
                         {isEditing ? 'Guardar Cambios' : 'Crear Orden'}
@@ -692,7 +692,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
                             <label className="block text-sm font-bold text-slate-700 mb-2">Descripción Corta / Título</label>
                             <input
                                 type="text"
-                                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all"
                                 placeholder="Ej: Reparación de Bomba Principal"
                                 value={formData.description}
                                 onChange={e => setFormData({ ...formData, description: e.target.value })}
@@ -742,7 +742,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
                             <label className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
                                 <input
                                     type="checkbox"
-                                    className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500"
+                                    className="w-5 h-5 rounded text-brand-600 focus:ring-brand-500"
                                     checked={formData.is_reintervention}
                                     onChange={e => setFormData({ ...formData, is_reintervention: e.target.checked })}
                                 />
@@ -833,7 +833,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
                             <label className="block text-sm font-bold text-slate-700 mb-2">URL del Reporte (Externo)</label>
                             <input
                                 type="text"
-                                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none text-blue-600 underline"
+                                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none text-brand-600 underline"
                                 placeholder="https://..."
                                 value={formData.report_url}
                                 onChange={e => setFormData({ ...formData, report_url: e.target.value })}
@@ -884,10 +884,10 @@ export default function WorkOrderForm({ orderId, onBack }) {
                                 </div>
 
                                 <div className="flex items-center pt-6">
-                                    <label className="flex items-center gap-2 cursor-pointer text-slate-700 font-bold text-sm bg-blue-50 px-3 py-2 rounded-lg border border-blue-100 hover:bg-blue-100 transition-colors">
+                                    <label className="flex items-center gap-2 cursor-pointer text-slate-700 font-bold text-sm bg-brand-50 px-3 py-2 rounded-lg border border-blue-100 hover:bg-brand-100 transition-colors">
                                         <input
                                             type="checkbox"
-                                            className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                                            className="w-4 h-4 rounded text-brand-600 focus:ring-brand-500"
                                             checked={repairSamePump}
                                             onChange={(e) => {
                                                 const isChecked = e.target.checked;
@@ -1002,7 +1002,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
                                 </h3>
                                 <button
                                     onClick={() => addListItem('pieces', { piece_id: '', quantity_used: 1 })}
-                                    className="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                                    className="text-xs font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
                                 >
                                     <Plus size={14} /> Agregar Pieza
                                 </button>
@@ -1071,7 +1071,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
                                 </h3>
                                 <button
                                     onClick={() => addListItem('materials', { material_id: '', quantity_used: 1 })}
-                                    className="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                                    className="text-xs font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
                                 >
                                     <Plus size={14} /> Agregar Material
                                 </button>
@@ -1141,7 +1141,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
                                 </h3>
                                 <button
                                     onClick={() => addListItem('tools', { tool_id: '', quantity: 1 })}
-                                    className="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                                    className="text-xs font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
                                 >
                                     <Plus size={14} /> Reservar Herramienta
                                 </button>
@@ -1218,7 +1218,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
                                 </h3>
                                 <button
                                     onClick={() => addListItem('safety', { safety_id: '', quantity_required: 1 })}
-                                    className="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                                    className="text-xs font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
                                 >
                                     <Plus size={14} /> Agregar EPP
                                 </button>
@@ -1311,7 +1311,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
                                                         className={`px-3 py-1 rounded-lg border text-xs font-bold uppercase ${{
                                                             'FUNCIONAL': 'bg-green-50 border-green-200 text-green-700',
                                                             'DESGASTADO': 'bg-yellow-50 border-yellow-200 text-yellow-700',
-                                                            'REQUIERE_REVISION': 'bg-indigo-50 border-indigo-200 text-indigo-700',
+                                                            'REQUIERE_REVISION': 'bg-brand-50 border-brand-200 text-brand-700',
                                                             'DANADO': 'bg-red-50 border-red-200 text-red-700',
                                                             'REQUIERE_CAMBIO': 'bg-orange-50 border-orange-200 text-orange-700',
                                                             'FALTANTE': 'bg-slate-200 border-slate-300 text-slate-600'
@@ -1331,7 +1331,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
                                                 <td className="px-4 py-3">
                                                     <input
                                                         type="text"
-                                                        className="w-full bg-transparent border-b border-transparent focus:border-indigo-300 outline-none text-slate-600 placeholder:text-slate-300"
+                                                        className="w-full bg-transparent border-b border-transparent focus:border-brand-300 outline-none text-slate-600 placeholder:text-slate-300"
                                                         placeholder="Observación..."
                                                         value={comp.observation || ''}
                                                         onChange={(e) => updateListItem('components', idx, 'observation', e.target.value)}
@@ -1384,7 +1384,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
                                 value={completionNotes}
                                 onChange={(e) => setCompletionNotes(e.target.value)}
                                 placeholder="Ejemplo: Se completó el mantenimiento preventivo del molino. Se reemplazaron 3 aspas desgastadas y se lubricaron todos los rodamientos. El molino quedó operativo y funcional."
-                                className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[120px]"
+                                className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 min-h-[120px]"
                                 rows={5}
                             />
                             <p className="text-xs text-slate-500 mt-2">

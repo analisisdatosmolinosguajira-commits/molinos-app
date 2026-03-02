@@ -42,8 +42,8 @@ const VisitDetail = ({ visit, onClose, onUpdate }) => {
                         <div className="flex items-center gap-2 mb-2">
                             {isMovement ? (
                                 <select
-                                    className={`text-xs font-bold px-2 py-1 rounded-full border-none focus:ring-2 focus:ring-indigo-200 cursor-pointer transition-colors
-                                        ${visit.status === 'PLANIFICADO' ? 'bg-blue-100 text-blue-700' :
+                                    className={`text-xs font-bold px-2 py-1 rounded-full border-none focus:ring-2 focus:ring-brand-200 cursor-pointer transition-colors
+                                        ${visit.status === 'PLANIFICADO' ? 'bg-brand-100 text-brand-700' :
                                             visit.status === 'EN EJECUCION' ? 'bg-yellow-100 text-yellow-700' :
                                                 visit.status === 'COMPLETADO' ? 'bg-green-100 text-green-700' :
                                                     'bg-slate-100 text-slate-700'}
@@ -99,10 +99,10 @@ const VisitDetail = ({ visit, onClose, onUpdate }) => {
                             <MapIcon size={16} /> Ruta y Comunidades
                         </h3>
                         <div className="space-y-3">
-                            <div className="relative pl-4 border-l-2 border-indigo-100 space-y-6">
+                            <div className="relative pl-4 border-l-2 border-brand-100 space-y-6">
                                 {visit.communities.map((comm, idx) => (
                                     <div key={idx} className="relative">
-                                        <div className="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-indigo-500 border-2 border-white shadow-sm ring-1 ring-indigo-200" />
+                                        <div className="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-brand-500 border-2 border-white shadow-sm ring-1 ring-brand-200" />
                                         <h4 className="font-semibold text-slate-800">{comm.name}</h4>
                                         <p className="text-xs text-slate-500">{comm.municipality || 'Ubicación'}, {comm.department || 'General'}</p>
                                     </div>
@@ -118,7 +118,7 @@ const VisitDetail = ({ visit, onClose, onUpdate }) => {
                         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
                             <MapPin size={16} /> Ubicación
                         </h3>
-                        <div className="flex items-start gap-3 bg-blue-50 p-4 rounded-xl text-blue-800">
+                        <div className="flex items-start gap-3 bg-brand-50 p-4 rounded-xl text-blue-800">
                             <MapPin size={20} className="mt-0.5 shrink-0" />
                             <span className="font-medium">{visit.location}</span>
                         </div>
@@ -139,7 +139,7 @@ const VisitDetail = ({ visit, onClose, onUpdate }) => {
                                     <div key={idx} className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-slate-200 transition-colors bg-white shadow-sm">
                                         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm
                                             ${person.role?.toLowerCase().includes('conductor') ? 'bg-orange-500' :
-                                                person.role?.toLowerCase().includes('tecnic') ? 'bg-blue-600' :
+                                                person.role?.toLowerCase().includes('tecnic') ? 'bg-brand-600' :
                                                     person.role?.toLowerCase().includes('social') ? 'bg-green-500' : 'bg-slate-400'}`}
                                         >
                                             {person.role?.charAt(0) || <User size={16} />}

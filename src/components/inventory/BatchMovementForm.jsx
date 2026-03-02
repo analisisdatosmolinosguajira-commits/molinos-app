@@ -122,7 +122,7 @@ export default function BatchMovementForm({ onSubmit, inventory }) {
     };
 
     const categoryColors = {
-        materiales: 'bg-blue-100 text-blue-700 border-blue-300',
+        materiales: 'bg-brand-100 text-brand-700 border-brand-300',
         piezas: 'bg-purple-100 text-purple-700 border-purple-300',
         herramientas: 'bg-orange-100 text-orange-700 border-orange-300',
         epp: 'bg-green-100 text-green-700 border-green-300'

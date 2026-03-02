@@ -413,8 +413,8 @@ function DraggableCard({ person, sourceId, onDragStart, variant = 'crew' }) {
     // Role configurations for badging
     const getRoleStyle = (role) => {
         const r = (role || '').toLowerCase();
-        if (r.includes('lider') || r.includes('líder')) return 'bg-indigo-100 text-indigo-800 border-indigo-200';
-        if (r.includes('ingeniero')) return 'bg-blue-100 text-blue-800 border-blue-200';
+        if (r.includes('lider') || r.includes('líder')) return 'bg-brand-100 text-indigo-800 border-brand-200';
+        if (r.includes('ingeniero')) return 'bg-brand-100 text-blue-800 border-brand-200';
         if (r.includes('supervisor')) return 'bg-violet-100 text-violet-800 border-violet-200';
         if (r.includes('siso')) return 'bg-teal-100 text-teal-800 border-teal-200';
         return 'bg-slate-100 text-slate-700 border-slate-200';

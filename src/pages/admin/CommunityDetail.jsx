@@ -52,7 +52,7 @@ const CommunityDetail = ({
                     <button
                         onClick={() => setActiveTab('general')}
                         className={`pb-3 text-sm font-medium transition-colors border-b-2 
-                            ${activeTab === 'general' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-700'}
+                            ${activeTab === 'general' ? 'border-brand-600 text-brand-700' : 'border-transparent text-slate-500 hover:text-slate-700'}
                         `}
                     >
                         General & Molino
@@ -60,7 +60,7 @@ const CommunityDetail = ({
                     <button
                         onClick={() => setActiveTab('members')}
                         className={`pb-3 text-sm font-medium transition-colors border-b-2 flex items-center gap-2
-                            ${activeTab === 'members' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-700'}
+                            ${activeTab === 'members' ? 'border-brand-600 text-brand-700' : 'border-transparent text-slate-500 hover:text-slate-700'}
                         `}
                     >
                         Miembros <span className="bg-slate-200 text-slate-600 px-1.5 rounded-full text-[10px]">{community.members?.length || 0}</span>
@@ -68,7 +68,7 @@ const CommunityDetail = ({
                     <button
                         onClick={() => setActiveTab('history')}
                         className={`pb-3 text-sm font-medium transition-colors border-b-2 
-                            ${activeTab === 'history' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-700'}
+                            ${activeTab === 'history' ? 'border-brand-600 text-brand-700' : 'border-transparent text-slate-500 hover:text-slate-700'}
                         `}
                     >
                         Historial de Visitas
@@ -76,7 +76,7 @@ const CommunityDetail = ({
                     <button
                         onClick={() => setActiveTab('social_info')}
                         className={`pb-3 text-sm font-medium transition-colors border-b-2 flex items-center gap-2
-                            ${activeTab === 'social_info' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-700'}
+                            ${activeTab === 'social_info' ? 'border-brand-600 text-brand-700' : 'border-transparent text-slate-500 hover:text-slate-700'}
                         `}
                     >
                         Situaciones Sociales
@@ -89,7 +89,7 @@ const CommunityDetail = ({
                     <button
                         onClick={() => setActiveTab('deliveries')}
                         className={`pb-3 text-sm font-medium transition-colors border-b-2 flex items-center gap-2
-                            ${activeTab === 'deliveries' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-700'}
+                            ${activeTab === 'deliveries' ? 'border-brand-600 text-brand-700' : 'border-transparent text-slate-500 hover:text-slate-700'}
                         `}
                     >
                         <Package size={16} />
@@ -110,8 +110,8 @@ const CommunityDetail = ({
                                 <Factory size={16} /> Molino Asignado
                             </h3>
                             {community.mill ? (
-                                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-4 relaltive group">
-                                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
+                                <div className="bg-brand-50 border border-blue-100 rounded-xl p-4 flex items-start gap-4 relaltive group">
+                                    <div className="w-12 h-12 bg-brand-100 rounded-lg flex items-center justify-center text-brand-600">
                                         <Factory size={24} />
                                     </div>
                                     <div className="flex-1">
@@ -119,7 +119,7 @@ const CommunityDetail = ({
                                             <h4 className="font-bold text-blue-900">{community.mill.name}</h4>
                                             <StatusBadge status={community.mill.status} size="sm" />
                                         </div>
-                                        <p className="text-blue-700 font-mono text-sm mt-1">{community.mill.code}</p>
+                                        <p className="text-brand-700 font-mono text-sm mt-1">{community.mill.code}</p>
                                         <div className="mt-3 flex gap-3 text-xs text-blue-800">
                                             <span className="bg-blue-200/50 px-2 py-1 rounded">Modelo A-2023</span>
                                             <span className="bg-blue-200/50 px-2 py-1 rounded">Instalado: 2024</span>
@@ -139,7 +139,7 @@ const CommunityDetail = ({
                                     <p>No hay molino asignado</p>
                                     <button
                                         onClick={onAssignMill}
-                                        className="text-indigo-600 text-sm font-medium mt-2 hover:underline"
+                                        className="text-brand-600 text-sm font-medium mt-2 hover:underline"
                                     >
                                         Asignar Molino
                                     </button>
@@ -171,7 +171,7 @@ const CommunityDetail = ({
                             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Liderazgo y Comunidad</h3>
                             <button
                                 onClick={onAddMember}
-                                className="text-xs flex items-center gap-1 bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-medium transition-colors"
+                                className="text-xs flex items-center gap-1 bg-brand-50 text-brand-600 px-3 py-1.5 rounded-lg hover:bg-brand-100 font-medium transition-colors"
                             >
                                 <Plus size={14} /> Asociar Persona
                             </button>
@@ -183,14 +183,14 @@ const CommunityDetail = ({
                                     <div key={member.membershipId} className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl hover:shadow-sm transition-shadow group">
                                         <div className="flex items-center gap-3">
                                             <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm
-                                                ${['Presidente', 'Lider'].includes(member.role) ? 'bg-indigo-600' : 'bg-slate-400'}
+                                                ${['Presidente', 'Lider'].includes(member.role) ? 'bg-brand-600' : 'bg-slate-400'}
                                             `}>
                                                 {member.name.charAt(0)}
                                             </div>
                                             <div>
                                                 <p className="font-medium text-slate-800 text-sm">{member.name}</p>
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-xs text-indigo-600 font-bold bg-indigo-50 px-1.5 py-0.5 rounded">{member.role}</span>
+                                                    <span className="text-xs text-brand-600 font-bold bg-brand-50 px-1.5 py-0.5 rounded">{member.role}</span>
                                                     {member.phone && <span className="text-xs text-slate-400 flex items-center gap-1"><Phone size={10} /> {member.phone}</span>}
                                                 </div>
                                             </div>
@@ -203,7 +203,7 @@ const CommunityDetail = ({
                                                     name: member.name,
                                                     roleId: member.roleId
                                                 })}
-                                                className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
+                                                className="p-1.5 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded"
                                                 title="Editar Rol"
                                             >
                                                 <Edit2 size={14} />
@@ -234,12 +234,12 @@ const CommunityDetail = ({
                         {community.visits?.map((visit, idx) => (
                             <div key={idx} className="relative">
                                 <div className={`absolute -left-[29px] top-1 w-4 h-4 rounded-full border-2 border-white shadow-sm ring-1 
-                                    ${visit.type === 'LOGISTICA' ? 'bg-indigo-500 ring-indigo-100' : 'bg-green-500 ring-green-100'}
+                                    ${visit.type === 'LOGISTICA' ? 'bg-brand-500 ring-brand-100' : 'bg-green-500 ring-green-100'}
                                 `} />
                                 <div className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
                                     <div className="flex justify-between items-start mb-2">
                                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded text-white
-                                            ${visit.type === 'LOGISTICA' ? 'bg-indigo-500' : 'bg-green-500'}
+                                            ${visit.type === 'LOGISTICA' ? 'bg-brand-500' : 'bg-green-500'}
                                         `}>
                                             {visit.type}
                                         </span>
@@ -319,7 +319,7 @@ const CommunityDeliveriesTab = ({ communityId }) => {
     if (loading) {
         return (
             <div className="py-12 text-center text-slate-400">
-                <div className="animate-spin w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full mx-auto mb-2" />
+                <div className="animate-spin w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full mx-auto mb-2" />
                 Cargando entregas...
             </div>
         );
@@ -345,7 +345,7 @@ const CommunityDeliveriesTab = ({ communityId }) => {
                             onClick={() => setExpandedId(expandedId === delivery.delivery_id ? null : delivery.delivery_id)}
                         >
                             <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-600">
+                                <div className="w-10 h-10 bg-brand-50 rounded-lg flex items-center justify-center text-brand-600">
                                     <Package size={20} />
                                 </div>
                                 <div>

@@ -102,7 +102,7 @@ export default function DiagnosticosPage() {
                 <PermissionGate module="diagnosticos" action="create">
                     <button
                         onClick={() => setIsCreateMode(true)}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-500/30 transition-all font-bold active:scale-95"
+                        className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-500/30 transition-all font-bold active:scale-95"
                     >
                         <Plus size={20} />
                         Nuevo Diagnóstico
@@ -130,7 +130,7 @@ export default function DiagnosticosPage() {
                             <p className="text-sm text-slate-500 font-medium">En Proceso</p>
                             <p className="text-2xl font-bold text-slate-900 mt-1">{stats['En Proceso']}</p>
                         </div>
-                        <div className="p-3 bg-blue-100 text-blue-600 rounded-xl">
+                        <div className="p-3 bg-brand-100 text-brand-600 rounded-xl">
                             <Clock size={24} />
                         </div>
                     </div>
@@ -169,7 +169,7 @@ export default function DiagnosticosPage() {
                     <input
                         type="text"
                         placeholder="Buscar por código, molino, descripción..."
-                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -216,7 +216,7 @@ export default function DiagnosticosPage() {
                                     <div className="text-xs text-slate-500">{d.mill?.name}</div>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">
+                                    <span className="px-2 py-1 bg-brand-50 text-brand-700 rounded text-xs font-medium">
                                         {d.diagnosis_type}
                                     </span>
                                 </td>
@@ -242,7 +242,7 @@ export default function DiagnosticosPage() {
                                             e.stopPropagation();
                                             setSelectedDiagnosisId(d.diagnosis_id);
                                         }}
-                                        className="text-indigo-600 font-medium text-xs hover:underline"
+                                        className="text-brand-600 font-medium text-xs hover:underline"
                                     >
                                         Ver Detalles
                                     </button>

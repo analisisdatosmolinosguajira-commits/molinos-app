@@ -2,8 +2,8 @@ import React from 'react';
 
 const statusStyles = {
     // Legacy / Generic
-    abierta: 'bg-blue-100 text-blue-700 border-blue-200',
-    en_proceso: 'bg-blue-100 text-blue-700 border-blue-200',
+    abierta: 'bg-brand-100 text-brand-700 border-brand-200',
+    en_proceso: 'bg-brand-100 text-brand-700 border-brand-200',
     programada: 'bg-slate-100 text-slate-700 border-slate-200',
     cerrada: 'bg-green-100 text-green-700 border-green-200',
     atrasada: 'bg-rose-100 text-rose-700 border-rose-200',
@@ -27,7 +27,7 @@ const statusStyles = {
     cancelada: 'bg-red-50 text-red-700 border-red-200',
 
     // DB Values - Work Orders (English)
-    pending: 'bg-blue-50 text-blue-700 border-blue-200',
+    pending: 'bg-brand-50 text-brand-700 border-brand-200',
     in_progress: 'bg-amber-50 text-amber-700 border-amber-200',
     completed: 'bg-green-50 text-green-700 border-green-200',
     cancelled: 'bg-slate-50 text-slate-500 border-slate-200',
@@ -36,15 +36,15 @@ const statusStyles = {
     // Priorities
     critical: 'bg-rose-100 text-rose-700 border-rose-200 animate-pulse',
     high: 'bg-orange-100 text-orange-700 border-orange-200',
-    medium: 'bg-blue-100 text-blue-700 border-blue-200',
+    medium: 'bg-brand-100 text-brand-700 border-brand-200',
     low: 'bg-slate-100 text-slate-700 border-slate-200',
 
     // DB Values - Pumps
     instalada: 'bg-green-50 text-green-700 border-green-200',
     installed: 'bg-green-50 text-green-700 border-green-200',
-    almacenada: 'bg-blue-50 text-blue-700 border-blue-200',
-    in_stock: 'bg-blue-50 text-blue-700 border-blue-200',
-    available: 'bg-blue-50 text-blue-700 border-blue-200',
+    almacenada: 'bg-brand-50 text-brand-700 border-brand-200',
+    in_stock: 'bg-brand-50 text-brand-700 border-brand-200',
+    available: 'bg-brand-50 text-brand-700 border-brand-200',
     en_reparacion: 'bg-amber-50 text-amber-700 border-amber-200',
     descartada: 'bg-red-50 text-red-700 border-red-200',
     discarded: 'bg-red-50 text-red-700 border-red-200'

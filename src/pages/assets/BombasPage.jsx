@@ -210,7 +210,7 @@ export default function BombasPage() {
                     </button>
                     <button
                         onClick={handleAddPump}
-                        className="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-600/30 transition-all font-bold flex items-center gap-2"
+                        className="px-6 py-2.5 bg-brand-600 text-white rounded-xl hover:bg-brand-700 shadow-lg shadow-blue-600/30 transition-all font-bold flex items-center gap-2"
                     >
                         <Plus size={20} />
                         Registrar Bomba
@@ -252,12 +252,12 @@ export default function BombasPage() {
                     <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-2xl font-bold text-blue-600">{kpis.storage}</p>
+                                <p className="text-2xl font-bold text-brand-600">{kpis.storage}</p>
                                 <p className="text-xs text-slate-500 font-medium uppercase mt-1">
                                     En Almacén
                                 </p>
                             </div>
-                            <div className="p-3 bg-blue-100 text-blue-600 rounded-xl">
+                            <div className="p-3 bg-brand-100 text-brand-600 rounded-xl">
                                 <Settings size={24} />
                             </div>
                         </div>

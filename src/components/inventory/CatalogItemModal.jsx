@@ -158,7 +158,7 @@ const CatalogItemModal = ({ supplierId, catalogItem, onClose, onSave }) => {
                                     value={formData.item_type}
                                     onChange={(e) => handleChange('item_type', e.target.value)}
                                     disabled={isEdit} // Cannot change core binding on edit
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-100 focus:border-indigo-300 outline-none disabled:bg-slate-100"
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-100 focus:border-brand-300 outline-none disabled:bg-slate-100"
                                 >
                                     <option value="material">Material de Consumo</option>
                                     <option value="piece">Pieza / Repuesto</option>
@@ -193,7 +193,7 @@ const CatalogItemModal = ({ supplierId, catalogItem, onClose, onSave }) => {
                                         {inventoryOptions.filter(o => o.name.toLowerCase().includes(searchTerm.toLowerCase())).map(item => (
                                             <div
                                                 key={item.id}
-                                                className="px-4 py-2 text-sm hover:bg-indigo-50 cursor-pointer flex justify-between"
+                                                className="px-4 py-2 text-sm hover:bg-brand-50 cursor-pointer flex justify-between"
                                                 onClick={() => handleSelectOption(item)}
                                             >
                                                 <span className="font-medium text-slate-700">{item.name}</span>
@@ -221,7 +221,7 @@ const CatalogItemModal = ({ supplierId, catalogItem, onClose, onSave }) => {
                                     value={formData.brand}
                                     onChange={(e) => handleChange('brand', e.target.value)}
                                     placeholder="Ej: Stanley, 3M, Makita"
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-100 focus:border-indigo-300 outline-none"
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-100 focus:border-brand-300 outline-none"
                                 />
                             </div>
                             <div>
@@ -232,7 +232,7 @@ const CatalogItemModal = ({ supplierId, catalogItem, onClose, onSave }) => {
                                     type="text"
                                     value={formData.model}
                                     onChange={(e) => handleChange('model', e.target.value)}
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-100 focus:border-indigo-300 outline-none"
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-100 focus:border-brand-300 outline-none"
                                 />
                             </div>
                         </div>
@@ -251,7 +251,7 @@ const CatalogItemModal = ({ supplierId, catalogItem, onClose, onSave }) => {
                                         required
                                         min="0"
                                         step="0.01"
-                                        className="pl-8 pr-4 py-2 w-full border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-100 focus:border-indigo-300 outline-none"
+                                        className="pl-8 pr-4 py-2 w-full border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-100 focus:border-brand-300 outline-none"
                                     />
                                 </div>
                             </div>
@@ -262,7 +262,7 @@ const CatalogItemModal = ({ supplierId, catalogItem, onClose, onSave }) => {
                                 <select
                                     value={formData.currency}
                                     onChange={(e) => handleChange('currency', e.target.value)}
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-100 focus:border-indigo-300 outline-none"
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-100 focus:border-brand-300 outline-none"
                                 >
                                     <option value="COP">COP (Pesos Colombianos)</option>
                                     <option value="USD">USD (Dólares)</option>
@@ -279,7 +279,7 @@ const CatalogItemModal = ({ supplierId, catalogItem, onClose, onSave }) => {
                                 value={formData.sku}
                                 onChange={(e) => handleChange('sku', e.target.value)}
                                 placeholder="Ref. comercial de la factura"
-                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-100 focus:border-indigo-300 outline-none"
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-100 focus:border-brand-300 outline-none"
                             />
                         </div>
 
@@ -295,7 +295,7 @@ const CatalogItemModal = ({ supplierId, catalogItem, onClose, onSave }) => {
                             <button
                                 type="submit"
                                 disabled={saving || !formData.selected_item_id}
-                                className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+                                className="px-6 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors flex items-center gap-2 disabled:opacity-50"
                             >
                                 <Save size={18} />
                                 {saving ? 'Guardando...' : (isEdit ? 'Actualizar Precio' : 'Añadir al Catálogo')}

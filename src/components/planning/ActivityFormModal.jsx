@@ -207,7 +207,7 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                                 }
                                                 setFormData({ ...formData, ...updates });
                                             }}
-                                            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.activity_type_id ? 'border-red-500' : 'border-gray-300'
+                                            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 ${errors.activity_type_id ? 'border-red-500' : 'border-gray-300'
                                                 }`}
                                         >
                                             <option value="">Seleccionar...</option>
@@ -230,7 +230,7 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                         <select
                                             value={formData.priority}
                                             onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                         >
                                             <option value="BAJA">Baja</option>
                                             <option value="MEDIA">Media</option>
@@ -250,7 +250,7 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                         value={formData.title}
                                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                         placeholder="Ej: Diagnóstico Molino MIL-001"
-                                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.title ? 'border-red-500' : 'border-gray-300'
+                                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 ${errors.title ? 'border-red-500' : 'border-gray-300'
                                             }`}
                                     />
                                     {errors.title && (
@@ -268,7 +268,7 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                         rows={3}
                                         placeholder="Descripción detallada de la actividad..."
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                     />
                                 </div>
                             </div>
@@ -288,7 +288,7 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                         <select
                                             value={formData.responsible_person_id}
                                             onChange={(e) => setFormData({ ...formData, responsible_person_id: e.target.value })}
-                                            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.responsible_person_id ? 'border-red-500' : 'border-gray-300'
+                                            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 ${errors.responsible_person_id ? 'border-red-500' : 'border-gray-300'
                                                 }`}
                                         >
                                             <option value="">Seleccionar...</option>
@@ -311,7 +311,7 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                         <select
                                             value={formData.status}
                                             onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                         >
                                             <option value="PLANIFICADA">Planificada</option>
                                             <option value="ASIGNADA">Asignada</option>
@@ -351,7 +351,7 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                             type="date"
                                             value={formData.planned_start_week}
                                             onChange={(e) => setFormData({ ...formData, planned_start_week: e.target.value })}
-                                            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.planned_start_week ? 'border-red-500' : 'border-gray-300'
+                                            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 ${errors.planned_start_week ? 'border-red-500' : 'border-gray-300'
                                                 }`}
                                         />
                                         {errors.planned_start_week && (
@@ -368,7 +368,7 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                             type="date"
                                             value={formData.planned_end_week}
                                             onChange={(e) => setFormData({ ...formData, planned_end_week: e.target.value })}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                         />
                                     </div>
 
@@ -382,7 +382,7 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                             min="1"
                                             value={formData.estimated_duration_days}
                                             onChange={(e) => setFormData({ ...formData, estimated_duration_days: e.target.value })}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                         />
                                     </div>
                                 </div>
@@ -409,7 +409,7 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                             <select
                                                 value={formData.target_community_id}
                                                 onChange={(e) => setFormData({ ...formData, target_community_id: e.target.value, target_mill_id: '' })}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                             >
                                                 <option value="">Seleccionar...</option>
                                                 {communities.map(comm => (
@@ -435,7 +435,7 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                             <select
                                                 value={formData.target_mill_id}
                                                 onChange={(e) => setFormData({ ...formData, target_mill_id: e.target.value })}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                             >
                                                 <option value="">Seleccionar...</option>
                                                 {mills.map(mill => (
@@ -458,7 +458,7 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                         value={formData.target_location_notes}
                                         onChange={(e) => setFormData({ ...formData, target_location_notes: e.target.value })}
                                         placeholder="Detalles adicionales de ubicación..."
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                     />
                                 </div>
                             </div>
@@ -476,7 +476,7 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                     onChange={(e) => setFormData({ ...formData, additional_resources_notes: e.target.value })}
                                     rows={3}
                                     placeholder="Ej: Requerir herramienta especializada X, coordinar transporte..."
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                 />
                             </div>
                         </div>
@@ -494,7 +494,7 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                         <button
                             onClick={handleSubmit}
                             disabled={loading}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <Save size={18} />
                             {loading ? 'Guardando...' : (activity ? 'Actualizar' : 'Crear Actividad')}

@@ -117,7 +117,7 @@ const WeeklyPlanningBoard = ({
             <div className="flex items-center justify-between mb-4 bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
                 <div className="flex items-center gap-4">
                     <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <Calendar size={20} className="text-blue-600" />
+                        <Calendar size={20} className="text-brand-600" />
                         Planificación Semanal
                     </h3>
                     <div className="text-sm font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full capitalize">
@@ -146,7 +146,7 @@ const WeeklyPlanningBoard = ({
                     <div className="h-6 w-px bg-slate-200 mx-2"></div>
                     <button
                         onClick={() => onDateChange(new Date())}
-                        className="px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="px-3 py-1.5 text-sm font-medium text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
                     >
                         Hoy
                     </button>
@@ -205,7 +205,7 @@ const WeeklyPlanningBoard = ({
                                     key={crew.crew_id}
                                     draggable="true"
                                     onDragStart={(e) => handleDragStart(e, crew)}
-                                    className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 cursor-grab active:cursor-grabbing transition-all group"
+                                    className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm hover:shadow-md hover:border-brand-300 cursor-grab active:cursor-grabbing transition-all group"
                                 >
                                     <div className="flex items-start justify-between">
                                         <div>
@@ -216,7 +216,7 @@ const WeeklyPlanningBoard = ({
                                             </p>
                                         </div>
                                         <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <div className="bg-blue-50 text-blue-600 p-1 rounded">
+                                            <div className="bg-brand-50 text-brand-600 p-1 rounded">
                                                 <Plus size={14} />
                                             </div>
                                         </div>
@@ -225,7 +225,7 @@ const WeeklyPlanningBoard = ({
                             ))
                         )}
 
-                        <div className="p-3 bg-blue-50 rounded-lg border border-blue-100 text-xs text-blue-700">
+                        <div className="p-3 bg-brand-50 rounded-lg border border-blue-100 text-xs text-brand-700">
                             <p className="flex items-start gap-2">
                                 <AlertCircle size={14} className="mt-0.5 shrink-0" />
                                 <span>Arrastra una cuadrilla al calendario para asignar una actividad.</span>
@@ -240,13 +240,13 @@ const WeeklyPlanningBoard = ({
                         {daysOfWeek.map(day => {
                             const isToday = day.toDateString() === new Date().toDateString();
                             return (
-                                <div key={day.toISOString()} className={`p-3 text-center border-r border-slate-200 last:border-r-0 ${isToday ? 'bg-blue-50/50' : ''
+                                <div key={day.toISOString()} className={`p-3 text-center border-r border-slate-200 last:border-r-0 ${isToday ? 'bg-brand-50/50' : ''
                                     }`}>
-                                    <span className={`text-xs uppercase font-bold block mb-1 ${isToday ? 'text-blue-600' : 'text-slate-500'
+                                    <span className={`text-xs uppercase font-bold block mb-1 ${isToday ? 'text-brand-600' : 'text-slate-500'
                                         }`}>
                                         {day.toLocaleDateString('es-ES', { weekday: 'short' })}
                                     </span>
-                                    <span className={`text-lg font-semibold ${isToday ? 'text-blue-700' : 'text-slate-800'
+                                    <span className={`text-lg font-semibold ${isToday ? 'text-brand-700' : 'text-slate-800'
                                         }`}>
                                         {day.getDate()}
                                     </span>
@@ -271,7 +271,7 @@ const WeeklyPlanningBoard = ({
                                         key={day.toISOString()}
                                         onDragOver={handleDragOver}
                                         onDrop={(e) => handleDrop(e, day)}
-                                        className={`border-r border-slate-100 last:border-r-0 p-2 space-y-2 min-h-[300px] transition-colors relative group/day ${isToday ? 'bg-blue-50/10' : ''
+                                        className={`border-r border-slate-100 last:border-r-0 p-2 space-y-2 min-h-[300px] transition-colors relative group/day ${isToday ? 'bg-brand-50/10' : ''
                                             } hover:bg-slate-50`}
                                     >
                                         {/* Add Button Area (Visible on Hover) */}
@@ -288,8 +288,8 @@ const WeeklyPlanningBoard = ({
                                                         onEditActivity(act);
                                                     }}
                                                     className={`p-2 rounded-lg border text-xs cursor-pointer hover:shadow-md transition-shadow bg-white ${act.status === 'COMPLETADA' ? 'border-green-200 text-green-800 bg-green-50' :
-                                                        act.status === 'EN_EJECUCION' ? 'border-indigo-200 text-indigo-800 bg-indigo-50' :
-                                                            act.assigned_crew_id ? 'border-blue-200 text-blue-800 bg-blue-50' :
+                                                        act.status === 'EN_EJECUCION' ? 'border-brand-200 text-indigo-800 bg-brand-50' :
+                                                            act.assigned_crew_id ? 'border-brand-200 text-blue-800 bg-brand-50' :
                                                                 'border-l-4 border-l-yellow-400 border-slate-200 text-slate-700'
                                                         }`}
                                                 >

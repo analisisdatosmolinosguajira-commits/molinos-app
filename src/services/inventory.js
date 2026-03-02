@@ -176,6 +176,160 @@ export const InventoryService = {
         return [...normalizedMaterials, ...normalizedPieces, ...normalizedTools, ...normalizedSafety, ...normalizedSuppliers];
     },
 
+    /**
+     * Load inventory for a single category with server-side pagination and search.
+     * Returns { items: [...], totalCount: number }
+     * @param {string} category - 'materiales', 'piezas', 'herramientas', 'epp', 'proveedores'
+     * @param {number} page - 1-based page number
+     * @param {number} pageSize - items per page (default 25)
+     * @param {string} searchTerm - optional search filter
+     */
+    async getInventoryByCategory(category, page = 1, pageSize = 25, searchTerm = '') {
+        const from = (page - 1) * pageSize;
+        const to = from + pageSize - 1;
+
+        const categoryConfig = {
+            materiales: {
+                table: 'material',
+                idCol: 'material_id',
+                stockTable: 'material_stock',
+                stockCol: 'quantity_available',
+                normalize: (item, stock) => ({
+                    id: `material-${item.material_id}`,
+                    rawId: item.material_id,
+                    name: item.name,
+                    code: item.code,
+                    category: 'materiales',
+                    stock: stock,
+                    min: item.min_stock || 5,
+                    unit: item.unit || 'ud',
+                    description: item.description,
+                    location: item.location || 'N/A',
+                    raw: item
+                })
+            },
+            piezas: {
+                table: 'piece',
+                idCol: 'piece_id',
+                stockTable: 'piece_stock',
+                stockCol: 'current_stock',
+                normalize: (item, stock) => ({
+                    id: `piece-${item.piece_id}`,
+                    rawId: item.piece_id,
+                    name: item.name,
+                    code: item.code,
+                    category: 'piezas',
+                    stock: stock,
+                    min: item.min_stock || 5,
+                    unit: item.unit || 'ud',
+                    description: item.description,
+                    raw: item
+                })
+            },
+            herramientas: {
+                table: 'tool',
+                idCol: 'tool_id',
+                stockTable: 'tool_stock',
+                stockCol: 'quantity_available',
+                normalize: (item, stock) => ({
+                    id: `tool-${item.tool_id}`,
+                    rawId: item.tool_id,
+                    name: item.name,
+                    code: item.code,
+                    category: 'herramientas',
+                    stock: stock,
+                    min: item.min_stock || 1,
+                    unit: 'ud',
+                    description: item.type || 'Herramienta manual',
+                    location: item.location || 'N/A',
+                    status: item.status || 'DISPONIBLE',
+                    raw: item
+                })
+            },
+            epp: {
+                table: 'safety_equipment',
+                idCol: 'safety_id',
+                stockTable: 'safety_equipment_stock',
+                stockCol: 'quantity_available',
+                normalize: (item, stock) => ({
+                    id: `safety-${item.safety_id}`,
+                    rawId: item.safety_id,
+                    name: item.name,
+                    code: item.code,
+                    category: 'epp',
+                    stock: stock,
+                    min: item.min_stock || 5,
+                    unit: item.unit || 'ud',
+                    description: item.description,
+                    raw: item
+                })
+            },
+            proveedores: {
+                table: 'supplier',
+                idCol: 'supplier_id',
+                stockTable: null,
+                stockCol: null,
+                normalize: (item) => ({
+                    id: `supplier-${item.supplier_id}`,
+                    rawId: item.supplier_id,
+                    name: item.name,
+                    code: 'N/A',
+                    category: 'proveedores',
+                    stock: '-',
+                    min: '-',
+                    unit: 'N/A',
+                    description: item.supplier_type || 'General',
+                    location: item.contact_name || 'N/A',
+                    status: item.phone || 'N/A',
+                    raw: item
+                })
+            }
+        };
+
+        const config = categoryConfig[category];
+        if (!config) return { items: [], totalCount: 0 };
+
+        // Build query with search, pagination, and exact count
+        let query = supabase
+            .from(config.table)
+            .select('*', { count: 'exact' })
+            .order('name');
+
+        if (searchTerm) {
+            query = query.or(`name.ilike.%${searchTerm}%,code.ilike.%${searchTerm}%`);
+        }
+
+        query = query.range(from, to);
+
+        const { data: items, error, count } = await query;
+
+        if (error) {
+            console.error(`Error loading ${category}:`, error);
+            return { items: [], totalCount: 0 };
+        }
+
+        // Get stock values for the loaded items (skip for proveedores)
+        let stockMap = {};
+        if (config.stockTable && items && items.length > 0) {
+            const ids = items.map(item => item[config.idCol]);
+            const { data: stocks } = await supabase
+                .from(config.stockTable)
+                .select(`${config.idCol}, ${config.stockCol}`)
+                .in(config.idCol, ids);
+
+            stockMap = (stocks || []).reduce((acc, s) => {
+                acc[s[config.idCol]] = s[config.stockCol];
+                return acc;
+            }, {});
+        }
+
+        const normalizedItems = (items || []).map(item =>
+            config.normalize(item, stockMap[item[config.idCol]] || 0)
+        );
+
+        return { items: normalizedItems, totalCount: count || 0 };
+    },
+
     // ============ MATERIALS CRUD ============
     async createMaterial(data) {
         const { data: material, error } = await supabase

@@ -79,7 +79,7 @@ export default function AppLayout() {
                                 {profile?.avatar_url ? (
                                     <img src={profile.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
                                 ) : (
-                                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-500 to-social-500 flex items-center justify-center text-white text-xs font-bold">
+                                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-500 to-accent-500 flex items-center justify-center text-white text-xs font-bold">
                                         {initials}
                                     </div>
                                 )}

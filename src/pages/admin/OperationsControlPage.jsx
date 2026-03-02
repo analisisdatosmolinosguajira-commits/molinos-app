@@ -421,7 +421,7 @@ export default function OperationsControlPage() {
                                     <>
                                         <div className="flex flex-col items-end gap-0.5">
                                             <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${u.app_role === 'supervisor' ? 'bg-purple-100 text-purple-700' :
-                                                u.app_role === 'ing_lider' ? 'bg-blue-100 text-blue-700' :
+                                                u.app_role === 'ing_lider' ? 'bg-brand-100 text-brand-700' :
                                                     u.app_role === 'social_lider' ? 'bg-green-100 text-green-700' :
                                                         u.app_role === 'inventario_lider' ? 'bg-amber-100 text-amber-700' :
                                                             u.app_role === 'logistica_lider' ? 'bg-orange-100 text-orange-700' :

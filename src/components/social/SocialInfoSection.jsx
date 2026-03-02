@@ -58,9 +58,9 @@ const SocialInfoSection = ({
             label: 'Concertado'
         },
         'EN_PROCESO': {
-            bg: 'bg-blue-100',
-            text: 'text-blue-700',
-            border: 'border-blue-200',
+            bg: 'bg-brand-100',
+            text: 'text-brand-700',
+            border: 'border-brand-200',
             icon: Clock,
             label: 'En Proceso'
         },
@@ -271,20 +271,20 @@ const SocialInfoSection = ({
                         {!hideConcertations && (
                             <div className="bg-white rounded-xl border border-slate-200 p-6">
                                 <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                    <Calendar size={18} className="text-blue-600" />
+                                    <Calendar size={18} className="text-brand-600" />
                                     Concertaciones Recientes ({concertations?.length || 0})
                                 </h4>
 
                                 {concertations && concertations.length > 0 ? (
                                     <div className="space-y-3 max-h-80 overflow-y-auto">
                                         {concertations.map((conc, idx) => (
-                                            <div key={idx} className="p-3 border border-slate-200 rounded-lg hover:border-blue-300 transition-colors">
+                                            <div key={idx} className="p-3 border border-slate-200 rounded-lg hover:border-brand-300 transition-colors">
                                                 <div className="flex items-start justify-between mb-2">
                                                     <span className="text-xs font-mono text-slate-400">
                                                         {new Date(conc.meeting_date).toLocaleDateString()}
                                                     </span>
                                                     <span className={`text-xs px-2 py-0.5 rounded font-semibold ${conc.status === 'finalizada' ? 'bg-green-100 text-green-700' :
-                                                        conc.status === 'en_proceso' ? 'bg-blue-100 text-blue-700' :
+                                                        conc.status === 'en_proceso' ? 'bg-brand-100 text-brand-700' :
                                                             'bg-slate-100 text-slate-600'
                                                         }`}>
                                                         {conc.status}

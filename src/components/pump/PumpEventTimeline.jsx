@@ -26,7 +26,7 @@ export default function PumpEventTimeline({ timeline }) {
         const colors = {
             'INSTALLATION': 'bg-green-500',
             'REMOVAL': 'bg-orange-500',
-            'MAINTENANCE': 'bg-blue-500',
+            'MAINTENANCE': 'bg-brand-500',
             'REPAIR': 'bg-yellow-500',
             default: 'bg-slate-400'
         };
@@ -102,7 +102,7 @@ export default function PumpEventTimeline({ timeline }) {
                                     inline-block px-2 py-1 rounded text-xs font-bold uppercase
                                     ${event.type === 'INSTALLATION' ? 'bg-green-100 text-green-700' : ''}
                                     ${event.type === 'REMOVAL' ? 'bg-orange-100 text-orange-700' : ''}
-                                    ${event.type === 'MAINTENANCE' ? 'bg-blue-100 text-blue-700' : ''}
+                                    ${event.type === 'MAINTENANCE' ? 'bg-brand-100 text-brand-700' : ''}
                                     ${event.type === 'REPAIR' ? 'bg-yellow-100 text-yellow-700' : ''}
                                     ${!['INSTALLATION', 'REMOVAL', 'MAINTENANCE', 'REPAIR'].includes(event.type) ? 'bg-slate-100 text-slate-700' : ''}
                                 `}>

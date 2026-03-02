@@ -69,7 +69,7 @@ const MillSearchFilters = ({ onFilterChange }) => {
                     placeholder="Buscar por código, nombre o comunidad..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
                 />
             </div>
 
@@ -83,7 +83,7 @@ const MillSearchFilters = ({ onFilterChange }) => {
                 <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
-                    className="px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all min-w-[160px]"
+                    className="px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all min-w-[160px]"
                 >
                     <option value="">Todos los estados</option>
                     <option value="OPERATIONAL">Operativo</option>
@@ -96,7 +96,7 @@ const MillSearchFilters = ({ onFilterChange }) => {
                 <select
                     value={communityId}
                     onChange={(e) => setCommunityId(e.target.value)}
-                    className="px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all min-w-[180px]"
+                    className="px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all min-w-[180px]"
                 >
                     <option value="">Todas las comunidades</option>
                     {communities.map(c => (
@@ -110,7 +110,7 @@ const MillSearchFilters = ({ onFilterChange }) => {
                 <select
                     value={hasPump}
                     onChange={(e) => setHasPump(e.target.value)}
-                    className="px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all min-w-[160px]"
+                    className="px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all min-w-[160px]"
                 >
                     <option value="">Bomba: Todas</option>
                     <option value="true">Con bomba instalada</option>

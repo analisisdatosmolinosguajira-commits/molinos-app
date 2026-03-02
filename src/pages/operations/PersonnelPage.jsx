@@ -618,7 +618,7 @@ function StaffView({ staff, selectedStaff, onSelectStaff, onUpdate, onEditStaff 
     // Role badge colors
     const getRoleBadge = (role) => {
         const colors = {
-            'Tecnico': 'bg-blue-100 text-blue-700 border-blue-200',
+            'Tecnico': 'bg-brand-100 text-brand-700 border-brand-200',
             'Ingeniero': 'bg-purple-100 text-purple-700 border-purple-200',
             'Operario': 'bg-green-100 text-green-700 border-green-200',
             'Supervisor': 'bg-orange-100 text-orange-700 border-orange-200'
@@ -740,7 +740,7 @@ function StaffView({ staff, selectedStaff, onSelectStaff, onUpdate, onEditStaff 
                                     {person.role}
                                 </span>
                                 {person.primaryCrew && (
-                                    <span className="px-2 py-0.5 rounded text-xs bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                    <span className="px-2 py-0.5 rounded text-xs bg-brand-50 text-brand-700 border border-brand-200">
                                         {person.primaryCrew}
                                     </span>
                                 )}

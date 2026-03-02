@@ -18,7 +18,7 @@ const JourneyActivitiesTab = ({ activity, onAssign }) => {
                 <p className="text-sm mb-4">Este viaje no tiene una actividad de planificación asociada.</p>
                 <button
                     onClick={onAssign}
-                    className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 font-medium transition-colors text-sm"
+                    className="flex items-center gap-2 px-4 py-2 bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 font-medium transition-colors text-sm"
                 >
                     <Briefcase size={16} />
                     Vincular Actividad Existente
@@ -57,7 +57,7 @@ const JourneyActivitiesTab = ({ activity, onAssign }) => {
                 break;
             case 'MANUFACTURING':
                 icon = <Settings size={18} />; // Assuming Settings is imported or use Briefcase
-                colorClass = "bg-blue-50 text-blue-600 border-blue-100";
+                colorClass = "bg-brand-50 text-brand-600 border-blue-100";
                 titleText = `Fabricación #${entity.id}`;
                 subtitle = `Estado: ${entity.status}`;
                 break;
@@ -87,15 +87,15 @@ const JourneyActivitiesTab = ({ activity, onAssign }) => {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Main Activity Card */}
-            <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
-                <div className="bg-indigo-50/50 p-4 border-b border-indigo-100 flex justify-between items-start">
+            <div className="bg-white rounded-2xl border border-brand-100 shadow-sm overflow-hidden">
+                <div className="bg-brand-50/50 p-4 border-b border-brand-100 flex justify-between items-start">
                     <div className="flex gap-3">
-                        <div className="bg-white p-2.5 rounded-xl shadow-sm border border-indigo-100 text-indigo-600">
+                        <div className="bg-white p-2.5 rounded-xl shadow-sm border border-brand-100 text-brand-600">
                             <Activity size={24} />
                         </div>
                         <div>
                             <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xs font-bold text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-wide">
+                                <span className="text-xs font-bold text-brand-600 bg-brand-100 px-2 py-0.5 rounded-full uppercase tracking-wide">
                                     {type || 'ACTIVIDAD'}
                                 </span>
                                 <span className="text-slate-400 text-xs flex items-center gap-1">
@@ -156,7 +156,7 @@ const JourneyActivitiesTab = ({ activity, onAssign }) => {
                                                 className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-200 text-xs"
                                             >
                                                 <div className="flex items-center gap-2">
-                                                    <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-[10px]">
+                                                    <div className="w-6 h-6 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center font-bold text-[10px]">
                                                         {member.person?.first_name?.[0]}{member.person?.last_name?.[0]}
                                                     </div>
                                                     <span className="font-medium text-slate-700">

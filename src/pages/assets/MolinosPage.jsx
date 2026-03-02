@@ -268,7 +268,7 @@ export default function MolinosPage() {
                     {activeTab === 'mills' ? (
                         <button
                             onClick={handleAddMill}
-                            className="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-600/30 transition-all font-bold flex items-center gap-2"
+                            className="px-6 py-2.5 bg-brand-600 text-white rounded-xl hover:bg-brand-700 shadow-lg shadow-blue-600/30 transition-all font-bold flex items-center gap-2"
                         >
                             <Plus size={20} />
                             Agregar Molino
@@ -276,7 +276,7 @@ export default function MolinosPage() {
                     ) : (
                         <button
                             onClick={handleAddComponent}
-                            className="px-6 py-2.5 bg-purple-600 text-white rounded-xl hover:bg-purple-700 shadow-lg shadow-purple-600/30 transition-all font-bold flex items-center gap-2"
+                            className="px-6 py-2.5 bg-brand-600 text-white rounded-xl hover:bg-brand-700 shadow-lg shadow-purple-600/30 transition-all font-bold flex items-center gap-2"
                         >
                             <Plus size={20} />
                             Agregar Componente
@@ -291,13 +291,13 @@ export default function MolinosPage() {
                     <button
                         onClick={() => setActiveTab('mills')}
                         className={`pb-3 px-2 font-semibold transition-colors relative ${activeTab === 'mills'
-                            ? 'text-blue-600'
+                            ? 'text-brand-600'
                             : 'text-slate-600 hover:text-slate-900'
                             }`}
                     >
                         Molinos
                         {activeTab === 'mills' && (
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600" />
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600" />
                         )}
                     </button>
                     <button
@@ -310,7 +310,7 @@ export default function MolinosPage() {
                         <Boxes size={18} />
                         Componentes
                         {activeTab === 'components' && (
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600" />
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600" />
                         )}
                     </button>
                 </div>
@@ -422,7 +422,7 @@ export default function MolinosPage() {
                                                     <div className="flex items-center justify-end gap-2">
                                                         <button
                                                             onClick={() => handleEditComponent(component)}
-                                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                            className="p-2 text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
                                                             title="Editar"
                                                         >
                                                             <Edit2 size={18} />

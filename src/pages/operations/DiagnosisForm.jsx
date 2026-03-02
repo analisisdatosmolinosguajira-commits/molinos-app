@@ -701,7 +701,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
         <button
             onClick={() => setActiveTab(id)}
             className={`flex items-center gap-2 px-4 py-3 font-medium transition-all relative ${activeTab === id
-                ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50'
+                ? 'text-brand-600 border-b-2 border-brand-600 bg-brand-50/50'
                 : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
                 }`}
         >
@@ -775,7 +775,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                         <button
                             onClick={handleTransitionToCompleted}
                             disabled={saving}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-500/30 flex items-center gap-2 disabled:opacity-50 transition-all active:scale-95"
+                            className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-500/30 flex items-center gap-2 disabled:opacity-50 transition-all active:scale-95"
                         >
                             <CheckCircle size={20} />
                             Completar Diagnóstico
@@ -785,7 +785,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                     <button
                         onClick={handleSubmit}
                         disabled={saving}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-500/30 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+                        className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-500/30 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
                     >
                         {saving ? <Activity className="animate-spin" /> : <Save size={20} />}
                         {isEditing ? 'Guardar Cambios' : 'Crear Diagnóstico'}
@@ -837,7 +837,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                             <label className="block text-sm font-bold text-slate-700 mb-2">Descripción / Título del Diagnóstico</label>
                             <input
                                 type="text"
-                                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all"
                                 placeholder="Ej: Diagnóstico Preventivo - Revisión General"
                                 value={formData.description}
                                 onChange={e => setFormData({ ...formData, description: e.target.value })}
@@ -993,7 +993,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                 {/* 2. FINDINGS TAB */}
                 {activeTab === 'findings' && (
                     <div className="space-y-6">
-                        <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl flex gap-3 text-blue-800 text-sm">
+                        <div className="bg-brand-50 border border-blue-100 p-4 rounded-xl flex gap-3 text-blue-800 text-sm">
                             <Search className="shrink-0" size={20} />
                             <p>Registre todos los hallazgos técnicos, análisis de causa raíz y recomendaciones derivadas del diagnóstico.</p>
                         </div>
@@ -1042,7 +1042,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                                 </h3>
                                 <button
                                     onClick={() => addListItem('pieces', { piece_id: '', quantity_required: 1 })}
-                                    className="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                                    className="text-xs font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
                                 >
                                     <Plus size={14} /> Agregar Pieza
                                 </button>
@@ -1104,7 +1104,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                                 </h3>
                                 <button
                                     onClick={() => addListItem('materials', { material_id: '', quantity_required: 1 })}
-                                    className="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                                    className="text-xs font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
                                 >
                                     <Plus size={14} /> Agregar Material
                                 </button>
@@ -1167,7 +1167,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                                 </h3>
                                 <button
                                     onClick={() => addListItem('tools', { tool_id: '', quantity: 1 })}
-                                    className="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                                    className="text-xs font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
                                 >
                                     <Plus size={14} /> Reservar Herramienta
                                 </button>
@@ -1236,7 +1236,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                                 </h3>
                                 <button
                                     onClick={() => addListItem('safety', { safety_id: '', quantity_required: 1 })}
-                                    className="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                                    className="text-xs font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
                                 >
                                     <Plus size={14} /> Agregar EPP
                                 </button>
@@ -1324,7 +1324,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                                                         className={`px-3 py-1 rounded-lg border text-xs font-bold uppercase ${{
                                                             'FUNCIONAL': 'bg-green-50 border-green-200 text-green-700',
                                                             'DESGASTADO': 'bg-yellow-50 border-yellow-200 text-yellow-700',
-                                                            'REQUIERE_REVISION': 'bg-indigo-50 border-indigo-200 text-indigo-700',
+                                                            'REQUIERE_REVISION': 'bg-brand-50 border-brand-200 text-brand-700',
                                                             'DANADO': 'bg-red-50 border-red-200 text-red-700',
                                                             'REQUIERE_CAMBIO': 'bg-orange-50 border-orange-200 text-orange-700',
                                                             'FALTANTE': 'bg-slate-200 border-slate-300 text-slate-600'
@@ -1405,7 +1405,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                                                 <td className="px-4 py-3">
                                                     <input
                                                         type="text"
-                                                        className="w-full bg-transparent border-b border-transparent focus:border-indigo-300 outline-none text-slate-600 placeholder:text-slate-300 text-xs"
+                                                        className="w-full bg-transparent border-b border-transparent focus:border-brand-300 outline-none text-slate-600 placeholder:text-slate-300 text-xs"
                                                         placeholder="Observación..."
                                                         value={comp.observation || ''}
                                                         onChange={(e) => updateListItem('components', idx, 'observation', e.target.value)}
@@ -1429,7 +1429,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                 {/* 6. PUMP CONDITION TAB */}
                 {activeTab === 'pump' && (
                     <div className="space-y-6">
-                        <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-xl flex gap-3 text-indigo-800 text-sm mb-6">
+                        <div className="bg-brand-50 border border-brand-100 p-4 rounded-xl flex gap-3 text-indigo-800 text-sm mb-6">
                             <Zap className="shrink-0" size={20} />
                             <p>Complete información detallada sobre la condición de la bomba evaluada durante el diagnóstico.</p>
                         </div>
@@ -1526,7 +1526,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                                 value={completionNotes}
                                 onChange={(e) => setCompletionNotes(e.target.value)}
                                 placeholder="Ejemplo: Se completó el diagnóstico preventivo del molino. Se identificaron 3 componentes desgastados que requieren reemplazo. Se recomienda orden de trabajo correctiva en los próximos 30 días."
-                                className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[120px]"
+                                className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 min-h-[120px]"
                                 rows={5}
                             />
                             <p className="text-xs text-slate-500 mt-2">

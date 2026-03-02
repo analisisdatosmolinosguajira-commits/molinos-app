@@ -4,7 +4,7 @@ import { Calendar, MapPin, Users, AlertCircle, CheckCircle, Clock } from 'lucide
 const CrewActivitiesPanel = ({ activities = [], loading = false }) => {
     const getStatusColor = (status) => {
         const colors = {
-            'PLANIFICADA': 'bg-blue-100 text-blue-700 border-blue-200',
+            'PLANIFICADA': 'bg-brand-100 text-brand-700 border-brand-200',
             'EN_EJECUCION': 'bg-yellow-100 text-yellow-700 border-yellow-200',
             'COMPLETADA': 'bg-green-100 text-green-700 border-green-200',
             'CANCELADA': 'bg-red-100 text-red-700 border-red-200'
@@ -16,7 +16,7 @@ const CrewActivitiesPanel = ({ activities = [], loading = false }) => {
         const colors = {
             'ALTA': 'text-red-600',
             'MEDIA': 'text-yellow-600',
-            'BAJA': 'text-blue-600'
+            'BAJA': 'text-brand-600'
         };
         return colors[priority] || 'text-slate-600';
     };

@@ -279,13 +279,13 @@ const CommunitiesPage = () => {
                         <div className="flex bg-slate-100 p-1 rounded-lg">
                             <button
                                 onClick={() => { setActiveView('communities'); setSelectedId(null); }}
-                                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${activeView === 'communities' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${activeView === 'communities' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                             >
                                 Comunidades
                             </button>
                             <button
                                 onClick={() => { setActiveView('people'); setSelectedId(null); }}
-                                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${activeView === 'people' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${activeView === 'people' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                             >
                                 Personas
                             </button>
@@ -298,13 +298,13 @@ const CommunitiesPage = () => {
                             <input
                                 type="text"
                                 placeholder={activeView === 'communities' ? "Buscar comunidad..." : "Buscar persona..."}
-                                className="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-100 transition-all placeholder:text-slate-400"
+                                className="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-brand-100 transition-all placeholder:text-slate-400"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
                         <button
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-xl shadow-sm transition-all hover:scale-105 flex-shrink-0"
+                            className="bg-brand-600 hover:bg-brand-700 text-white p-2 rounded-xl shadow-sm transition-all hover:scale-105 flex-shrink-0"
                             onClick={() => {
                                 if (activeView === 'communities') {
                                     setEditingCommunity(null);
@@ -324,7 +324,7 @@ const CommunitiesPage = () => {
                 <div className="flex-1 overflow-y-auto custom-scrollbar">
                     {loading ? (
                         <div className="p-8 text-center text-slate-400">
-                            <div className="animate-spin w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full mx-auto mb-2" />
+                            <div className="animate-spin w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full mx-auto mb-2" />
                             Cargando...
                         </div>
                     ) : (
@@ -335,7 +335,7 @@ const CommunitiesPage = () => {
                                     key={comm.community_id}
                                     onClick={() => setSelectedId(comm.community_id)}
                                     className={`p-4 cursor-pointer transition-colors hover:bg-slate-50 relative group
-                                        ${selectedId === comm.community_id ? 'bg-indigo-50/60' : ''}
+                                        ${selectedId === comm.community_id ? 'bg-brand-50/60' : ''}
                                     `}
                                 >
                                     <div className="flex justify-between items-start mb-1">
@@ -360,7 +360,7 @@ const CommunitiesPage = () => {
                                             <span>{comm.memberCount} Miembros</span>
                                         </div>
                                         {comm.mill && (
-                                            <div className="flex items-center gap-1 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-100">
+                                            <div className="flex items-center gap-1 text-xs text-brand-600 bg-brand-50 px-2 py-1 rounded border border-blue-100">
                                                 <Factory size={12} />
                                                 <span className="truncate max-w-[100px]">{comm.mill.name}</span>
                                             </div>
@@ -371,7 +371,7 @@ const CommunitiesPage = () => {
                                     <div className="absolute right-2 top-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
                                             onClick={(e) => handleEditCommunity(e, comm)}
-                                            className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                            className="p-1.5 text-slate-400 hover:text-brand-600 hover:bg-slate-100 rounded-lg transition-colors"
                                         >
                                             <Edit2 size={14} />
                                         </button>
@@ -391,17 +391,17 @@ const CommunitiesPage = () => {
                                     key={person.person_id || person.id}
                                     onClick={() => setSelectedPerson(person)}
                                     className={`p-4 cursor-pointer transition-colors hover:bg-slate-50 relative group
-                                        ${selectedPerson?.person_id === person.person_id ? 'bg-indigo-50/60' : ''}
+                                        ${selectedPerson?.person_id === person.person_id ? 'bg-brand-50/60' : ''}
                                     `}
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm
-                                            ${person.communityId ? 'bg-indigo-500' : 'bg-slate-400'}
+                                            ${person.communityId ? 'bg-brand-500' : 'bg-slate-400'}
                                         `}>
                                             {person.first_name?.[0]}
                                         </div>
                                         <div>
-                                            <h4 className="font-semibold text-slate-800 text-sm group-hover:text-indigo-700 transition-colors">
+                                            <h4 className="font-semibold text-slate-800 text-sm group-hover:text-brand-700 transition-colors">
                                                 {person.first_name} {person.last_name}
                                             </h4>
                                             <p className="text-xs text-slate-500 font-mono">{person.document_id || 'Sin Documento'}</p>
@@ -410,7 +410,7 @@ const CommunitiesPage = () => {
 
                                     <div className="mt-3 pl-[52px]">
                                         {person.community ? (
-                                            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-indigo-50 text-indigo-700 text-xs font-medium border border-indigo-100">
+                                            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-brand-50 text-brand-700 text-xs font-medium border border-brand-100">
                                                 <Home size={10} />
                                                 {person.community} • {person.role}
                                             </span>
@@ -444,7 +444,7 @@ const CommunitiesPage = () => {
             `}>
                 {loadingDetail ? (
                     <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm z-20">
-                        <div className="animate-spin w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full" />
+                        <div className="animate-spin w-8 h-8 border-3 border-brand-600 border-t-transparent rounded-full" />
                     </div>
                 ) : null}
 
@@ -509,7 +509,7 @@ const CommunitiesPage = () => {
                                     {/* Info Card */}
                                     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-6">
                                         <h3 className="font-bold text-slate-800 flex items-center gap-2 text-lg">
-                                            <User size={20} className="text-indigo-500" />
+                                            <User size={20} className="text-brand-500" />
                                             Información Personal
                                         </h3>
 
@@ -534,12 +534,12 @@ const CommunitiesPage = () => {
                                     {/* Community Card */}
                                     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-6">
                                         <h3 className="font-bold text-slate-800 flex items-center gap-2 text-lg">
-                                            <Home size={20} className="text-indigo-500" />
+                                            <Home size={20} className="text-brand-500" />
                                             Comunidad Asignada
                                         </h3>
 
                                         {selectedPerson.community ? (
-                                            <div className="bg-indigo-50 rounded-xl p-5 border border-indigo-100">
+                                            <div className="bg-brand-50 rounded-xl p-5 border border-brand-100">
                                                 <div className="flex items-start justify-between mb-2">
                                                     <span className="text-xs font-bold text-indigo-400 uppercase tracking-wide">Comunidad Actual</span>
                                                     <span className="bg-indigo-200 text-indigo-800 text-[10px] px-2 py-0.5 rounded-full font-bold">ACTIVO</span>
@@ -547,7 +547,7 @@ const CommunitiesPage = () => {
                                                 <div className="text-xl font-bold text-indigo-900 mb-1">
                                                     {selectedPerson.community}
                                                 </div>
-                                                <div className="text-indigo-700 font-medium flex items-center gap-2">
+                                                <div className="text-brand-700 font-medium flex items-center gap-2">
                                                     <Shield size={16} />
                                                     {selectedPerson.role}
                                                 </div>
@@ -572,7 +572,7 @@ const CommunitiesPage = () => {
                                 </button>
                                 <button
                                     onClick={() => handleEditPerson(selectedPerson)}
-                                    className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/30 transition-all active:scale-95 flex items-center gap-2"
+                                    className="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/30 transition-all active:scale-95 flex items-center gap-2"
                                 >
                                     <Edit2 size={16} />
                                     Editar Datos

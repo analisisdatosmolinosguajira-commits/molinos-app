@@ -140,14 +140,14 @@ export default function SupplierDetail() {
                 <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                     <div>
                         <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <Layers size={20} className="text-indigo-500" />
+                            <Layers size={20} className="text-brand-500" />
                             Lista de Precios y Catálogo
                         </h2>
                         <p className="text-sm text-slate-500 mt-1">Variantes comerciales y precios ofrecidos por este proveedor.</p>
                     </div>
                     <button
                         onClick={handleCreateItem}
-                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium shadow-sm"
+                        className="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors text-sm font-medium shadow-sm"
                     >
                         <Plus size={16} />
                         Agregar Artículo
@@ -190,7 +190,7 @@ export default function SupplierDetail() {
                                         <div className="flex items-center justify-center gap-2">
                                             <button
                                                 onClick={() => handleEditItem(item)}
-                                                className="p-1.5 text-slate-600 hover:bg-slate-100 hover:text-indigo-600 rounded transition-colors"
+                                                className="p-1.5 text-slate-600 hover:bg-slate-100 hover:text-brand-600 rounded transition-colors"
                                                 title="Editar"
                                             >
                                                 <Edit2 size={16} />

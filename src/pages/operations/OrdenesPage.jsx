@@ -115,7 +115,7 @@ export default function OrdenesPage() {
                     <PermissionGate module="ordenes_trabajo" action="create">
                         <button
                             onClick={() => setIsCreateMode(true)}
-                            className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-indigo-700 shadow-lg shadow-indigo-500/30 transition-all font-medium"
+                            className="bg-brand-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-brand-700 shadow-lg shadow-indigo-500/30 transition-all font-medium"
                         >
                             <Plus size={20} />
                             Nueva Orden
@@ -150,7 +150,7 @@ export default function OrdenesPage() {
                             onClick={() => setStatusFilter(tab.id)}
                             className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-all whitespace-nowrap
                                 ${statusFilter === tab.id
-                                    ? 'bg-white text-indigo-600 shadow-sm'
+                                    ? 'bg-white text-brand-600 shadow-sm'
                                     : 'text-slate-500 hover:text-slate-700'}
                             `}
                         >
@@ -165,7 +165,7 @@ export default function OrdenesPage() {
                     <input
                         type="text"
                         placeholder="Buscar orden, molino..."
-                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -179,12 +179,12 @@ export default function OrdenesPage() {
                         <div
                             key={wo.work_order_id}
                             onClick={() => setSelectedOrderId(wo.work_order_id)}
-                            className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-indigo-300 hover:shadow-md transition-all group cursor-pointer relative overflow-hidden"
+                            className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-brand-300 hover:shadow-md transition-all group cursor-pointer relative overflow-hidden"
                         >
                             <div className="flex flex-col md:flex-row gap-4 justify-between items-start relative z-10">
                                 <div className="flex items-start gap-4">
                                     <div className={`mt-1 w-1.5 h-12 rounded-full ${wo.priority === 'CRITICAL' ? 'bg-rose-500' :
-                                        wo.priority === 'HIGH' ? 'bg-orange-500' : 'bg-indigo-500'
+                                        wo.priority === 'HIGH' ? 'bg-orange-500' : 'bg-brand-500'
                                         }`}></div>
                                     <div>
                                         <div className="flex items-center gap-2 mb-1">
@@ -193,7 +193,7 @@ export default function OrdenesPage() {
                                             </span>
                                             <StatusBadge status={wo.status} />
                                         </div>
-                                        <h3 className="font-bold text-slate-800 text-lg group-hover:text-indigo-600 transition-colors">
+                                        <h3 className="font-bold text-slate-800 text-lg group-hover:text-brand-600 transition-colors">
                                             {wo.description || 'Mantenimiento General'}
                                         </h3>
                                         <div className="flex items-center gap-4 text-sm text-slate-500 mt-2">
@@ -233,7 +233,7 @@ export default function OrdenesPage() {
                         <p className="text-slate-500 text-sm mt-1">Intenta ajustar los filtros o crea una nueva orden.</p>
                         <button
                             onClick={() => { setStatusFilter('ALL'); setSearchQuery(''); }}
-                            className="text-indigo-600 font-medium text-sm mt-4 hover:underline"
+                            className="text-brand-600 font-medium text-sm mt-4 hover:underline"
                         >
                             Limpiar filtros
                         </button>

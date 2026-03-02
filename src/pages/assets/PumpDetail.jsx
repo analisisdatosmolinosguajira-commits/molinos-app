@@ -123,7 +123,7 @@ export default function PumpDetail() {
                                 SN: {pump.serial_number}
                             </p>
                             <div className="flex gap-2">
-                                <span className={`px-3 py-1 rounded-lg text-sm font-bold uppercase border ${pump.status === 'almacenada' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                <span className={`px-3 py-1 rounded-lg text-sm font-bold uppercase border ${pump.status === 'almacenada' ? 'bg-brand-50 text-brand-700 border-brand-200' :
                                         pump.status === 'instalada' ? 'bg-green-50 text-green-700 border-green-200' :
                                             pump.status === 'en_reparacion' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
                                                 'bg-slate-100 text-slate-600 border-slate-200'
@@ -213,7 +213,7 @@ export default function PumpDetail() {
                                     </div>
                                 </div>
 
-                                <div className="p-5 rounded-xl border-2 bg-blue-50 border-blue-200 text-blue-700">
+                                <div className="p-5 rounded-xl border-2 bg-brand-50 border-brand-200 text-brand-700">
                                     <div className="flex items-center gap-3">
                                         <Package size={24} />
                                         <div>
@@ -341,7 +341,7 @@ export default function PumpDetail() {
                                                     </p>
                                                 </div>
                                                 <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase ${wo.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
-                                                        wo.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-700' :
+                                                        wo.status === 'IN_PROGRESS' ? 'bg-brand-100 text-brand-700' :
                                                             wo.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
                                                                 'bg-slate-100 text-slate-700'
                                                     }`}>

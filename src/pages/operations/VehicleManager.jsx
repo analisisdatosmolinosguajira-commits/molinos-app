@@ -74,7 +74,7 @@ const VehicleManager = () => {
         switch (status) {
             case 'DISPONIBLE': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
             case 'MANTENIMIENTO': return 'bg-amber-100 text-amber-700 border-amber-200';
-            case 'EN_USO': return 'bg-blue-100 text-blue-700 border-blue-200';
+            case 'EN_USO': return 'bg-brand-100 text-brand-700 border-brand-200';
             case 'FUERA_DE_SERVICIO': return 'bg-red-100 text-red-700 border-red-200';
             default: return 'bg-slate-100 text-slate-700 border-slate-200';
         }
@@ -89,14 +89,14 @@ const VehicleManager = () => {
                     <input
                         type="text"
                         placeholder="Buscar por placa, marca..."
-                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-300 outline-none"
+                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-100 focus:border-brand-300 outline-none"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
                 <button
                     onClick={handleCreate}
-                    className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl shadow-sm font-medium flex items-center justify-center gap-2 transition-all hover:translate-y-[-1px]"
+                    className="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl shadow-sm font-medium flex items-center justify-center gap-2 transition-all hover:translate-y-[-1px]"
                 >
                     <Plus size={20} />
                     <span>Nuevo Vehículo</span>
@@ -106,7 +106,7 @@ const VehicleManager = () => {
             {/* Grid */}
             {loading ? (
                 <div className="flex justify-center py-20">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
                 </div>
             ) : filteredVehicles.length === 0 ? (
                 <div className="text-center py-20 bg-white rounded-2xl border border-slate-200 border-dashed">
@@ -123,7 +123,7 @@ const VehicleManager = () => {
                             <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 bg-gradient-to-l from-white via-white to-transparent">
                                 <button
                                     onClick={() => handleEdit(vehicle)}
-                                    className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                    className="p-1.5 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
                                     title="Editar"
                                 >
                                     <Edit2 size={16} />

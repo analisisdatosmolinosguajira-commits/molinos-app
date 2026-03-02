@@ -49,7 +49,7 @@ const PumpSearchFilters = ({ onFilterChange }) => {
                     placeholder="Buscar por serial, modelo o tipo..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
                 />
             </div>
 
@@ -63,7 +63,7 @@ const PumpSearchFilters = ({ onFilterChange }) => {
                 <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
-                    className="px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all min-w-[160px]"
+                    className="px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all min-w-[160px]"
                 >
                     <option value="">Todos los estados</option>
                     <option value="instalada">Instalada</option>
@@ -77,7 +77,7 @@ const PumpSearchFilters = ({ onFilterChange }) => {
                 <select
                     value={type}
                     onChange={(e) => setType(e.target.value)}
-                    className="px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all min-w-[140px]"
+                    className="px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all min-w-[140px]"
                 >
                     <option value="">Todos los tipos</option>
                     <option value="3 Pulgadas">3 Pulgadas</option>
@@ -91,7 +91,7 @@ const PumpSearchFilters = ({ onFilterChange }) => {
                 <select
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    className="px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all min-w-[160px]"
+                    className="px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all min-w-[160px]"
                 >
                     <option value="">Todas las ubicaciones</option>
                     <option value="installed">En molinos</option>

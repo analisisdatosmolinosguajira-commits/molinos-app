@@ -74,7 +74,7 @@ const CreateJourneyModal = ({ isOpen, onClose, onSuccess, initialData = {} }) =>
                     {/* Header */}
                     <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 flex-shrink-0">
                         <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                            <Truck className="text-indigo-600" size={24} />
+                            <Truck className="text-brand-600" size={24} />
                             {isEditing ? 'Editar Viaje' : 'Nuevo Viaje'}
                         </h2>
                         <button
@@ -103,7 +103,7 @@ const CreateJourneyModal = ({ isOpen, onClose, onSuccess, initialData = {} }) =>
                                     required
                                     type="text"
                                     placeholder="Ej: Entrega de Materiales Zona Alta"
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none transition-all"
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-100 focus:border-brand-400 outline-none transition-all"
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                 />
@@ -113,7 +113,7 @@ const CreateJourneyModal = ({ isOpen, onClose, onSuccess, initialData = {} }) =>
                                     Estado
                                 </label>
                                 <select
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none transition-all bg-white"
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-100 focus:border-brand-400 outline-none transition-all bg-white"
                                     value={formData.status}
                                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                                 >
@@ -134,7 +134,7 @@ const CreateJourneyModal = ({ isOpen, onClose, onSuccess, initialData = {} }) =>
                                 <div className="relative">
                                     <FileText className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                                     <select
-                                        className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none appearance-none bg-white"
+                                        className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-100 focus:border-brand-400 outline-none appearance-none bg-white"
                                         value={formData.objective}
                                         onChange={(e) => setFormData({ ...formData, objective: e.target.value })}
                                     >
@@ -156,7 +156,7 @@ const CreateJourneyModal = ({ isOpen, onClose, onSuccess, initialData = {} }) =>
                                     <input
                                         required
                                         type="date"
-                                        className="flex-1 min-w-0 px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none transition-all"
+                                        className="flex-1 min-w-0 px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-100 focus:border-brand-400 outline-none transition-all"
                                         value={formData.start_date}
                                         onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                                     />
@@ -164,7 +164,7 @@ const CreateJourneyModal = ({ isOpen, onClose, onSuccess, initialData = {} }) =>
                                     <input
                                         required
                                         type="date"
-                                        className="flex-1 min-w-0 px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none transition-all"
+                                        className="flex-1 min-w-0 px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-100 focus:border-brand-400 outline-none transition-all"
                                         value={formData.end_date}
                                         min={formData.start_date}
                                         onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
@@ -183,7 +183,7 @@ const CreateJourneyModal = ({ isOpen, onClose, onSuccess, initialData = {} }) =>
                                 <textarea
                                     rows={3}
                                     placeholder="Detalles de la ruta, carga o requerimientos especiales..."
-                                    className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none transition-all resize-none"
+                                    className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-100 focus:border-brand-400 outline-none transition-all resize-none"
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 />
@@ -195,7 +195,7 @@ const CreateJourneyModal = ({ isOpen, onClose, onSuccess, initialData = {} }) =>
                             <input
                                 type="checkbox"
                                 id="overnight"
-                                className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+                                className="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500"
                                 checked={formData.requires_overnight}
                                 onChange={(e) => setFormData({ ...formData, requires_overnight: e.target.checked })}
                             />
@@ -216,7 +216,7 @@ const CreateJourneyModal = ({ isOpen, onClose, onSuccess, initialData = {} }) =>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-all shadow-sm hover:shadow-md disabled:opacity-70 flex items-center justify-center gap-2"
+                                className="flex-1 py-2.5 bg-brand-600 text-white rounded-xl font-medium hover:bg-brand-700 transition-all shadow-sm hover:shadow-md disabled:opacity-70 flex items-center justify-center gap-2"
                             >
                                 {loading ? (
                                     <>

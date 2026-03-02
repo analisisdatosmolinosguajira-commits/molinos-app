@@ -92,9 +92,9 @@ const WeeklyAssignmentGeneratorModal = ({ isOpen, onClose, onSuccess }) => {
                         </div>
                     )}
 
-                    <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-xl">
+                    <div className="p-4 bg-brand-50/50 border border-blue-100 rounded-xl">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                            <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-brand-600">
                                 <Users size={20} />
                             </div>
                             <div>
@@ -118,7 +118,7 @@ const WeeklyAssignmentGeneratorModal = ({ isOpen, onClose, onSuccess }) => {
                                     type="date"
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
-                                    className="w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                    className="w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
                                     disabled={isGenerating}
                                 />
                                 <Calendar size={16} className="absolute left-3 top-2.5 text-slate-400" />
@@ -133,7 +133,7 @@ const WeeklyAssignmentGeneratorModal = ({ isOpen, onClose, onSuccess }) => {
                                     type="date"
                                     value={endDate}
                                     onChange={(e) => setEndDate(e.target.value)}
-                                    className="w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                    className="w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
                                     disabled={isGenerating}
                                 />
                                 <Calendar size={16} className="absolute left-3 top-2.5 text-slate-400" />
@@ -154,7 +154,7 @@ const WeeklyAssignmentGeneratorModal = ({ isOpen, onClose, onSuccess }) => {
                     <button
                         onClick={handleGenerate}
                         disabled={isGenerating || stats.activeCrews === 0}
-                        className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                        className="flex items-center gap-2 px-6 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                     >
                         {isGenerating ? (
                             <>

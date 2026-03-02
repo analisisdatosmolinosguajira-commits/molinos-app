@@ -155,7 +155,7 @@ export default function ReportsTab() {
 
             {/* KPI Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <KPICard icon={Wrench} label="OTs Totales" value={data.kpis.totalWOs} sub={`${data.kpis.completedWOs} completadas`} color="bg-blue-50 text-blue-600" />
+                <KPICard icon={Wrench} label="OTs Totales" value={data.kpis.totalWOs} sub={`${data.kpis.completedWOs} completadas`} color="bg-brand-50 text-brand-600" />
                 <KPICard icon={Stethoscope} label="Diagnósticos" value={data.kpis.totalDiagnoses} color="bg-orange-50 text-orange-600" />
                 <KPICard icon={Users} label="Concertaciones" value={data.kpis.totalConcertations} color="bg-pink-50 text-pink-600" />
                 <KPICard icon={Hammer} label="Fabricación" value={data.kpis.totalMOs} sub={`${data.pumpBreakdown.fabricated} bombas`} color="bg-violet-50 text-violet-600" />

@@ -24,7 +24,7 @@ const AllSituationsModal = ({ isOpen, onClose, situations, onUpdate, service = n
     };
 
     const statusConfig = {
-        active: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Activo', icon: '🔵' },
+        active: { bg: 'bg-brand-100', text: 'text-brand-700', label: 'Activo', icon: '🔵' },
         monitoring: { bg: 'bg-purple-100', text: 'text-purple-700', label: 'Monitoreando', icon: '🟣' },
         resolved: { bg: 'bg-gray-100', text: 'text-gray-700', label: 'Resuelto', icon: '✅' }
     };

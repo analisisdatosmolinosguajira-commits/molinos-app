@@ -14,7 +14,7 @@ import { DashboardService } from '../../services/dashboard';
 import { useAuth } from '../../contexts/AuthContext';
 
 const ACTIVITY_ICONS = {
-    work_order: { icon: ClipboardList, color: 'text-blue-500', bg: 'bg-blue-50' },
+    work_order: { icon: ClipboardList, color: 'text-blue-500', bg: 'bg-brand-50' },
     diagnosis: { icon: Stethoscope, color: 'text-amber-500', bg: 'bg-amber-50' },
     concertation: { icon: Handshake, color: 'text-purple-500', bg: 'bg-purple-50' },
 };
@@ -22,7 +22,7 @@ const ACTIVITY_ICONS = {
 const PRIORITY_STYLES = {
     CRITICAL: 'bg-red-100 text-red-700 border-red-200',
     HIGH: 'bg-amber-100 text-amber-700 border-amber-200',
-    MEDIUM: 'bg-blue-100 text-blue-700 border-blue-200',
+    MEDIUM: 'bg-brand-100 text-brand-700 border-brand-200',
     LOW: 'bg-slate-100 text-slate-600 border-slate-200',
 };
 
@@ -386,7 +386,7 @@ function KpiCard({ label, value, icon: Icon, gradient, highlight, onClick }) {
 
 function QuickAction({ icon: Icon, label, onClick, color }) {
     const colorMap = {
-        blue: 'hover:border-blue-300 hover:bg-blue-50 text-blue-600',
+        blue: 'hover:border-brand-300 hover:bg-brand-50 text-brand-600',
         amber: 'hover:border-amber-300 hover:bg-amber-50 text-amber-600',
         purple: 'hover:border-purple-300 hover:bg-purple-50 text-purple-600',
         green: 'hover:border-green-300 hover:bg-green-50 text-green-600',

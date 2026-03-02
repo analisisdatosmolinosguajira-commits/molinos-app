@@ -73,7 +73,7 @@ const VehicleModal = ({ isOpen, onClose, onSuccess, vehicleToEdit = null }) => {
                 {/* Header */}
                 <div className="bg-slate-50 border-b border-slate-100 p-4 flex justify-between items-center">
                     <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <Truck className="text-indigo-600" size={20} />
+                        <Truck className="text-brand-600" size={20} />
                         {vehicleToEdit ? 'Editar Vehículo' : 'Registrar Nuevo Vehículo'}
                     </h2>
                     <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-full hover:bg-slate-100">
@@ -97,7 +97,7 @@ const VehicleModal = ({ isOpen, onClose, onSuccess, vehicleToEdit = null }) => {
                             <input
                                 type="text"
                                 required
-                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none uppercase font-mono"
+                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-100 focus:border-brand-400 outline-none uppercase font-mono"
                                 value={formData.plate_number}
                                 onChange={e => setFormData({ ...formData, plate_number: e.target.value.toUpperCase() })}
                                 placeholder="ABC-123"
@@ -108,7 +108,7 @@ const VehicleModal = ({ isOpen, onClose, onSuccess, vehicleToEdit = null }) => {
                         <div className="col-span-2 sm:col-span-1">
                             <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Estado</label>
                             <select
-                                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none"
+                                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-100 focus:border-brand-400 outline-none"
                                 value={formData.status}
                                 onChange={e => setFormData({ ...formData, status: e.target.value })}
                             >
@@ -124,7 +124,7 @@ const VehicleModal = ({ isOpen, onClose, onSuccess, vehicleToEdit = null }) => {
                             <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Marca</label>
                             <input
                                 type="text"
-                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none"
+                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-100 focus:border-brand-400 outline-none"
                                 value={formData.make}
                                 onChange={e => setFormData({ ...formData, make: e.target.value })}
                                 placeholder="Toyota"
@@ -136,7 +136,7 @@ const VehicleModal = ({ isOpen, onClose, onSuccess, vehicleToEdit = null }) => {
                             <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Modelo</label>
                             <input
                                 type="text"
-                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none"
+                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-100 focus:border-brand-400 outline-none"
                                 value={formData.model}
                                 onChange={e => setFormData({ ...formData, model: e.target.value })}
                                 placeholder="Hilux"
@@ -147,7 +147,7 @@ const VehicleModal = ({ isOpen, onClose, onSuccess, vehicleToEdit = null }) => {
                         <div className="col-span-1">
                             <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Tipo</label>
                             <select
-                                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none"
+                                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-100 focus:border-brand-400 outline-none"
                                 value={formData.vehicle_type}
                                 onChange={e => setFormData({ ...formData, vehicle_type: e.target.value })}
                             >
@@ -166,7 +166,7 @@ const VehicleModal = ({ isOpen, onClose, onSuccess, vehicleToEdit = null }) => {
                             <input
                                 type="number"
                                 min="1"
-                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none"
+                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-100 focus:border-brand-400 outline-none"
                                 value={formData.capacity_passengers}
                                 onChange={e => setFormData({ ...formData, capacity_passengers: parseInt(e.target.value) || 0 })}
                             />
@@ -176,7 +176,7 @@ const VehicleModal = ({ isOpen, onClose, onSuccess, vehicleToEdit = null }) => {
                         <div className="col-span-2">
                             <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Notas</label>
                             <textarea
-                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none resize-none h-20"
+                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-100 focus:border-brand-400 outline-none resize-none h-20"
                                 value={formData.notes}
                                 onChange={e => setFormData({ ...formData, notes: e.target.value })}
                                 placeholder="Información adicional..."
@@ -196,7 +196,7 @@ const VehicleModal = ({ isOpen, onClose, onSuccess, vehicleToEdit = null }) => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-xl shadow-md font-medium flex items-center gap-2 transition-all hover:translate-y-[-1px] disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2 rounded-xl shadow-md font-medium flex items-center gap-2 transition-all hover:translate-y-[-1px] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? (
                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

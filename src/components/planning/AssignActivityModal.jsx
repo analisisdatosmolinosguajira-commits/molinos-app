@@ -74,7 +74,7 @@ const AssignActivityModal = ({ isOpen, onClose, onAssign }) => {
                         <input
                             type="text"
                             placeholder="Buscar por título, comunidad o tipo..."
-                            className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
+                            className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all text-sm"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -101,15 +101,15 @@ const AssignActivityModal = ({ isOpen, onClose, onAssign }) => {
                                 className={`
                                     relative p-4 rounded-xl border cursor-pointer transition-all duration-200 group
                                     ${selectedId === activity.activity_id
-                                        ? 'bg-indigo-50 border-indigo-500 shadow-md ring-1 ring-indigo-500'
-                                        : 'bg-white border-slate-200 hover:border-indigo-300 hover:shadow-sm'
+                                        ? 'bg-brand-50 border-brand-500 shadow-md ring-1 ring-brand-500'
+                                        : 'bg-white border-slate-200 hover:border-brand-300 hover:shadow-sm'
                                     }
                                 `}
                             >
                                 <div className="flex justify-between items-start mb-2">
                                     <div className="flex items-center gap-2">
                                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide
-                                            ${activity.status === 'PLANIFICADA' ? 'bg-blue-100 text-blue-700' :
+                                            ${activity.status === 'PLANIFICADA' ? 'bg-brand-100 text-brand-700' :
                                                 activity.status === 'ASIGNADA' ? 'bg-purple-100 text-purple-700' :
                                                     'bg-slate-100 text-slate-600'}
                                         `}>
@@ -120,13 +120,13 @@ const AssignActivityModal = ({ isOpen, onClose, onAssign }) => {
                                         </span>
                                     </div>
                                     {selectedId === activity.activity_id && (
-                                        <div className="bg-indigo-600 text-white p-1 rounded-full shadow-sm animate-in zoom-in duration-200">
+                                        <div className="bg-brand-600 text-white p-1 rounded-full shadow-sm animate-in zoom-in duration-200">
                                             <CheckCircle2 size={14} />
                                         </div>
                                     )}
                                 </div>
 
-                                <h3 className="font-bold text-slate-800 mb-2 group-hover:text-indigo-700 transition-colors">
+                                <h3 className="font-bold text-slate-800 mb-2 group-hover:text-brand-700 transition-colors">
                                     {activity.title}
                                 </h3>
 
@@ -163,7 +163,7 @@ const AssignActivityModal = ({ isOpen, onClose, onAssign }) => {
                         className={`
                             px-6 py-2.5 rounded-xl font-bold text-white transition-all shadow-lg
                             ${selectedId
-                                ? 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-indigo-500/25 active:scale-95'
+                                ? 'bg-brand-600 hover:bg-brand-700 hover:shadow-indigo-500/25 active:scale-95'
                                 : 'bg-slate-300 cursor-not-allowed shadow-none'}
                         `}
                     >

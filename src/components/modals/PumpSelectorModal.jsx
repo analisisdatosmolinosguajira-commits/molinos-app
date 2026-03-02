@@ -47,7 +47,7 @@ const PumpSelectorModal = ({ onSelect, onClose, filter }) => {
 
     const getStatusColor = (status) => {
         const colors = {
-            'almacenada': 'bg-blue-100 text-blue-700',
+            'almacenada': 'bg-brand-100 text-brand-700',
             'instalada': 'bg-green-100 text-green-700',
             'en_reparacion': 'bg-yellow-100 text-yellow-700',
             'dañada': 'bg-red-100 text-red-700',
@@ -97,7 +97,7 @@ const PumpSelectorModal = ({ onSelect, onClose, filter }) => {
                             placeholder="Buscar bomba por serial, modelo o tipo..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                             autoFocus
                         />
                     </div>
@@ -107,7 +107,7 @@ const PumpSelectorModal = ({ onSelect, onClose, filter }) => {
                 <div className="flex-1 overflow-y-auto p-6">
                     {loading ? (
                         <div className="flex flex-col items-center justify-center py-12">
-                            <Loader className="animate-spin text-blue-600 mb-3" size={32} />
+                            <Loader className="animate-spin text-brand-600 mb-3" size={32} />
                             <p className="text-slate-500">Cargando bombas...</p>
                         </div>
                     ) : error ? (
@@ -115,7 +115,7 @@ const PumpSelectorModal = ({ onSelect, onClose, filter }) => {
                             <p className="text-red-600">{error}</p>
                             <button
                                 onClick={loadPumps}
-                                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                className="mt-4 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700"
                             >
                                 Reintentar
                             </button>

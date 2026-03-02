@@ -54,11 +54,11 @@ const CrewAssignmentSelector = ({ value, onChange, disabled = false }) => {
                 disabled={disabled}
                 className={`w-full flex items-center justify-between px-4 py-2.5 bg-white border rounded-lg text-left transition-colors ${disabled
                         ? 'bg-gray-50 text-gray-400 cursor-not-allowed'
-                        : 'hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-                    } ${isOpen ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-300'}`}
+                        : 'hover:bg-gray-50 focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
+                    } ${isOpen ? 'ring-2 ring-brand-500 border-blue-500' : 'border-gray-300'}`}
             >
                 <div className="flex items-center gap-3">
-                    <Users size={18} className={selectedCrew ? 'text-blue-600' : 'text-gray-400'} />
+                    <Users size={18} className={selectedCrew ? 'text-brand-600' : 'text-gray-400'} />
                     <div>
                         {selectedCrew ? (
                             <div>
@@ -99,10 +99,10 @@ const CrewAssignmentSelector = ({ value, onChange, disabled = false }) => {
                                     key={crew.crew_id}
                                     type="button"
                                     onClick={() => handleSelect(crew)}
-                                    className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-0 ${selectedCrew?.crew_id === crew.crew_id ? 'bg-blue-50' : ''
+                                    className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-brand-50 transition-colors border-b border-gray-100 last:border-0 ${selectedCrew?.crew_id === crew.crew_id ? 'bg-brand-50' : ''
                                         }`}
                                 >
-                                    <Users size={18} className="text-blue-600 mt-0.5" />
+                                    <Users size={18} className="text-brand-600 mt-0.5" />
                                     <div className="flex-1">
                                         <div className="font-medium text-slate-900">{crew.name}</div>
                                         <div className="text-xs text-slate-500 mt-0.5">

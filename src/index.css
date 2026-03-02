@@ -7,24 +7,24 @@
 
 /* Leaflet popup overrides */
 .leaflet-popup-content-wrapper {
-    border-radius: 12px !important;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
-    border: 1px solid #e2e8f0 !important;
-    padding: 0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid #e2e8f0 !important;
+  padding: 0 !important;
 }
 
 .leaflet-popup-content {
-    margin: 8px 12px !important;
-    font-family: 'Inter', sans-serif !important;
-    font-size: 13px !important;
+  margin: 8px 12px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 13px !important;
 }
 
 .leaflet-popup-tip {
-    box-shadow: none !important;
+  box-shadow: none !important;
 }
 
 .leaflet-container {
-    font-family: 'Inter', sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
 }
 
 @layer base {
@@ -39,15 +39,27 @@
   }
 
   .glass-sidebar {
-    @apply bg-slate-900/95 backdrop-blur-xl border-r border-slate-800;
+    background: linear-gradient(180deg, #0f1f1b 0%, #112b24 50%, #0f1f1b 100%);
+    @apply backdrop-blur-xl border-r border-emerald-900/30;
   }
 
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Futuristic accent line */
+  .accent-line {
+    background: linear-gradient(90deg, #059669, #14b8a6);
+    height: 2px;
+  }
+
+  /* Neon text glow */
+  .text-glow {
+    text-shadow: 0 0 20px rgba(5, 150, 105, 0.3);
+  }
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar — Green theme */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -58,7 +70,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 rounded-full;
+  @apply bg-emerald-200/60 rounded-full;
 }
 
 /* Custom Scrollbar Utility */
@@ -71,9 +83,9 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  @apply bg-slate-200 rounded-full hover:bg-slate-300 transition-colors;
+  @apply bg-emerald-300/30 rounded-full hover:bg-emerald-400/40 transition-colors;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-slate-400;
+  @apply bg-emerald-300/70;
 }

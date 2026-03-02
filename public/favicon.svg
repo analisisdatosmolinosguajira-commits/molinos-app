@@ -1,23 +1,61 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
   <defs>
-    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    <linearGradient id="bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#064e3b"/>
+      <stop offset="100%" stop-color="#059669"/>
     </linearGradient>
+    <linearGradient id="fig" x1="32" y1="8" x2="32" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#d1fae5"/>
+    </linearGradient>
+    <linearGradient id="blade" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6ee7b7"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="1.2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
   </defs>
-  <!-- Background circle -->
-  <circle cx="50" cy="50" r="48" fill="url(#grad1)" />
-  <!-- Mill structure -->
-  <rect x="45" y="40" width="10" height="45" rx="2" fill="#ffffff" />
-  <path d="M50 35 L75 85 L25 85 Z" fill="#ffffff" opacity="0.2" />
-  <!-- Blades -->
-  <g transform="translate(50, 40)">
-    <animateTransform attributeName="transform" type="rotate" from="0 50 40" to="360 50 40" dur="10s" repeatCount="indefinite" />
-    <path d="M50 40 L50 15 Q55 10 60 15 Z" fill="#ffffff" />
-    <path d="M50 40 L75 40 Q80 45 75 50 Z" fill="#ffffff" />
-    <path d="M50 40 L50 65 Q45 70 40 65 Z" fill="#ffffff" />
-    <path d="M50 40 L25 40 Q20 35 25 30 Z" fill="#ffffff" />
-  </g>
-  <!-- Center point -->
-  <circle cx="50" cy="40" r="4" fill="#1e3a8a" />
+
+  <!-- Solid rounded background -->
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+
+  <!-- Subtle radial energy ring behind figure -->
+  <circle cx="32" cy="30" r="22" stroke="#10b981" stroke-width="0.8" fill="none" opacity="0.2"/>
+  <circle cx="32" cy="30" r="18" stroke="#6ee7b7" stroke-width="0.5" fill="none" opacity="0.12"/>
+
+  <!-- === SENA HUMANOID FIGURE (bold, thick strokes) === -->
+  <!-- Head -->
+  <circle cx="32" cy="13" r="5.5" fill="url(#fig)" filter="url(#glow)"/>
+
+  <!-- Torso -->
+  <line x1="32" y1="18.5" x2="32" y2="35" stroke="url(#fig)" stroke-width="4.5" stroke-linecap="round"/>
+
+  <!-- Arms spread wide (SENA iconic V pose) -->
+  <line x1="32" y1="23" x2="12" y2="31" stroke="url(#fig)" stroke-width="4" stroke-linecap="round"/>
+  <line x1="32" y1="23" x2="52" y2="31" stroke="url(#fig)" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Legs wide stance -->
+  <line x1="32" y1="35" x2="16" y2="54" stroke="url(#fig)" stroke-width="4" stroke-linecap="round"/>
+  <line x1="32" y1="35" x2="48" y2="54" stroke="url(#fig)" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- === WIND TURBINE BLADES (at hands — innovation/renewable) === -->
+  <!-- Left hand: blade curving up -->
+  <path d="M12 31 Q5 23 9 14" stroke="url(#blade)" stroke-width="2.5" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+  <!-- Left hand: blade curving down-left -->
+  <path d="M12 31 Q4 36 3 44" stroke="url(#blade)" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
+
+  <!-- Right hand: blade curving up -->
+  <path d="M52 31 Q59 23 55 14" stroke="url(#blade)" stroke-width="2.5" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+  <!-- Right hand: blade curving down-right -->
+  <path d="M52 31 Q60 36 61 44" stroke="url(#blade)" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
+
+  <!-- Small hub circles at hands -->
+  <circle cx="12" cy="31" r="2" fill="#6ee7b7" opacity="0.8"/>
+  <circle cx="52" cy="31" r="2" fill="#6ee7b7" opacity="0.8"/>
+
+  <!-- Subtle energy dots -->
+  <circle cx="9" cy="14" r="1.5" fill="#6ee7b7" opacity="0.5"/>
+  <circle cx="55" cy="14" r="1.5" fill="#6ee7b7" opacity="0.5"/>
 </svg>

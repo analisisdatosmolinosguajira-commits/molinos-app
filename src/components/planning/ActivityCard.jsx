@@ -12,8 +12,8 @@ const ActivityCard = ({ activity, onEdit, onDelete, onLinkMovement, onUnlinkEnti
     // Status colors
     const statusColors = {
         PLANIFICADA: 'bg-slate-100 text-slate-700',
-        ASIGNADA: 'bg-blue-100 text-blue-700',
-        EN_EJECUCION: 'bg-indigo-100 text-indigo-700',
+        ASIGNADA: 'bg-brand-100 text-brand-700',
+        EN_EJECUCION: 'bg-brand-100 text-brand-700',
         COMPLETADA: 'bg-green-100 text-green-700',
         CANCELADA: 'bg-red-100 text-red-700'
     };
@@ -113,12 +113,12 @@ const ActivityCard = ({ activity, onEdit, onDelete, onLinkMovement, onUnlinkEnti
             <div className="flex flex-wrap gap-2 mb-3 pt-3 border-t border-gray-100">
                 {/* Work Orders */}
                 {activity.related_work_order?.map(wo => (
-                    <div key={`wo-${wo.work_order_id}`} className="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium border border-blue-100">
+                    <div key={`wo-${wo.work_order_id}`} className="inline-flex items-center gap-1.5 px-2 py-1 bg-brand-50 text-brand-700 rounded-md text-xs font-medium border border-blue-100">
                         <ClipboardList size={12} />
                         <span>OT #{wo.code || wo.work_order_id}</span>
                         <button
                             onClick={(e) => { e.stopPropagation(); onUnlinkEntity?.(activity.activity_id, 'work_order', wo.work_order_id); }}
-                            className="hover:bg-blue-100 rounded-full p-0.5 ml-1"
+                            className="hover:bg-brand-100 rounded-full p-0.5 ml-1"
                             title="Desvincular"
                         >
                             <X size={12} />
@@ -128,12 +128,12 @@ const ActivityCard = ({ activity, onEdit, onDelete, onLinkMovement, onUnlinkEnti
 
                 {/* Diagnoses */}
                 {activity.related_diagnosis?.map(diag => (
-                    <div key={`diag-${diag.diagnosis_id}`} className="inline-flex items-center gap-1.5 px-2 py-1 bg-indigo-50 text-indigo-700 rounded-md text-xs font-medium border border-indigo-100">
+                    <div key={`diag-${diag.diagnosis_id}`} className="inline-flex items-center gap-1.5 px-2 py-1 bg-brand-50 text-brand-700 rounded-md text-xs font-medium border border-brand-100">
                         <Stethoscope size={12} />
                         <span>Diag #{diag.code || diag.diagnosis_id}</span>
                         <button
                             onClick={(e) => { e.stopPropagation(); onUnlinkEntity?.(activity.activity_id, 'diagnosis', diag.diagnosis_id); }}
-                            className="hover:bg-indigo-100 rounded-full p-0.5 ml-1"
+                            className="hover:bg-brand-100 rounded-full p-0.5 ml-1"
                             title="Desvincular"
                         >
                             <X size={12} />
@@ -207,7 +207,7 @@ const ActivityCard = ({ activity, onEdit, onDelete, onLinkMovement, onUnlinkEnti
                 {activity.activityTypeName === 'Entrega de Materiales' && (
                     <button
                         onClick={(e) => { e.stopPropagation(); onEdit?.(activity, 'delivery'); }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 border border-blue-200 shadow-sm transition-colors"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-brand-700 bg-brand-50 rounded-md hover:bg-brand-100 border border-brand-200 shadow-sm transition-colors"
                     >
                         <ClipboardList size={14} />
                         Ruta de Entrega

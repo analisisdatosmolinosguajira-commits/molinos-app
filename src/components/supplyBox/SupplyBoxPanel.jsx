@@ -4,14 +4,14 @@ import { SupplyBoxService } from '../../services/supplyBox';
 
 const TYPE_LABELS = { material: 'Material', piece: 'Pieza', tool: 'Herramienta', epp: 'EPP' };
 const TYPE_COLORS = {
-    material: 'bg-blue-100 text-blue-700',
+    material: 'bg-brand-100 text-brand-700',
     piece: 'bg-purple-100 text-purple-700',
     tool: 'bg-amber-100 text-amber-700',
     epp: 'bg-green-100 text-green-700'
 };
 const MOVEMENT_LABELS = {
     entrada: { label: 'Entrada', icon: ArrowDownRight, color: 'text-green-600 bg-green-50' },
-    devolucion: { label: 'Devolución', icon: ArrowUpRight, color: 'text-blue-600 bg-blue-50' },
+    devolucion: { label: 'Devolución', icon: ArrowUpRight, color: 'text-brand-600 bg-brand-50' },
     gasto: { label: 'Gasto', icon: Package, color: 'text-amber-600 bg-amber-50' },
     perdida: { label: 'Pérdida', icon: AlertTriangle, color: 'text-red-600 bg-red-50' }
 };

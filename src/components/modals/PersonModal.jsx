@@ -136,13 +136,13 @@ const PersonModal = ({ isOpen, onClose, onSave, personToEdit = null, communities
                 <div className="flex border-b border-slate-100">
                     <button
                         onClick={() => setActiveTab('info')}
-                        className={`flex-1 py-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'info' ? 'border-indigo-500 text-indigo-700 bg-indigo-50/30' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+                        className={`flex-1 py-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'info' ? 'border-brand-500 text-brand-700 bg-brand-50/30' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
                     >
                         Información Personal
                     </button>
                     <button
                         onClick={() => setActiveTab('assignment')}
-                        className={`flex-1 py-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'assignment' ? 'border-indigo-500 text-indigo-700 bg-indigo-50/30' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+                        className={`flex-1 py-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'assignment' ? 'border-brand-500 text-brand-700 bg-brand-50/30' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
                     >
                         Comunidad y Rol
                     </button>
@@ -160,7 +160,7 @@ const PersonModal = ({ isOpen, onClose, onSave, personToEdit = null, communities
                                             <input
                                                 type="text"
                                                 required
-                                                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all text-sm font-medium"
+                                                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all text-sm font-medium"
                                                 placeholder="Juan"
                                                 value={formData.first_name}
                                                 onChange={e => setFormData({ ...formData, first_name: e.target.value })}
@@ -172,7 +172,7 @@ const PersonModal = ({ isOpen, onClose, onSave, personToEdit = null, communities
                                         <input
                                             type="text"
                                             required
-                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all text-sm font-medium"
+                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all text-sm font-medium"
                                             placeholder="Pérez"
                                             value={formData.last_name}
                                             onChange={e => setFormData({ ...formData, last_name: e.target.value })}
@@ -187,7 +187,7 @@ const PersonModal = ({ isOpen, onClose, onSave, personToEdit = null, communities
                                         <input
                                             type="text"
                                             required
-                                            className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all text-sm font-medium font-mono"
+                                            className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all text-sm font-medium font-mono"
                                             placeholder="V-12345678"
                                             value={formData.document_id}
                                             onChange={e => setFormData({ ...formData, document_id: e.target.value })}
@@ -202,7 +202,7 @@ const PersonModal = ({ isOpen, onClose, onSave, personToEdit = null, communities
                                             <Phone className="absolute left-3 top-2.5 text-slate-400" size={16} />
                                             <input
                                                 type="tel"
-                                                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all text-sm font-medium"
+                                                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all text-sm font-medium"
                                                 placeholder="0414..."
                                                 value={formData.phone}
                                                 onChange={e => setFormData({ ...formData, phone: e.target.value })}
@@ -215,7 +215,7 @@ const PersonModal = ({ isOpen, onClose, onSave, personToEdit = null, communities
                                             <Briefcase className="absolute left-3 top-2.5 text-slate-400" size={16} />
                                             <input
                                                 type="text"
-                                                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all text-sm font-medium"
+                                                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all text-sm font-medium"
                                                 placeholder="Mecánico..."
                                                 value={formData.specialty}
                                                 onChange={e => setFormData({ ...formData, specialty: e.target.value })}
@@ -228,10 +228,10 @@ const PersonModal = ({ isOpen, onClose, onSave, personToEdit = null, communities
 
                         {activeTab === 'assignment' && (
                             <div className="space-y-4">
-                                <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                                <div className="bg-brand-50 p-4 rounded-xl border border-brand-100">
                                     <h4 className="text-sm font-bold text-indigo-900 mb-2">Asignación Actual</h4>
                                     {personToEdit?.community ? (
-                                        <div className="flex items-center gap-2 text-indigo-700">
+                                        <div className="flex items-center gap-2 text-brand-700">
                                             <MapPin size={16} />
                                             <span className="font-semibold">{personToEdit.community}</span>
                                             <span className="text-indigo-400">•</span>
@@ -247,7 +247,7 @@ const PersonModal = ({ isOpen, onClose, onSave, personToEdit = null, communities
                                     <div className="relative">
                                         <MapPin className="absolute left-3 top-2.5 text-slate-400" size={16} />
                                         <select
-                                            className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all text-sm font-medium text-slate-700 appearance-none"
+                                            className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all text-sm font-medium text-slate-700 appearance-none"
                                             value={assignmentData.communityId}
                                             onChange={e => setAssignmentData({ ...assignmentData, communityId: e.target.value })}
                                         >
@@ -266,7 +266,7 @@ const PersonModal = ({ isOpen, onClose, onSave, personToEdit = null, communities
                                     <div className="relative">
                                         <Shield className="absolute left-3 top-2.5 text-slate-400" size={16} />
                                         <select
-                                            className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all text-sm font-medium text-slate-700 appearance-none"
+                                            className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all text-sm font-medium text-slate-700 appearance-none"
                                             value={assignmentData.roleId}
                                             onChange={e => setAssignmentData({ ...assignmentData, roleId: e.target.value })}
                                             disabled={!assignmentData.communityId}
@@ -294,7 +294,7 @@ const PersonModal = ({ isOpen, onClose, onSave, personToEdit = null, communities
                         type="submit"
                         form="person-form"
                         disabled={loading}
-                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl shadow-lg shadow-indigo-500/30 active:scale-95 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
+                        className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2.5 rounded-xl shadow-lg shadow-indigo-500/30 active:scale-95 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
                     >
                         {loading ? <Loader className="animate-spin" size={20} /> : <><Save size={18} /> Guardar Cambios</>}
                     </button>

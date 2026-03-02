@@ -178,7 +178,7 @@ const ComponentFormModal = ({ isOpen, onClose, onSuccess, componentData = null }
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 px-4 py-2.5 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-bold disabled:opacity-50 flex items-center justify-center gap-2"
+                            className="flex-1 px-4 py-2.5 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-colors font-bold disabled:opacity-50 flex items-center justify-center gap-2"
                         >
                             {loading ? (
                                 <>

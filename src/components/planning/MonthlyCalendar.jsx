@@ -112,7 +112,7 @@ const MonthlyCalendar = ({ activities, onEditActivity, onDeleteActivity, onLinkM
                     </h2>
                     <button
                         onClick={handleToday}
-                        className="px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors font-medium"
+                        className="px-3 py-1.5 text-sm bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 transition-colors font-medium"
                     >
                         Hoy
                     </button>
@@ -159,7 +159,7 @@ const MonthlyCalendar = ({ activities, onEditActivity, onDeleteActivity, onLinkM
                         <div
                             key={index}
                             className={`min-h-[100px] p-2 border-r border-b border-gray-200 ${!day.isCurrentMonth ? 'bg-gray-50' : 'bg-white'
-                                } ${hasActivities ? 'cursor-pointer hover:bg-blue-50' : ''} transition-colors`}
+                                } ${hasActivities ? 'cursor-pointer hover:bg-brand-50' : ''} transition-colors`}
                             onClick={() => handleDayClick(day.date, dayActivities)}
                         >
                             {/* Day number */}
@@ -168,7 +168,7 @@ const MonthlyCalendar = ({ activities, onEditActivity, onDeleteActivity, onLinkM
                                     className={`text-sm font-medium ${!day.isCurrentMonth
                                             ? 'text-gray-400'
                                             : isTodayDate
-                                                ? 'bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs'
+                                                ? 'bg-brand-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs'
                                                 : 'text-slate-700'
                                         }`}
                                 >
