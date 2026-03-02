@@ -111,7 +111,7 @@ export const VisitService = {
                 status: c.status === 'ACTIVA' ? 'SCHEDULED' : 'COMPLETED',
                 type: 'SOCIAL',
                 title: 'Concertación Comunitaria',
-                description: c.agreements || c.topics
+                description: c.conditions || c.decision
             })));
         }
 

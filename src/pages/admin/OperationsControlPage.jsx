@@ -174,7 +174,7 @@ function CreateUserModal({ isOpen, onClose, onCreated }) {
 
 // ——— Main Operations Control Page ————————————————————————
 export default function OperationsControlPage() {
-    const { isSupervisor } = useAuth();
+    const { isSupervisor, user } = useAuth();
     const [logs, setLogs] = useState([]);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);

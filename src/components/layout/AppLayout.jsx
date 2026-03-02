@@ -3,7 +3,8 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import OnboardingModal from '../auth/OnboardingModal';
 import { useAuth } from '../../contexts/AuthContext';
-import { Menu, X, Bell, Search, User, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, X, Search, User, LogOut, ChevronDown } from 'lucide-react';
+import NotificationBell from '../notifications/NotificationBell';
 
 export default function AppLayout() {
     const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
@@ -66,11 +67,8 @@ export default function AppLayout() {
 
                     {/* Right: User actions */}
                     <div className="flex items-center gap-3">
-                        {/* Notifications bell (placeholder) */}
-                        <button className="relative p-2 text-slate-500 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors">
-                            <Bell size={20} />
-                            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-                        </button>
+                        {/* Notifications bell */}
+                        <NotificationBell />
 
                         {/* User dropdown */}
                         <div className="relative" ref={dropdownRef}>

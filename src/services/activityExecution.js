@@ -43,8 +43,8 @@ export const ActivityExecutionService = {
                 concertation:community_concertation!community_concertation_related_activity_id_fkey (
                     concertation_id,
                     community (name),
-                    topics,
-                    agreements
+                    conditions,
+                    decision
                 ),
                 manufacturing_order:manufacturing_order!manufacturing_order_related_activity_id_fkey (
                     mo_id,

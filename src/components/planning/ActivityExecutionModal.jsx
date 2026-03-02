@@ -675,15 +675,24 @@ function TabDailyExecution({ activity }) {
     // Generate dates between planned_start_week and planned_end_week
     const getDatesInRange = (start, end) => {
         if (!start || !end) return [];
+        // Parse date parts manually to avoid UTC/local timezone shift.
+        // new Date('2026-02-23') parses as UTC midnight, which becomes
+        // the previous local day for UTC-5 users.
+        const parseLocalDate = (dateStr) => {
+            const [year, month, day] = dateStr.substring(0, 10).split('-').map(Number);
+            return new Date(year, month - 1, day, 12, 0, 0); // noon local time
+        };
+
         let dates = [];
-        let curr = new Date(start);
-        const last = new Date(end);
-        // add one extra hour to avoid timezone offset reducing date day
-        curr.setHours(12, 0, 0, 0);
-        last.setHours(12, 0, 0, 0);
+        let curr = parseLocalDate(start);
+        const last = parseLocalDate(end);
 
         while (curr <= last) {
-            dates.push(curr.toISOString().split('T')[0]);
+            // Format as YYYY-MM-DD in local time
+            const y = curr.getFullYear();
+            const m = String(curr.getMonth() + 1).padStart(2, '0');
+            const d = String(curr.getDate()).padStart(2, '0');
+            dates.push(`${y}-${m}-${d}`);
             curr.setDate(curr.getDate() + 1);
         }
         return dates;
@@ -805,8 +814,8 @@ function TabDailyExecution({ activity }) {
                             return (
                                 <button key={d} onClick={() => setSelectedDate(d)}
                                     className={`px-4 py-3 rounded-xl text-sm font-bold whitespace-nowrap transition-all flex flex-col items-center min-w-[80px] border ${selectedDate === d
-                                            ? 'bg-blue-600 text-white shadow-md border-blue-600'
-                                            : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border-slate-200 hover:border-blue-300 hover:text-blue-700'
+                                        ? 'bg-blue-600 text-white shadow-md border-blue-600'
+                                        : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border-slate-200 hover:border-blue-300 hover:text-blue-700'
                                         }`}>
                                     <span className="capitalize text-xs font-semibold tracking-wide opacity-90 mb-1">{weekdayName}</span>
                                     <span className="text-lg">{day}/{month}</span>

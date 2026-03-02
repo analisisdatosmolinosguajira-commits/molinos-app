@@ -127,7 +127,7 @@ export const generateDetailedWeeklyReport = async (activities, weekStart, weekEn
         }
         if (activityFull.concertation && activityFull.concertation.length > 0) {
             activityFull.concertation.forEach(c => {
-                const details = c.agreements || c.topics || '';
+                const details = c.conditions || c.decision || '';
                 const notes = details ? `\n> ${details.substring(0, 100)}${details.length > 100 ? '...' : ''}` : '';
                 relatedEntitiesBody.push(['Concertación:', `${c.code || `ID: ${c.concertation_id}`}${notes}`, c.community?.name || '-']);
             });

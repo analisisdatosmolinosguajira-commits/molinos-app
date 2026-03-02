@@ -1,20 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../services/supabase';
 import {
     User, Mail, Phone, Shield, Key, Save, Loader2, CheckCircle,
     AlertCircle, FileText, ClipboardList, MapPin, Camera, Eye, EyeOff,
-    Edit3, X, Package
+    Edit3, X, Package, Bell, Activity, Wrench, Stethoscope, Users, Star
 } from 'lucide-react';
 import SupplyBoxPanel from '../../components/supplyBox/SupplyBoxPanel';
 import ActivityExecutionModal from '../../components/planning/ActivityExecutionModal';
+import { useNotifications } from '../../contexts/NotificationsContext';
 
 export default function ProfilePage() {
     const { user, profile, person, displayName, initials, roleName, updatePassword, refreshProfile, secondaryRole } = useAuth();
+    const { preferences, savePreferences } = useNotifications();
     const [activeTab, setActiveTab] = useState('info');
     const [assignments, setAssignments] = useState({ workOrders: [], activities: [], crews: [] });
     const [loadingAssignments, setLoadingAssignments] = useState(false);
     const [selectedActivityId, setSelectedActivityId] = useState(null);
+    const [localPrefs, setLocalPrefs] = useState(null);
+    const [savingPrefs, setSavingPrefs] = useState(false);
+    const [prefsMessage, setPrefsMessage] = useState(null);
 
     // Password change
     const [newPassword, setNewPassword] = useState('');
@@ -124,10 +129,31 @@ export default function ProfilePage() {
         operativo: 'Operativo',
     };
 
+    // Sync localPrefs from context when preferences load
+    useEffect(() => {
+        if (preferences && !localPrefs) setLocalPrefs(preferences);
+    }, [preferences]);
+
+    const handleSavePrefs = async () => {
+        if (!localPrefs) return;
+        setSavingPrefs(true);
+        setPrefsMessage(null);
+        try {
+            await savePreferences(localPrefs);
+            setPrefsMessage({ type: 'success', text: '¡Preferencias guardadas!' });
+        } catch (err) {
+            setPrefsMessage({ type: 'error', text: err.message });
+        } finally {
+            setSavingPrefs(false);
+            setTimeout(() => setPrefsMessage(null), 3000);
+        }
+    };
+
     const TABS = [
         { id: 'info', label: 'Información', icon: User },
         { id: 'security', label: 'Seguridad', icon: Key },
         { id: 'assignments', label: 'Asignaciones', icon: ClipboardList },
+        { id: 'notificaciones', label: 'Notificaciones', icon: Bell },
         ...(['supervisor', 'ing_lider'].includes(profile?.app_role) ? [{ id: 'supplybox', label: 'Mi Caja', icon: Package }] : []),
     ];
 
@@ -385,6 +411,64 @@ export default function ProfilePage() {
                 {activeTab === 'supplybox' && person && (
                     <div className="p-6">
                         <SupplyBoxPanel personId={person.person_id} canReport={true} />
+                    </div>
+                )}
+
+                {activeTab === 'notificaciones' && (
+                    <div className="p-6 space-y-6">
+                        <div>
+                            <h3 className="font-bold text-slate-800 text-base mb-1">Preferencias de Alertas</h3>
+                            <p className="text-sm text-slate-500">Selecciona qué tipos de notificaciones deseas recibir.</p>
+                        </div>
+                        {!localPrefs ? (
+                            <div className="flex justify-center py-8"><Loader2 className="animate-spin text-slate-400" size={24} /></div>
+                        ) : (
+                            <div className="space-y-3">
+                                {[
+                                    { key: 'new_assignments', icon: Users, label: 'Nuevas Asignaciones', desc: 'Cuando te asignen una actividad nueva' },
+                                    { key: 'activity_status_change', icon: Activity, label: 'Cambios en Actividades', desc: 'Cuando cambie el estado de una actividad tuya' },
+                                    { key: 'ot_status_change', icon: Wrench, label: 'Cambios en Órdenes de Trabajo', desc: 'Actualizaciones de estado en OTs que creaste' },
+                                    { key: 'diagnosis_status_change', icon: Stethoscope, label: 'Cambios en Diagnósticos', desc: 'Actualizaciones de estado en diagnósticos' },
+                                    { key: 'concertation_status_change', icon: Users, label: 'Cambios en Concertaciones', desc: 'Cuando cambie el estado de una concertación de tu cuadrilla' },
+                                    { key: 'stock_low_alert', icon: Package, label: 'Alerta de Stock Bajo', desc: 'Cuando un artículo de inventario baje del mínimo' },
+                                    { key: 'goal_progress', icon: Star, label: 'Progreso de Metas', desc: 'Actualizaciones sobre cumplimiento de metas semanales' },
+                                ].map(({ key, icon: Icon, label, desc }) => (
+                                    <div key={key} className="flex items-center justify-between p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-white hover:border-slate-200 transition-colors">
+                                        <div className="flex items-start gap-3">
+                                            <div className="w-9 h-9 bg-brand-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                                                <Icon size={16} className="text-brand-500" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-semibold text-slate-800">{label}</p>
+                                                <p className="text-xs text-slate-500 mt-0.5">{desc}</p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => setLocalPrefs(prev => ({ ...prev, [key]: !prev[key] }))}
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ml-4 ${localPrefs[key] ? 'bg-brand-500' : 'bg-slate-200'
+                                                }`}
+                                        >
+                                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${localPrefs[key] ? 'translate-x-6' : 'translate-x-1'
+                                                }`} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        <div className="flex items-center gap-3 pt-2">
+                            <button onClick={handleSavePrefs} disabled={savingPrefs || !localPrefs}
+                                className="flex items-center gap-2 px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-colors disabled:opacity-50">
+                                {savingPrefs ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                                Guardar Preferencias
+                            </button>
+                            {prefsMessage && (
+                                <span className={`text-sm font-medium flex items-center gap-1 ${prefsMessage.type === 'success' ? 'text-emerald-600' : 'text-red-600'
+                                    }`}>
+                                    {prefsMessage.type === 'success' ? <CheckCircle size={14} /> : <AlertCircle size={14} />}
+                                    {prefsMessage.text}
+                                </span>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>
