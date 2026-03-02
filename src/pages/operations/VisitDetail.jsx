@@ -75,7 +75,7 @@ const VisitDetail = ({ visit, onClose, onUpdate }) => {
 
                 <div className="flex flex-wrap gap-4 text-sm text-slate-600">
                     <div className="flex items-center gap-2">
-                        <Calendar size={16} className="text-blue-500" />
+                        <Calendar size={16} className="text-brand-500" />
                         <span>{new Date(visit.date).toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                     </div>
                 </div>
@@ -118,7 +118,7 @@ const VisitDetail = ({ visit, onClose, onUpdate }) => {
                         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
                             <MapPin size={16} /> Ubicación
                         </h3>
-                        <div className="flex items-start gap-3 bg-brand-50 p-4 rounded-xl text-blue-800">
+                        <div className="flex items-start gap-3 bg-brand-50 p-4 rounded-xl text-brand-800">
                             <MapPin size={20} className="mt-0.5 shrink-0" />
                             <span className="font-medium">{visit.location}</span>
                         </div>

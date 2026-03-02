@@ -252,7 +252,7 @@ export default function MillDetail() {
                                             <div className="flex justify-between items-start mb-2">
                                                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{new Date(event.date).toLocaleDateString()}</span>
                                                 <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-full border
-                                                    ${event.type === 'WORK_ORDER' ? 'bg-brand-50 text-brand-600 border-blue-100' :
+                                                    ${event.type === 'WORK_ORDER' ? 'bg-brand-50 text-brand-600 border-brand-100' :
                                                         event.type === 'DIAGNOSIS' ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-orange-50 text-orange-600 border-orange-100'}`}>
                                                     {event.type}
                                                 </span>
@@ -298,7 +298,7 @@ export default function MillDetail() {
                                 <>
                                     <ComponentMatrix components={componentData} />
                                     <div className="mt-4 p-4 bg-brand-50 border border-brand-200 rounded-lg">
-                                        <p className="text-sm text-blue-800">
+                                        <p className="text-sm text-brand-800">
                                             💡 <strong>Tip:</strong> Para agregar, editar o eliminar componentes de este molino,
                                             haz click en "Gestionar Componentes" arriba.
                                         </p>
@@ -375,7 +375,7 @@ export default function MillDetail() {
                             {/* Installed Pump Card */}
                             <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
                                 <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                    <Droplet className="text-blue-500" />
+                                    <Droplet className="text-brand-500" />
                                     Bomba Instalada Actual
                                 </h3>
 

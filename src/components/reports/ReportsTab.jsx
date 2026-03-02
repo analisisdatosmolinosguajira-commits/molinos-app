@@ -228,12 +228,12 @@ export default function ReportsTab() {
                 </div>
                 <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm space-y-4">
                     <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                        <Cpu size={18} className="text-cyan-500" /> Bombas
+                        <Cpu size={18} className="text-accent-500" /> Bombas
                     </h3>
                     <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-cyan-50 rounded-xl p-4 text-center">
-                            <p className="text-2xl font-bold text-cyan-700">{data.pumpBreakdown.fabricated}</p>
-                            <p className="text-xs text-cyan-600 font-medium mt-1">Fabricadas</p>
+                        <div className="bg-accent-50 rounded-xl p-4 text-center">
+                            <p className="text-2xl font-bold text-accent-600">{data.pumpBreakdown.fabricated}</p>
+                            <p className="text-xs text-accent-600 font-medium mt-1">Fabricadas</p>
                         </div>
                         <div className="bg-amber-50 rounded-xl p-4 text-center">
                             <p className="text-2xl font-bold text-amber-700">{data.pumpBreakdown.repaired}</p>

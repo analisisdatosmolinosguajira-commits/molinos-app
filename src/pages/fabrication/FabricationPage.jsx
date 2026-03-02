@@ -33,7 +33,7 @@ const ProgressBar = ({ completed, planned }) => {
         <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
             <div
                 className={`h-full rounded-full transition-all duration-500 ${pct >= 100 ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' :
-                    pct > 50 ? 'bg-gradient-to-r from-blue-600 to-indigo-500' :
+                    pct > 50 ? 'bg-gradient-to-r from-blue-600 to-brand-500' :
                         'bg-gradient-to-r from-amber-500 to-orange-400'
                     }`}
                 style={{ width: `${pct}%` }}
@@ -182,7 +182,7 @@ export default function FabricationPage() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                            <Wrench size={26} className="text-indigo-400" />
+                            <Wrench size={26} className="text-brand-400" />
                             Fabricación
                         </h1>
                         <p className="text-slate-400 text-sm mt-1">
@@ -233,7 +233,7 @@ export default function FabricationPage() {
                     <div className="grid grid-cols-4 gap-3 mt-5">
                         {[
                             { label: 'Planificadas', value: counts.planificada, color: 'text-violet-400' },
-                            { label: 'En Proceso', value: counts.en_proceso, color: 'text-blue-400' },
+                            { label: 'En Proceso', value: counts.en_proceso, color: 'text-brand-400' },
                             { label: 'Terminadas', value: counts.terminada, color: 'text-emerald-400' },
                             { label: 'Total', value: counts.ALL, color: 'text-white' }
                         ].map(stat => (

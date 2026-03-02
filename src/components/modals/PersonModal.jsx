@@ -229,16 +229,16 @@ const PersonModal = ({ isOpen, onClose, onSave, personToEdit = null, communities
                         {activeTab === 'assignment' && (
                             <div className="space-y-4">
                                 <div className="bg-brand-50 p-4 rounded-xl border border-brand-100">
-                                    <h4 className="text-sm font-bold text-indigo-900 mb-2">Asignación Actual</h4>
+                                    <h4 className="text-sm font-bold text-brand-900 mb-2">Asignación Actual</h4>
                                     {personToEdit?.community ? (
                                         <div className="flex items-center gap-2 text-brand-700">
                                             <MapPin size={16} />
                                             <span className="font-semibold">{personToEdit.community}</span>
-                                            <span className="text-indigo-400">•</span>
+                                            <span className="text-brand-400">•</span>
                                             <span className="text-sm">{personToEdit.role}</span>
                                         </div>
                                     ) : (
-                                        <div className="text-sm text-indigo-400 italic">No asignado a ninguna comunidad.</div>
+                                        <div className="text-sm text-brand-400 italic">No asignado a ninguna comunidad.</div>
                                     )}
                                 </div>
 

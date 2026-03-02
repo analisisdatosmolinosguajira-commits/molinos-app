@@ -57,7 +57,7 @@ const JourneyActivitiesTab = ({ activity, onAssign }) => {
                 break;
             case 'MANUFACTURING':
                 icon = <Settings size={18} />; // Assuming Settings is imported or use Briefcase
-                colorClass = "bg-brand-50 text-brand-600 border-blue-100";
+                colorClass = "bg-brand-50 text-brand-600 border-brand-100";
                 titleText = `Fabricación #${entity.id}`;
                 subtitle = `Estado: ${entity.status}`;
                 break;

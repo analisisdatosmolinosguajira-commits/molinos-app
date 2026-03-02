@@ -131,7 +131,7 @@ const MillSelectorModal = ({ onSelect, onClose, filter }) => {
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3 flex-1">
-                                            <div className="w-10 h-10 bg-brand-100 rounded-lg flex items-center justify-center text-brand-600 group-hover:bg-blue-200 transition-colors">
+                                            <div className="w-10 h-10 bg-brand-100 rounded-lg flex items-center justify-center text-brand-600 group-hover:bg-brand-200 transition-colors">
                                                 <MapPin size={20} />
                                             </div>
                                             <div className="flex-1">

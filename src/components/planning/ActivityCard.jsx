@@ -113,7 +113,7 @@ const ActivityCard = ({ activity, onEdit, onDelete, onLinkMovement, onUnlinkEnti
             <div className="flex flex-wrap gap-2 mb-3 pt-3 border-t border-gray-100">
                 {/* Work Orders */}
                 {activity.related_work_order?.map(wo => (
-                    <div key={`wo-${wo.work_order_id}`} className="inline-flex items-center gap-1.5 px-2 py-1 bg-brand-50 text-brand-700 rounded-md text-xs font-medium border border-blue-100">
+                    <div key={`wo-${wo.work_order_id}`} className="inline-flex items-center gap-1.5 px-2 py-1 bg-brand-50 text-brand-700 rounded-md text-xs font-medium border border-brand-100">
                         <ClipboardList size={12} />
                         <span>OT #{wo.code || wo.work_order_id}</span>
                         <button

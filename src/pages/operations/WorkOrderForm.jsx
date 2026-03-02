@@ -843,7 +843,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
                         {/* PUMP OPERATIONS SECTION */}
                         <div className="col-span-2 border-t-2 border-slate-200 pt-6 mt-4">
                             <h3 className="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
-                                <Activity size={20} className="text-blue-500" />
+                                <Activity size={20} className="text-brand-500" />
                                 Operaciones de Bomba
                             </h3>
 
@@ -884,7 +884,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
                                 </div>
 
                                 <div className="flex items-center pt-6">
-                                    <label className="flex items-center gap-2 cursor-pointer text-slate-700 font-bold text-sm bg-brand-50 px-3 py-2 rounded-lg border border-blue-100 hover:bg-brand-100 transition-colors">
+                                    <label className="flex items-center gap-2 cursor-pointer text-slate-700 font-bold text-sm bg-brand-50 px-3 py-2 rounded-lg border border-brand-100 hover:bg-brand-100 transition-colors">
                                         <input
                                             type="checkbox"
                                             className="w-4 h-4 rounded text-brand-600 focus:ring-brand-500"
@@ -1066,7 +1066,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
                         <div>
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2">
-                                    <Package size={20} className="text-blue-500" />
+                                    <Package size={20} className="text-brand-500" />
                                     Materiales (Consumibles)
                                 </h3>
                                 <button

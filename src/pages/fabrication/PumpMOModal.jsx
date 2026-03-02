@@ -110,7 +110,7 @@ const ConsumptionProgress = ({ planned, actual }) => {
                 <span className={`text-xs ${isOver ? 'text-red-500' : 'text-slate-400'}`}>{pct}%</span>
             </div>
             <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                <div className={`h-full rounded-full transition-all duration-500 ${isOver ? 'bg-red-500' : pct >= 100 ? 'bg-emerald-500' : 'bg-cyan-500'}`}
+                <div className={`h-full rounded-full transition-all duration-500 ${isOver ? 'bg-red-500' : pct >= 100 ? 'bg-emerald-500' : 'bg-accent-500'}`}
                     style={{ width: `${Math.min(pct, 100)}%` }} />
             </div>
         </div>
@@ -221,7 +221,7 @@ const UnifiedConsumptionTab = ({ moId, pumpModelId }) => {
             {/* ───── MATERIALS SECTION ───── */}
             <div>
                 <div className="flex items-center gap-2 mb-3">
-                    <FlaskConical size={16} className="text-cyan-600" />
+                    <FlaskConical size={16} className="text-accent-600" />
                     <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Consumo de Materiales</h3>
                     {bomMaterials.length > 0 && <span className="text-xs text-slate-400 ml-auto">{bomMaterials.length} planificados (BOM)</span>}
                 </div>
@@ -256,7 +256,7 @@ const UnifiedConsumptionTab = ({ moId, pumpModelId }) => {
                         })}
                     </select>
                     <input type="number" min="0.01" step="0.01" className="w-20 px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm" value={addMatQty} onChange={e => setAddMatQty(e.target.value)} />
-                    <button onClick={handleAddMat} disabled={!addMatId} className="px-3 py-2 bg-cyan-600 text-white rounded-xl text-sm font-bold hover:bg-cyan-500 disabled:opacity-40 flex items-center gap-1"><Plus size={14} /></button>
+                    <button onClick={handleAddMat} disabled={!addMatId} className="px-3 py-2 bg-accent-600 text-white rounded-xl text-sm font-bold hover:bg-accent-500 disabled:opacity-40 flex items-center gap-1"><Plus size={14} /></button>
                 </div>
 
                 {/* Actual consumption log */}
@@ -281,7 +281,7 @@ const UnifiedConsumptionTab = ({ moId, pumpModelId }) => {
             {/* ───── PIECES SECTION ───── */}
             <div>
                 <div className="flex items-center gap-2 mb-3">
-                    <Layers size={16} className="text-teal-600" />
+                    <Layers size={16} className="text-brand-600" />
                     <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Consumo de Piezas</h3>
                     {bomPieces.length > 0 && <span className="text-xs text-slate-400 ml-auto">{bomPieces.length} planificadas (BOM)</span>}
                 </div>
@@ -316,7 +316,7 @@ const UnifiedConsumptionTab = ({ moId, pumpModelId }) => {
                         })}
                     </select>
                     <input type="number" min="1" className="w-20 px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm" value={addPieceQty} onChange={e => setAddPieceQty(e.target.value)} />
-                    <button onClick={handleAddPiece} disabled={!addPieceId} className="px-3 py-2 bg-teal-600 text-white rounded-xl text-sm font-bold hover:bg-teal-500 disabled:opacity-40 flex items-center gap-1"><Plus size={14} /></button>
+                    <button onClick={handleAddPiece} disabled={!addPieceId} className="px-3 py-2 bg-brand-600 text-white rounded-xl text-sm font-bold hover:bg-brand-500 disabled:opacity-40 flex items-center gap-1"><Plus size={14} /></button>
                 </div>
 
                 {/* Actual piece consumption log */}
@@ -476,7 +476,7 @@ export default function PumpMOModal({ isOpen, onClose, orderId = null, onSuccess
                 <div className="flex border-b border-slate-100 px-6 pt-2 shrink-0">
                     {TABS.map(tab => (
                         <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-1.5 px-4 py-3 text-sm font-bold border-b-2 transition-all ${activeTab === tab.id ? 'border-cyan-500 text-cyan-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}>
+                            className={`flex items-center gap-1.5 px-4 py-3 text-sm font-bold border-b-2 transition-all ${activeTab === tab.id ? 'border-accent-500 text-accent-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}>
                             <tab.icon size={14} /> {tab.label}
                         </button>
                     ))}

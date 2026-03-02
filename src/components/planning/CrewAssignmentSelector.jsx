@@ -55,7 +55,7 @@ const CrewAssignmentSelector = ({ value, onChange, disabled = false }) => {
                 className={`w-full flex items-center justify-between px-4 py-2.5 bg-white border rounded-lg text-left transition-colors ${disabled
                         ? 'bg-gray-50 text-gray-400 cursor-not-allowed'
                         : 'hover:bg-gray-50 focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
-                    } ${isOpen ? 'ring-2 ring-brand-500 border-blue-500' : 'border-gray-300'}`}
+                    } ${isOpen ? 'ring-2 ring-brand-500 border-brand-500' : 'border-gray-300'}`}
             >
                 <div className="flex items-center gap-3">
                     <Users size={18} className={selectedCrew ? 'text-brand-600' : 'text-gray-400'} />

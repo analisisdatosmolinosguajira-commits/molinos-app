@@ -29,13 +29,13 @@ const TypeBadge = ({ moType }) => {
     if (moType === 'pump_repair') {
         return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-700 border border-orange-200"><Wrench size={10} /> Reparación</span>;
     }
-    return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-cyan-100 text-cyan-700 border border-cyan-200"><Hammer size={10} /> Fabricación</span>;
+    return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-accent-100 text-accent-600 border border-accent-200"><Hammer size={10} /> Fabricación</span>;
 };
 
 const PumpOrderCard = ({ order, onClick, onDelete }) => {
     const pct = order.quantityPlanned > 0 ? Math.round((order.quantityCompleted / order.quantityPlanned) * 100) : 0;
     return (
-        <div onClick={onClick} className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-cyan-200 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer overflow-hidden">
+        <div onClick={onClick} className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-accent-200 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer overflow-hidden">
             <div className={`h-1.5 ${order.moType === 'pump_repair' ? 'bg-gradient-to-r from-orange-500 to-amber-400' : 'bg-gradient-to-r from-cyan-500 to-blue-400'}`} />
             <div className="p-5">
                 <div className="flex items-start justify-between mb-3">
@@ -120,9 +120,9 @@ function PumpOrdersList() {
             <div className="grid grid-cols-4 gap-3">
                 {[
                     { label: 'Pendientes', value: counts.pendiente, color: 'text-amber-500' },
-                    { label: 'En Proceso', value: counts.en_proceso, color: 'text-blue-500' },
+                    { label: 'En Proceso', value: counts.en_proceso, color: 'text-brand-500' },
                     { label: 'Terminadas', value: counts.terminada, color: 'text-emerald-500' },
-                    { label: 'Total', value: counts.ALL, color: 'text-cyan-500' }
+                    { label: 'Total', value: counts.ALL, color: 'text-accent-500' }
                 ].map(stat => (
                     <div key={stat.label} className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
                         <p className="text-xs text-slate-400 font-medium">{stat.label}</p>
@@ -144,7 +144,7 @@ function PumpOrdersList() {
                     <input type="text" placeholder="Buscar..." className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-cyan-500/20" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                 </div>
                 <div className="flex gap-2">
-                    <button onClick={() => { setEditingOrderId(null); setModalType('pump_fabrication'); setModalOpen(true); }} className="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-cyan-500/20 active:scale-95"><Hammer size={16} /> Fabricar</button>
+                    <button onClick={() => { setEditingOrderId(null); setModalType('pump_fabrication'); setModalOpen(true); }} className="bg-accent-600 hover:bg-accent-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-accent-500/20 active:scale-95"><Hammer size={16} /> Fabricar</button>
                     <button onClick={() => { setEditingOrderId(null); setModalType('pump_repair'); setModalOpen(true); }} className="bg-orange-500 hover:bg-orange-400 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-orange-500/20 active:scale-95"><Wrench size={16} /> Reparar</button>
                 </div>
             </div>

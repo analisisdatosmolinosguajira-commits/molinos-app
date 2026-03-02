@@ -14,7 +14,7 @@ import { DashboardService } from '../../services/dashboard';
 import { useAuth } from '../../contexts/AuthContext';
 
 const ACTIVITY_ICONS = {
-    work_order: { icon: ClipboardList, color: 'text-blue-500', bg: 'bg-brand-50' },
+    work_order: { icon: ClipboardList, color: 'text-brand-500', bg: 'bg-brand-50' },
     diagnosis: { icon: Stethoscope, color: 'text-amber-500', bg: 'bg-amber-50' },
     concertation: { icon: Handshake, color: 'text-purple-500', bg: 'bg-purple-50' },
 };

@@ -405,7 +405,7 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
                     {/* Section 2: Location */}
                     <div className="bg-slate-50 p-6 rounded-xl space-y-4">
                         <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                            <MapPin size={20} className="text-blue-500" />
+                            <MapPin size={20} className="text-brand-500" />
                             Ubicación
                         </h3>
                         <div className="space-y-4">

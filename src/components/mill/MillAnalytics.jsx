@@ -29,14 +29,14 @@ const MillAnalytics = ({ analyticsData }) => {
             {/* KPI Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Work Orders Total */}
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-5 border border-brand-200">
+                <div className="bg-gradient-to-br from-brand-50 to-blue-100 rounded-xl p-5 border border-brand-200">
                     <div className="flex items-center justify-between mb-3">
                         <div className="w-12 h-12 bg-brand-500 rounded-xl flex items-center justify-center text-white">
                             <Activity size={24} />
                         </div>
                         <span className="text-xs font-bold text-brand-600 uppercase">Total</span>
                     </div>
-                    <p className="text-3xl font-bold text-blue-900">{workOrderCount}</p>
+                    <p className="text-3xl font-bold text-brand-900">{workOrderCount}</p>
                     <p className="text-sm text-brand-600 mt-1">Órdenes de Trabajo</p>
                 </div>
 

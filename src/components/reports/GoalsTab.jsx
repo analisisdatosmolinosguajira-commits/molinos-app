@@ -11,10 +11,10 @@ const METRIC_OPTIONS = [
     { key: 'completed_work_orders', label: 'OTs completadas', icon: Wrench, color: 'text-brand-600 bg-brand-50' },
     { key: 'pieces_fabricated', label: 'Piezas fabricadas (total)', icon: Hammer, color: 'text-violet-600 bg-violet-50' },
     { key: 'distinct_piece_types', label: 'Tipos de pieza distintos', icon: Award, color: 'text-amber-600 bg-amber-50' },
-    { key: 'pumps_fabricated', label: 'Bombas fabricadas', icon: Cpu, color: 'text-cyan-600 bg-cyan-50' },
+    { key: 'pumps_fabricated', label: 'Bombas fabricadas', icon: Cpu, color: 'text-accent-600 bg-accent-50' },
     { key: 'concertations', label: 'Concertaciones', icon: FileText, color: 'text-pink-600 bg-pink-50' },
     { key: 'diagnoses', label: 'Diagnósticos', icon: Target, color: 'text-orange-600 bg-orange-50' },
-    { key: 'journeys', label: 'Jornadas ejecutadas', icon: MapPin, color: 'text-teal-600 bg-teal-50' },
+    { key: 'journeys', label: 'Jornadas ejecutadas', icon: MapPin, color: 'text-brand-600 bg-brand-50' },
 ];
 
 const PERIODS = [

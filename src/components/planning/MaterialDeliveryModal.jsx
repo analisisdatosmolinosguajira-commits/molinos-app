@@ -365,7 +365,7 @@ export default function MaterialDeliveryModal({ isOpen, onClose, activity, onSuc
                                                     {/* Pieces */}
                                                     <div>
                                                         <h4 className="text-sm font-semibold flex items-center gap-2 text-slate-800 border-b pb-1">
-                                                            <Package size={16} className="text-blue-500" />
+                                                            <Package size={16} className="text-brand-500" />
                                                             Piezas y Tubería
                                                         </h4>
                                                         <ResourceRow
@@ -383,7 +383,7 @@ export default function MaterialDeliveryModal({ isOpen, onClose, activity, onSuc
                                                     {/* Materials */}
                                                     <div>
                                                         <h4 className="text-sm font-semibold flex items-center gap-2 text-slate-800 border-b pb-1">
-                                                            <Package size={16} className="text-teal-500" />
+                                                            <Package size={16} className="text-brand-500" />
                                                             Materiales (Cemento, etc)
                                                         </h4>
                                                         <ResourceRow

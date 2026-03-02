@@ -90,7 +90,7 @@ export default function PumpAnalytics({ analytics }) {
         const colors = {
             slate: 'text-slate-500',
             green: 'text-green-500',
-            blue: 'text-blue-500',
+            blue: 'text-brand-500',
             purple: 'text-purple-500',
             orange: 'text-orange-500'
         };

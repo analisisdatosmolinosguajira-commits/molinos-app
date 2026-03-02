@@ -298,7 +298,7 @@ const ActivityPlanning = () => {
             {/* Activities List/Calendar */}
             {loading ? (
                 <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
                 </div>
             ) : activities.length === 0 ? (
                 <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">

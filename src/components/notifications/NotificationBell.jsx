@@ -4,7 +4,7 @@ import { useNotifications } from '../../contexts/NotificationsContext';
 import { useNavigate } from 'react-router-dom';
 
 const TYPE_CONFIG = {
-    new_assignment: { icon: Users, color: 'text-blue-500', bg: 'bg-brand-50', label: 'Asignación' },
+    new_assignment: { icon: Users, color: 'text-brand-500', bg: 'bg-brand-50', label: 'Asignación' },
     activity_status: { icon: Activity, color: 'text-violet-500', bg: 'bg-violet-50', label: 'Actividad' },
     ot_status: { icon: Wrench, color: 'text-orange-500', bg: 'bg-orange-50', label: 'Orden de Trabajo' },
     diagnosis_status: { icon: Stethoscope, color: 'text-sky-500', bg: 'bg-sky-50', label: 'Diagnóstico' },

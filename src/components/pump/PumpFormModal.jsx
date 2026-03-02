@@ -189,7 +189,7 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
                     {/* Section 1: Identification */}
                     <div className="bg-slate-50 p-6 rounded-xl space-y-4">
                         <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                            <Settings size={20} className="text-blue-500" />
+                            <Settings size={20} className="text-brand-500" />
                             Identificación
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

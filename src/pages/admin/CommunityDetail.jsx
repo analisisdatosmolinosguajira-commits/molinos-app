@@ -110,19 +110,19 @@ const CommunityDetail = ({
                                 <Factory size={16} /> Molino Asignado
                             </h3>
                             {community.mill ? (
-                                <div className="bg-brand-50 border border-blue-100 rounded-xl p-4 flex items-start gap-4 relaltive group">
+                                <div className="bg-brand-50 border border-brand-100 rounded-xl p-4 flex items-start gap-4 relaltive group">
                                     <div className="w-12 h-12 bg-brand-100 rounded-lg flex items-center justify-center text-brand-600">
                                         <Factory size={24} />
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex justify-between items-start">
-                                            <h4 className="font-bold text-blue-900">{community.mill.name}</h4>
+                                            <h4 className="font-bold text-brand-900">{community.mill.name}</h4>
                                             <StatusBadge status={community.mill.status} size="sm" />
                                         </div>
                                         <p className="text-brand-700 font-mono text-sm mt-1">{community.mill.code}</p>
-                                        <div className="mt-3 flex gap-3 text-xs text-blue-800">
-                                            <span className="bg-blue-200/50 px-2 py-1 rounded">Modelo A-2023</span>
-                                            <span className="bg-blue-200/50 px-2 py-1 rounded">Instalado: 2024</span>
+                                        <div className="mt-3 flex gap-3 text-xs text-brand-800">
+                                            <span className="bg-brand-200/50 px-2 py-1 rounded">Modelo A-2023</span>
+                                            <span className="bg-brand-200/50 px-2 py-1 rounded">Instalado: 2024</span>
                                         </div>
                                     </div>
                                     <button

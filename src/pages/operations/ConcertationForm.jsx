@@ -293,7 +293,7 @@ export default function ConcertationForm({ concertationId, onBack }) {
                         <div className="flex items-center gap-4 mt-2 text-sm text-slate-500">
                             {formData.start_date && (
                                 <span className="flex items-center gap-1">
-                                    <Play size={14} className="text-blue-500" />
+                                    <Play size={14} className="text-brand-500" />
                                     Inicio: {new Date(formData.start_date).toLocaleString()}
                                 </span>
                             )}
@@ -563,7 +563,7 @@ export default function ConcertationForm({ concertationId, onBack }) {
                                             const select = document.getElementById('personSelect');
                                             if (select.value) handleAddPerson(select.value);
                                         }}
-                                        className="bg-brand-100 text-brand-700 p-2 rounded-lg hover:bg-blue-200"
+                                        className="bg-brand-100 text-brand-700 p-2 rounded-lg hover:bg-brand-200"
                                     >
                                         <Plus size={20} />
                                     </button>

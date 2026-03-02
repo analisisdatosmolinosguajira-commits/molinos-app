@@ -182,7 +182,7 @@ function PumpModelModal({ isOpen, onClose, modelId, onSuccess }) {
                 <div className="flex border-b border-slate-100 px-6 pt-2 shrink-0">
                     {TABS.map(tab => (
                         <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-1.5 px-4 py-3 text-sm font-bold border-b-2 transition-all ${activeTab === tab.id ? 'border-teal-500 text-teal-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}>
+                            className={`flex items-center gap-1.5 px-4 py-3 text-sm font-bold border-b-2 transition-all ${activeTab === tab.id ? 'border-brand-500 text-brand-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}>
                             <tab.icon size={14} /> {tab.label}
                         </button>
                     ))}
@@ -241,7 +241,7 @@ function PumpModelModal({ isOpen, onClose, modelId, onSuccess }) {
                                     {allMaterials.map(m => <option key={m.material_id} value={m.material_id}>{m.code || ''} — {m.name} ({m.unit})</option>)}
                                 </select>
                                 <input type="number" min="0.01" step="0.01" className="w-24 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm" value={addMatQty} onChange={e => setAddMatQty(e.target.value)} />
-                                <button onClick={handleAddMaterial} disabled={!addMatId} className="px-4 py-2 bg-teal-600 text-white rounded-xl text-sm font-bold hover:bg-teal-500 disabled:opacity-50 flex items-center gap-1.5"><Plus size={14} /> Agregar</button>
+                                <button onClick={handleAddMaterial} disabled={!addMatId} className="px-4 py-2 bg-brand-600 text-white rounded-xl text-sm font-bold hover:bg-brand-500 disabled:opacity-50 flex items-center gap-1.5"><Plus size={14} /> Agregar</button>
                             </div>
                             {bomMaterials.length === 0 ? (
                                 <div className="text-center py-8 text-slate-400 text-sm">Sin materiales en el BOM.</div>
@@ -267,7 +267,7 @@ function PumpModelModal({ isOpen, onClose, modelId, onSuccess }) {
                                     {allPieces.map(p => <option key={p.piece_id} value={p.piece_id}>{p.code} — {p.name}</option>)}
                                 </select>
                                 <input type="number" min="1" className="w-20 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm" value={addPieceQty} onChange={e => setAddPieceQty(e.target.value)} />
-                                <button onClick={handleAddPiece} disabled={!addPieceId} className="px-4 py-2 bg-teal-600 text-white rounded-xl text-sm font-bold hover:bg-teal-500 disabled:opacity-50 flex items-center gap-1.5"><Plus size={14} /> Agregar</button>
+                                <button onClick={handleAddPiece} disabled={!addPieceId} className="px-4 py-2 bg-brand-600 text-white rounded-xl text-sm font-bold hover:bg-brand-500 disabled:opacity-50 flex items-center gap-1.5"><Plus size={14} /> Agregar</button>
                             </div>
                             {bomPieces.length === 0 ? (
                                 <div className="text-center py-8 text-slate-400 text-sm">Sin piezas en el BOM.</div>
@@ -340,9 +340,9 @@ export default function PumpModelManager() {
             <div className="flex items-center gap-4 mb-4">
                 <div className="relative flex-1 max-w-xs">
                     <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input type="text" placeholder="Buscar modelo..." className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                    <input type="text" placeholder="Buscar modelo..." className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                 </div>
-                <button onClick={() => { setEditingModelId(null); setModalOpen(true); }} className="bg-teal-600 hover:bg-teal-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-teal-500/20 active:scale-95">
+                <button onClick={() => { setEditingModelId(null); setModalOpen(true); }} className="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-brand-500/20 active:scale-95">
                     <Plus size={16} /> Nuevo Modelo
                 </button>
             </div>
@@ -360,7 +360,7 @@ export default function PumpModelManager() {
                     {filtered.map(model => (
                         <div key={model.pump_model_id}
                             onClick={() => { setEditingModelId(model.pump_model_id); setModalOpen(true); }}
-                            className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-teal-200 hover:-translate-y-0.5 transition-all cursor-pointer overflow-hidden">
+                            className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-brand-200 hover:-translate-y-0.5 transition-all cursor-pointer overflow-hidden">
                             <div className="h-1.5 bg-gradient-to-r from-teal-500 to-cyan-400" />
                             {model.image_url && (
                                 <div className="h-32 bg-slate-100 overflow-hidden">
@@ -369,7 +369,7 @@ export default function PumpModelManager() {
                             )}
                             <div className="p-4">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-xs font-mono text-teal-600 bg-teal-50 px-2 py-0.5 rounded-lg">{model.code}</span>
+                                    <span className="text-xs font-mono text-brand-600 bg-brand-50 px-2 py-0.5 rounded-lg">{model.code}</span>
                                     {model.drawing_code && <span className="text-xs text-slate-400 flex items-center gap-1"><FileText size={10} /> {model.drawing_code}</span>}
                                 </div>
                                 <h4 className="font-bold text-slate-900 text-sm mb-2 truncate">{model.name}</h4>

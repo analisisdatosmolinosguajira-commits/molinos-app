@@ -425,7 +425,7 @@ export default function OperationsControlPage() {
                                                     u.app_role === 'social_lider' ? 'bg-green-100 text-green-700' :
                                                         u.app_role === 'inventario_lider' ? 'bg-amber-100 text-amber-700' :
                                                             u.app_role === 'logistica_lider' ? 'bg-orange-100 text-orange-700' :
-                                                                u.app_role === 'sst_lider' ? 'bg-teal-100 text-teal-700' :
+                                                                u.app_role === 'sst_lider' ? 'bg-brand-100 text-brand-700' :
                                                                     'bg-slate-100 text-slate-600'
                                                 }`}>{ROLE_NAMES[u.app_role] || u.app_role}</span>
                                             {u.secondary_role && (

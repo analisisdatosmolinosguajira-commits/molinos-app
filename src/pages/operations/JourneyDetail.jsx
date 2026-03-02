@@ -225,7 +225,7 @@ const JourneyDetail = () => {
                         <section className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                                    <Truck size={18} className="text-blue-500" /> Vehículos
+                                    <Truck size={18} className="text-brand-500" /> Vehículos
                                 </h3>
                                 <button
                                     onClick={loadVehiclesForModal}
@@ -488,9 +488,9 @@ const JourneyDetail = () => {
                                 >
                                     <div>
                                         <p className="font-bold">{v.plate_number}</p>
-                                        <p className="text-xs text-slate-500 group-hover:text-blue-500">{v.model} - {v.type}</p>
+                                        <p className="text-xs text-slate-500 group-hover:text-brand-500">{v.model} - {v.type}</p>
                                     </div>
-                                    <Plus size={16} className="text-slate-300 group-hover:text-blue-500" />
+                                    <Plus size={16} className="text-slate-300 group-hover:text-brand-500" />
                                 </button>
                             ))}
                         </div>

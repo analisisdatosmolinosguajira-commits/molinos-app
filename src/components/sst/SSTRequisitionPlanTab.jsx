@@ -515,7 +515,7 @@ export default function SSTRequisitionPlanTab() {
                                         <tr key={idx} className={`border-b border-slate-50 hover:bg-slate-50/50 ${c.isManual ? 'bg-brand-50/30' : ''}`}>
                                             <td className="px-5 py-3.5">
                                                 <div className="flex items-center gap-2">
-                                                    <Package size={16} className={c.isManual ? 'text-blue-500' : 'text-slate-400'} />
+                                                    <Package size={16} className={c.isManual ? 'text-brand-500' : 'text-slate-400'} />
                                                     <div>
                                                         <p className="text-sm font-semibold text-slate-800">{c.epp_name}</p>
                                                         {c.epp_code && <p className="text-xs text-slate-400">{c.epp_code}</p>}

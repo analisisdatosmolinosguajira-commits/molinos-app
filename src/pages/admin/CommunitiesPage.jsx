@@ -339,7 +339,7 @@ const CommunitiesPage = () => {
                                     `}
                                 >
                                     <div className="flex justify-between items-start mb-1">
-                                        <h4 className={`font-semibold text-sm ${selectedId === comm.community_id ? 'text-indigo-900' : 'text-slate-700'}`}>
+                                        <h4 className={`font-semibold text-sm ${selectedId === comm.community_id ? 'text-brand-900' : 'text-slate-700'}`}>
                                             {comm.name}
                                         </h4>
                                         <div className="flex items-center gap-1">
@@ -360,7 +360,7 @@ const CommunitiesPage = () => {
                                             <span>{comm.memberCount} Miembros</span>
                                         </div>
                                         {comm.mill && (
-                                            <div className="flex items-center gap-1 text-xs text-brand-600 bg-brand-50 px-2 py-1 rounded border border-blue-100">
+                                            <div className="flex items-center gap-1 text-xs text-brand-600 bg-brand-50 px-2 py-1 rounded border border-brand-100">
                                                 <Factory size={12} />
                                                 <span className="truncate max-w-[100px]">{comm.mill.name}</span>
                                             </div>
@@ -421,7 +421,7 @@ const CommunitiesPage = () => {
                                         )}
                                     </div>
 
-                                    <div className="absolute right-4 top-4 text-slate-300 group-hover:text-indigo-400 transition-colors">
+                                    <div className="absolute right-4 top-4 text-slate-300 group-hover:text-brand-400 transition-colors">
                                         <Edit2 size={14} />
                                     </div>
                                 </div>
@@ -541,10 +541,10 @@ const CommunitiesPage = () => {
                                         {selectedPerson.community ? (
                                             <div className="bg-brand-50 rounded-xl p-5 border border-brand-100">
                                                 <div className="flex items-start justify-between mb-2">
-                                                    <span className="text-xs font-bold text-indigo-400 uppercase tracking-wide">Comunidad Actual</span>
-                                                    <span className="bg-indigo-200 text-indigo-800 text-[10px] px-2 py-0.5 rounded-full font-bold">ACTIVO</span>
+                                                    <span className="text-xs font-bold text-brand-400 uppercase tracking-wide">Comunidad Actual</span>
+                                                    <span className="bg-brand-200 text-brand-800 text-[10px] px-2 py-0.5 rounded-full font-bold">ACTIVO</span>
                                                 </div>
-                                                <div className="text-xl font-bold text-indigo-900 mb-1">
+                                                <div className="text-xl font-bold text-brand-900 mb-1">
                                                     {selectedPerson.community}
                                                 </div>
                                                 <div className="text-brand-700 font-medium flex items-center gap-2">

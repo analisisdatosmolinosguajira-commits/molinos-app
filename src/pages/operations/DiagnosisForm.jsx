@@ -993,7 +993,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                 {/* 2. FINDINGS TAB */}
                 {activeTab === 'findings' && (
                     <div className="space-y-6">
-                        <div className="bg-brand-50 border border-blue-100 p-4 rounded-xl flex gap-3 text-blue-800 text-sm">
+                        <div className="bg-brand-50 border border-brand-100 p-4 rounded-xl flex gap-3 text-brand-800 text-sm">
                             <Search className="shrink-0" size={20} />
                             <p>Registre todos los hallazgos técnicos, análisis de causa raíz y recomendaciones derivadas del diagnóstico.</p>
                         </div>
@@ -1099,7 +1099,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                         <div>
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2">
-                                    <Package size={20} className="text-blue-500" />
+                                    <Package size={20} className="text-brand-500" />
                                     Materiales (Consumibles)
                                 </h3>
                                 <button
@@ -1429,7 +1429,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                 {/* 6. PUMP CONDITION TAB */}
                 {activeTab === 'pump' && (
                     <div className="space-y-6">
-                        <div className="bg-brand-50 border border-brand-100 p-4 rounded-xl flex gap-3 text-indigo-800 text-sm mb-6">
+                        <div className="bg-brand-50 border border-brand-100 p-4 rounded-xl flex gap-3 text-brand-800 text-sm mb-6">
                             <Zap className="shrink-0" size={20} />
                             <p>Complete información detallada sobre la condición de la bomba evaluada durante el diagnóstico.</p>
                         </div>

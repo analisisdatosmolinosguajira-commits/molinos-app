@@ -140,7 +140,7 @@ const WeeklyPlanningBoard = ({
                         className="inline-flex items-center gap-2 px-4 py-1.5 text-sm font-bold text-white bg-slate-800 hover:bg-slate-900 rounded-lg transition-colors disabled:opacity-50 shadow-sm"
                         title="Informe PDF detallado por actividad"
                     >
-                        {generatingDetailed ? <Loader2 size={18} className="animate-spin" /> : <FileText size={18} className="text-blue-300" />}
+                        {generatingDetailed ? <Loader2 size={18} className="animate-spin" /> : <FileText size={18} className="text-brand-300" />}
                         {generatingDetailed ? 'Generando...' : 'Informe Detallado'}
                     </button>
                     <div className="h-6 w-px bg-slate-200 mx-2"></div>
@@ -192,7 +192,7 @@ const WeeklyPlanningBoard = ({
                     <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50/50">
                         {loadingUnassigned ? (
                             <div className="flex justify-center p-4">
-                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-brand-500"></div>
                             </div>
                         ) : unassignedCrews.length === 0 ? (
                             <div className="text-center p-8 text-slate-400">
@@ -225,7 +225,7 @@ const WeeklyPlanningBoard = ({
                             ))
                         )}
 
-                        <div className="p-3 bg-brand-50 rounded-lg border border-blue-100 text-xs text-brand-700">
+                        <div className="p-3 bg-brand-50 rounded-lg border border-brand-100 text-xs text-brand-700">
                             <p className="flex items-start gap-2">
                                 <AlertCircle size={14} className="mt-0.5 shrink-0" />
                                 <span>Arrastra una cuadrilla al calendario para asignar una actividad.</span>
@@ -288,8 +288,8 @@ const WeeklyPlanningBoard = ({
                                                         onEditActivity(act);
                                                     }}
                                                     className={`p-2 rounded-lg border text-xs cursor-pointer hover:shadow-md transition-shadow bg-white ${act.status === 'COMPLETADA' ? 'border-green-200 text-green-800 bg-green-50' :
-                                                        act.status === 'EN_EJECUCION' ? 'border-brand-200 text-indigo-800 bg-brand-50' :
-                                                            act.assigned_crew_id ? 'border-brand-200 text-blue-800 bg-brand-50' :
+                                                        act.status === 'EN_EJECUCION' ? 'border-brand-200 text-brand-800 bg-brand-50' :
+                                                            act.assigned_crew_id ? 'border-brand-200 text-brand-800 bg-brand-50' :
                                                                 'border-l-4 border-l-yellow-400 border-slate-200 text-slate-700'
                                                         }`}
                                                 >

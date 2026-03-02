@@ -17,7 +17,7 @@ const PumpTable = ({ pumps, onEdit, onDelete, loading }) => {
     const getStatusIcon = (status) => {
         const icons = {
             'instalada': <CheckCircle className="text-green-500" size={16} />,
-            'almacenada': <CheckCircle className="text-blue-500" size={16} />,
+            'almacenada': <CheckCircle className="text-brand-500" size={16} />,
             'en_reparacion': <AlertTriangle className="text-yellow-500" size={16} />,
             'dañada': <XCircle className="text-red-500" size={16} />,
             'descartada': <XCircle className="text-gray-500" size={16} />

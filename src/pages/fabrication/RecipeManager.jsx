@@ -145,10 +145,10 @@ export default function RecipeManager() {
                                             : 'hover:bg-white text-slate-700'
                                         }`}
                                 >
-                                    <Package size={14} className={selectedPieceId === piece.piece_id ? 'text-indigo-200' : 'text-slate-400'} />
+                                    <Package size={14} className={selectedPieceId === piece.piece_id ? 'text-brand-200' : 'text-slate-400'} />
                                     <div className="flex-1 min-w-0">
                                         <p className="text-sm font-medium truncate">{piece.name}</p>
-                                        <p className={`text-xs ${selectedPieceId === piece.piece_id ? 'text-indigo-200' : 'text-slate-400'} font-mono`}>{piece.code}</p>
+                                        <p className={`text-xs ${selectedPieceId === piece.piece_id ? 'text-brand-200' : 'text-slate-400'} font-mono`}>{piece.code}</p>
                                     </div>
                                     {recipeCounts[piece.piece_id] && (
                                         <span className={`text-xs font-bold px-1.5 py-0.5 rounded-md ${selectedPieceId === piece.piece_id
@@ -261,7 +261,7 @@ export default function RecipeManager() {
                     {/* Drawing Panel */}
                     <div className="w-full md:w-64 p-5 bg-slate-50/50 border-l border-slate-100 flex flex-col shrink-0">
                         <h4 className="font-bold text-slate-700 flex items-center gap-2 mb-3 text-sm">
-                            <Image size={16} className="text-blue-500" />
+                            <Image size={16} className="text-brand-500" />
                             Plano / Imagen
                         </h4>
                         {selectedPiece?.drawing_code && (

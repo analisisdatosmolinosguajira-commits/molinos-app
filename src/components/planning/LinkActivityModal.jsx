@@ -220,8 +220,8 @@ const LinkActivityModal = ({ isOpen, onClose, activity, onSuccess }) => {
         if (linkedItems.length === 0) return null;
 
         return (
-            <div className="px-6 py-4 bg-brand-50 border-b border-blue-100">
-                <p className="text-xs font-semibold text-blue-800 uppercase tracking-wide mb-2">
+            <div className="px-6 py-4 bg-brand-50 border-b border-brand-100">
+                <p className="text-xs font-semibold text-brand-800 uppercase tracking-wide mb-2">
                     Vinculado Actualmente ({linkedItems.length})
                 </p>
                 <div className="space-y-2">
@@ -415,7 +415,7 @@ const LinkActivityModal = ({ isOpen, onClose, activity, onSuccess }) => {
 
     const getItemCardClassName = (itemId) => {
         return `p-4 border rounded-lg cursor-pointer transition-all ${selectedItemId === itemId
-            ? 'border-blue-500 bg-brand-50 ring-2 ring-brand-200'
+            ? 'border-brand-500 bg-brand-50 ring-2 ring-brand-200'
             : 'border-gray-200 hover:border-brand-300 hover:bg-slate-50'
             }`;
     };
@@ -525,11 +525,11 @@ const LinkActivityModal = ({ isOpen, onClose, activity, onSuccess }) => {
                         {mode === 'create' ? (
                             <div className="space-y-4">
                                 <div className="bg-brand-50 border border-brand-200 rounded-lg p-4">
-                                    <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                                    <h3 className="font-semibold text-brand-900 mb-2 flex items-center gap-2">
                                         {getCurrentTypeIcon()}
                                         Se creará {getLinkTypeLabel()} con datos de la actividad
                                     </h3>
-                                    <p className="text-sm text-blue-800">
+                                    <p className="text-sm text-brand-800">
                                         La actividad se vinculará automáticamente al nuevo registro.
                                         Podrás editar los detalles después.
                                     </p>
@@ -552,7 +552,7 @@ const LinkActivityModal = ({ isOpen, onClose, activity, onSuccess }) => {
                                 {/* Items List */}
                                 {loading ? (
                                     <div className="flex items-center justify-center py-12">
-                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
                                     </div>
                                 ) : filteredItems.length === 0 ? (
                                     <div className="text-center py-12">

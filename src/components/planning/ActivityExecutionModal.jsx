@@ -814,7 +814,7 @@ function TabDailyExecution({ activity }) {
                             return (
                                 <button key={d} onClick={() => setSelectedDate(d)}
                                     className={`px-4 py-3 rounded-xl text-sm font-bold whitespace-nowrap transition-all flex flex-col items-center min-w-[80px] border ${selectedDate === d
-                                        ? 'bg-brand-600 text-white shadow-md border-blue-600'
+                                        ? 'bg-brand-600 text-white shadow-md border-brand-600'
                                         : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border-slate-200 hover:border-brand-300 hover:text-brand-700'
                                         }`}>
                                     <span className="capitalize text-xs font-semibold tracking-wide opacity-90 mb-1">{weekdayName}</span>

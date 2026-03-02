@@ -214,12 +214,12 @@ const MemberModal = ({ isOpen, onClose, onSave, initialMember = null }) => {
                                 </div>
                                 <div>
                                     <p className="text-xs text-brand-500 font-bold uppercase tracking-wider">Persona Seleccionada</p>
-                                    <p className="font-bold text-indigo-900">{selectedPerson.name || `${selectedPerson.first_name} ${selectedPerson.last_name}`}</p>
+                                    <p className="font-bold text-brand-900">{selectedPerson.name || `${selectedPerson.first_name} ${selectedPerson.last_name}`}</p>
                                 </div>
                                 {!initialMember && (
                                     <button
                                         onClick={() => setStep(1)}
-                                        className="ml-auto text-xs text-indigo-400 hover:text-brand-600 underline"
+                                        className="ml-auto text-xs text-brand-400 hover:text-brand-600 underline"
                                     >
                                         Cambiar
                                     </button>

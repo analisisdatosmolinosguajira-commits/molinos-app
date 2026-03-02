@@ -124,7 +124,7 @@ const VisitasPage = () => {
                 <span className="text-xs text-slate-400">{new Date(visit.date).toLocaleDateString()}</span>
             </div>
 
-            <h4 className={`font-semibold text-sm mb-1 ${selectedId === visit.id ? 'text-indigo-900' : 'text-slate-700'}`}>
+            <h4 className={`font-semibold text-sm mb-1 ${selectedId === visit.id ? 'text-brand-900' : 'text-slate-700'}`}>
                 {visit.title}
             </h4>
 
@@ -135,7 +135,7 @@ const VisitasPage = () => {
 
             {/* Activity Badge */}
             {visit.linkedActivity && (
-                <div className="mb-2 p-2 rounded-lg border flex items-center gap-2 text-xs bg-brand-50 border-brand-200 text-blue-800">
+                <div className="mb-2 p-2 rounded-lg border flex items-center gap-2 text-xs bg-brand-50 border-brand-200 text-brand-800">
                     <Calendar size={12} />
                     <span className="font-medium truncate">
                         Actividad: {visit.linkedActivity.title}
@@ -145,7 +145,7 @@ const VisitasPage = () => {
 
             <div className="flex items-center justify-between mt-2">
                 <StatusBadge status={visit.status} size="sm" />
-                <ChevronRight size={16} className={`text-slate-300 ${selectedId === visit.id ? 'text-indigo-400' : ''}`} />
+                <ChevronRight size={16} className={`text-slate-300 ${selectedId === visit.id ? 'text-brand-400' : ''}`} />
             </div>
         </div>
     );
@@ -277,7 +277,7 @@ const VisitasPage = () => {
                 ) : (
                     <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center">
                         <div className="bg-white p-6 rounded-full shadow-sm mb-4">
-                            <MapPin size={48} className="text-indigo-200" />
+                            <MapPin size={48} className="text-brand-200" />
                         </div>
                         <h3 className="text-lg font-semibold text-slate-700 mb-2">Selecciona una visita</h3>
                         <p className="max-w-xs text-slate-400">
