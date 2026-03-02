@@ -125,14 +125,23 @@ const JourneyActivitiesTab = ({ activity, onAssign }) => {
                     <div className="space-y-4 bg-slate-50 rounded-xl p-4 border border-slate-100">
                         <div className="flex items-start gap-3">
                             <div className="mt-0.5 text-slate-400"><MapPin size={18} /></div>
-                            <div>
-                                <div className="text-xs font-bold text-slate-500 uppercase mb-0.5">Comunidad Objetivo</div>
-                                <div className="font-medium text-slate-800">
-                                    {community?.name || "No especificada"}
-                                </div>
-                                <div className="text-xs text-slate-500">
-                                    {community?.municipality || ""}
-                                </div>
+                            <div className="flex-1">
+                                <div className="text-xs font-bold text-slate-500 uppercase mb-1">Comunidades Asignadas</div>
+                                {activity.planned_communities && activity.planned_communities.length > 0 ? (
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {activity.planned_communities.map((pc, idx) => (
+                                            <span key={pc.id || idx}
+                                                className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-brand-50 text-brand-700 border border-brand-100">
+                                                <MapPin size={10} />
+                                                {pc.community?.name || pc.communityName || 'Comunidad'}
+                                            </span>
+                                        ))}
+                                    </div>
+                                ) : community?.name ? (
+                                    <div className="font-medium text-slate-800">{community.name}</div>
+                                ) : (
+                                    <div className="text-sm text-slate-400 italic">No especificada</div>
+                                )}
                             </div>
                         </div>
 

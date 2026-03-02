@@ -18,17 +18,29 @@ const JourneyRoutesTab = ({ activity }) => {
     const communities = [];
     const communityIds = new Set();
 
-    // Add target community
+    const addCommunity = (comm) => {
+        if (comm?.community_id && !communityIds.has(comm.community_id)) {
+            communityIds.add(comm.community_id);
+            communities.push(comm);
+        }
+    };
+
+    // Primary source: planned_communities from activity_community table
+    if (activity.planned_communities && activity.planned_communities.length > 0) {
+        activity.planned_communities.forEach(pc => {
+            addCommunity(pc.community || pc);
+        });
+    }
+
+    // Fallback: legacy target community
     if (activity.community?.community_id) {
-        communityIds.add(activity.community.community_id);
-        communities.push(activity.community);
+        addCommunity(activity.community);
     }
 
     // Add communities from linked entities (work orders, diagnoses, etc.)
     const addCommunityFromEntity = (entity) => {
-        if (entity?.target_community && !communityIds.has(entity.target_community.community_id)) {
-            communityIds.add(entity.target_community.community_id);
-            communities.push(entity.target_community);
+        if (entity?.target_community) {
+            addCommunity(entity.target_community);
         }
     };
 
@@ -36,8 +48,7 @@ const JourneyRoutesTab = ({ activity }) => {
     activity.linkedEntities?.diagnoses?.forEach(addCommunityFromEntity);
     activity.linkedEntities?.concertations?.forEach(addCommunityFromEntity);
 
-    // Special case: Material Delivery (Type "Entrega de Materiales" or ID 10)
-    // We only collect communities from deliveries if it is a material delivery activity
+    // Special case: Material Delivery
     if (activity.type === 'Entrega de Materiales' || activity.activity_type_id == 10) {
         activity.linkedEntities?.deliveries?.forEach(addCommunityFromEntity);
     }

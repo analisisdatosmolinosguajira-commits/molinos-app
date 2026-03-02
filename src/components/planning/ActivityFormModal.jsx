@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { X, Save, Calendar, AlertCircle } from 'lucide-react';
+import { X, Save, Calendar, AlertCircle, MapPin, Plus, Search, Trash2, School } from 'lucide-react';
 import { ActivityService } from '../../services/activities';
 import { OperationalStaffService } from '../../services/operationalStaff';
 import { CommunityService } from '../../services/communities';
 import { MillService } from '../../services/mills';
+import { WeeklyPlannerService } from '../../services/weeklyPlannerService';
 import CrewAssignmentSelector from './CrewAssignmentSelector';
 
 const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = null, onSuccess }) => {
@@ -12,6 +13,12 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
     const [staff, setStaff] = useState([]);
     const [communities, setCommunities] = useState([]);
     const [mills, setMills] = useState([]);
+
+    // Multi-community state
+    const [selectedCommunities, setSelectedCommunities] = useState([]);
+    const [communitySearch, setCommunitySearch] = useState('');
+    const [showCommunityPicker, setShowCommunityPicker] = useState(false);
+    const [includesSena, setIncludesSena] = useState(false);
 
     const [formData, setFormData] = useState({
         activity_type_id: '',
@@ -56,11 +63,27 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                 target_location_notes: activity.target_location_notes || '',
                 additional_resources_notes: activity.additional_resources_notes || ''
             });
+
+            // Load existing planned communities
+            setIncludesSena(activity.includes_sena_workshop || false);
+            if (activity.plannedCommunities && activity.plannedCommunities.length > 0) {
+                setSelectedCommunities(activity.plannedCommunities.map(pc => ({
+                    communityId: pc.community?.community_id || pc.communityId,
+                    communityName: pc.communityName || pc.community?.name || 'Sin nombre',
+                    sourceType: pc.source_type || 'community',
+                    sourceId: pc.source_id || null,
+                    activityCommunityId: pc.id // existing DB record ID
+                })));
+            } else {
+                setSelectedCommunities([]);
+            }
         } else if (initialData) {
             setFormData(prev => ({
                 ...prev,
                 ...initialData
             }));
+            setSelectedCommunities([]);
+            setIncludesSena(false);
         }
     }, [activity, initialData, isOpen]);
 
@@ -102,9 +125,6 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
         try {
             setLoading(true);
 
-            // Get current user ID (you'll need to adjust this based on your auth system)
-            const currentUserId = 1; // TODO: Get from auth context
-
             const activityData = {
                 ...formData,
                 estimated_duration_days: formData.estimated_duration_days ? parseInt(formData.estimated_duration_days) : null,
@@ -112,19 +132,20 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                 responsible_person_id: formData.responsible_person_id ? parseInt(formData.responsible_person_id) : null,
                 target_community_id: formData.target_community_id ? parseInt(formData.target_community_id) : null,
                 target_mill_id: formData.target_mill_id ? parseInt(formData.target_mill_id) : null,
-                // created_by: currentUserId // Removed to avoid potential FK/RLS issues for now
+                includes_sena_workshop: includesSena
             };
 
             let savedActivity;
             if (activity) {
-                // Update existing
                 savedActivity = await ActivityService.updateActivity(activity.activity_id, activityData);
             } else {
-                // Create new
                 savedActivity = await ActivityService.createActivity(activityData);
             }
 
-            // Resources are handled in work orders, not here
+            const activityId = savedActivity.activity_id;
+
+            // Sync activity_community records
+            await syncActivityCommunities(activityId);
 
             onSuccess?.();
             handleClose();
@@ -135,6 +156,47 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
             setLoading(false);
         }
     };
+
+    const syncActivityCommunities = async (activityId) => {
+        // For editing: delete all existing and re-insert
+        if (activity) {
+            await WeeklyPlannerService.deleteAllActivityCommunities(activityId);
+        }
+
+        // Insert new ones
+        for (let i = 0; i < selectedCommunities.length; i++) {
+            const c = selectedCommunities[i];
+            await WeeklyPlannerService.addCommunityToActivity(activityId, {
+                community_id: c.communityId,
+                source_type: c.sourceType || 'community',
+                source_id: c.sourceId || null,
+                sort_order: i
+            });
+        }
+    };
+
+    // Community picker helpers
+    const addCommunity = (comm) => {
+        if (selectedCommunities.some(sc => sc.communityId === comm.community_id)) return;
+        setSelectedCommunities(prev => [...prev, {
+            communityId: comm.community_id,
+            communityName: comm.name,
+            sourceType: 'community',
+            sourceId: null
+        }]);
+        setCommunitySearch('');
+        setShowCommunityPicker(false);
+    };
+
+    const removeCommunity = (index) => {
+        setSelectedCommunities(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const filteredCommunities = communities.filter(c => {
+        if (!communitySearch) return true;
+        return c.name?.toLowerCase().includes(communitySearch.toLowerCase()) ||
+            c.municipality?.toLowerCase().includes(communitySearch.toLowerCase());
+    }).filter(c => !selectedCommunities.some(sc => sc.communityId === c.community_id));
 
     const handleClose = () => {
         setFormData({
@@ -153,7 +215,11 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
             target_location_notes: '',
             additional_resources_notes: ''
         });
+        setSelectedCommunities([]);
+        setIncludesSena(false);
         setErrors({});
+        setCommunitySearch('');
+        setShowCommunityPicker(false);
         onClose();
     };
 
@@ -200,7 +266,7 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                             onChange={(e) => {
                                                 const val = e.target.value;
                                                 const updates = { activity_type_id: val };
-                                                if (val == 10) { // Entrega de Materiales
+                                                if (val == 10) {
                                                     updates.target_community_id = '';
                                                     updates.target_mill_id = '';
                                                     updates.target_location_notes = 'Ruta general';
@@ -342,7 +408,6 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                 </h3>
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    {/* Start Date */}
                                     <div>
                                         <label className="block text-sm font-medium text-slate-700 mb-1">
                                             Semana Inicio *
@@ -358,8 +423,6 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                             <p className="mt-1 text-xs text-red-600">{errors.planned_start_week}</p>
                                         )}
                                     </div>
-
-                                    {/* End Date */}
                                     <div>
                                         <label className="block text-sm font-medium text-slate-700 mb-1">
                                             Semana Fin
@@ -371,8 +434,6 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                         />
                                     </div>
-
-                                    {/* Duration */}
                                     <div>
                                         <label className="block text-sm font-medium text-slate-700 mb-1">
                                             Duración (días)
@@ -388,65 +449,109 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                                 </div>
                             </div>
 
-                            {/* Location Section */}
+                            {/* ===== LOCATION / COMMUNITIES Section ===== */}
                             <div className="space-y-4 border-t border-gray-200 pt-6">
-                                <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
-                                    Ubicación / Objetivo
+                                <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide flex items-center gap-2">
+                                    <MapPin size={16} />
+                                    Ubicación / Comunidades
                                 </h3>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {/* Community */}
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">
-                                            Comunidad
-                                        </label>
-                                        {formData.activity_type_id == 10 ? (
-                                            <div className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-500 text-sm font-medium flex items-center gap-2">
-                                                <AlertCircle size={14} />
-                                                Ruta general
-                                            </div>
-                                        ) : (
-                                            <select
-                                                value={formData.target_community_id}
-                                                onChange={(e) => setFormData({ ...formData, target_community_id: e.target.value, target_mill_id: '' })}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                                            >
-                                                <option value="">Seleccionar...</option>
-                                                {communities.map(comm => (
-                                                    <option key={comm.community_id} value={comm.community_id}>
-                                                        {comm.name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        )}
+                                {/* Taller SENA toggle */}
+                                <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+                                    <div
+                                        className={`w-10 h-5 rounded-full p-0.5 transition-colors cursor-pointer ${includesSena ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                                        onClick={() => setIncludesSena(!includesSena)}
+                                    >
+                                        <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${includesSena ? 'translate-x-5' : 'translate-x-0'}`} />
                                     </div>
-
-                                    {/* Mill */}
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">
-                                            Molino
-                                        </label>
-                                        {formData.activity_type_id == 10 ? (
-                                            <div className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-500 text-sm font-medium flex items-center gap-2">
-                                                <AlertCircle size={14} />
-                                                Ruta general
-                                            </div>
-                                        ) : (
-                                            <select
-                                                value={formData.target_mill_id}
-                                                onChange={(e) => setFormData({ ...formData, target_mill_id: e.target.value })}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                                            >
-                                                <option value="">Seleccionar...</option>
-                                                {mills.map(mill => (
-                                                    <option key={mill.mill_id} value={mill.mill_id}>
-                                                        {mill.code} - {mill.name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        )}
+                                    <div className="flex items-center gap-2">
+                                        <School size={16} className="text-emerald-600" />
+                                        <span className="text-sm font-semibold text-emerald-800">Incluye Taller SENA</span>
                                     </div>
                                 </div>
+
+                                {/* Multi-community chips */}
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <label className="block text-sm font-medium text-slate-700">
+                                            Comunidades Asignadas
+                                        </label>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowCommunityPicker(!showCommunityPicker)}
+                                            className="flex items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-800 transition-colors"
+                                        >
+                                            <Plus size={14} /> Agregar Comunidad
+                                        </button>
+                                    </div>
+
+                                    {/* Selected communities list */}
+                                    {selectedCommunities.length === 0 ? (
+                                        <p className="text-xs text-slate-400 italic py-2">No hay comunidades asignadas. Las comunidades se pueden agregar desde aquí o desde la vista de planificación semanal.</p>
+                                    ) : (
+                                        <div className="flex flex-wrap gap-2">
+                                            {selectedCommunities.map((c, idx) => (
+                                                <div key={`${c.communityId}-${idx}`}
+                                                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-brand-50 border border-brand-200 text-brand-800 text-sm font-medium group">
+                                                    <MapPin size={12} />
+                                                    <span>{c.communityName}</span>
+                                                    {c.sourceType && c.sourceType !== 'community' && (
+                                                        <span className="text-[10px] uppercase font-bold bg-brand-100 px-1.5 py-0.5 rounded-full">
+                                                            {c.sourceType === 'work_order' ? 'OT' : c.sourceType === 'diagnosis' ? 'Diag.' : c.sourceType === 'concertation' ? 'Conc.' : c.sourceType}
+                                                        </span>
+                                                    )}
+                                                    <button type="button" onClick={() => removeCommunity(idx)}
+                                                        className="p-0.5 hover:bg-brand-200 rounded transition-colors opacity-70 hover:opacity-100">
+                                                        <X size={12} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Community picker dropdown */}
+                                    {showCommunityPicker && (
+                                        <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-lg">
+                                            <div className="p-2 border-b border-slate-100">
+                                                <div className="relative">
+                                                    <Search size={14} className="absolute left-2.5 top-2.5 text-slate-400" />
+                                                    <input
+                                                        type="text"
+                                                        value={communitySearch}
+                                                        onChange={(e) => setCommunitySearch(e.target.value)}
+                                                        placeholder="Buscar comunidad..."
+                                                        className="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
+                                                        autoFocus
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="max-h-[180px] overflow-y-auto">
+                                                {filteredCommunities.length === 0 ? (
+                                                    <p className="text-xs text-slate-400 text-center py-4">Sin comunidades disponibles</p>
+                                                ) : (
+                                                    filteredCommunities.slice(0, 20).map(comm => (
+                                                        <button
+                                                            key={comm.community_id}
+                                                            type="button"
+                                                            className="w-full text-left px-3 py-2 hover:bg-brand-50 flex items-center gap-2 text-sm border-b border-slate-50 transition-colors"
+                                                            onClick={() => addCommunity(comm)}
+                                                        >
+                                                            <MapPin size={12} className="text-slate-400 shrink-0" />
+                                                            <div className="flex-1 min-w-0">
+                                                                <span className="font-medium text-slate-800">{comm.name}</span>
+                                                                {comm.municipality && (
+                                                                    <span className="text-xs text-slate-400 ml-2">{comm.municipality}</span>
+                                                                )}
+                                                            </div>
+                                                            <Plus size={14} className="text-brand-500 shrink-0" />
+                                                        </button>
+                                                    ))
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
 
                                 {/* Location Notes */}
                                 <div>

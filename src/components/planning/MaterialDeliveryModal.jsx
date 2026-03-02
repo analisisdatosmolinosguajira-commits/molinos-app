@@ -3,6 +3,7 @@ import { X, Save, AlertTriangle, Plus, Trash2, Package, Truck, CheckCircle, Navi
 import { DeliveryService } from '../../services/deliveries';
 import { CommunityService } from '../../services/communities';
 import { WorkOrderService } from '../../services/work_orders';
+import { WeeklyPlannerService } from '../../services/weeklyPlannerService';
 
 export default function MaterialDeliveryModal({ isOpen, onClose, activity, onSuccess }) {
     const [loading, setLoading] = useState(true);
@@ -33,10 +34,11 @@ export default function MaterialDeliveryModal({ isOpen, onClose, activity, onSuc
             setLoading(true);
             setError(null);
 
-            const [communitiesRes, inventoryRes, currentPlan] = await Promise.all([
+            const [communitiesRes, inventoryRes, currentPlan, plannedCommunities] = await Promise.all([
                 CommunityService.getCommunities(),
                 WorkOrderService.getInventoryOptions(),
-                DeliveryService.getDeliveryPlan(activity.activity_id)
+                DeliveryService.getDeliveryPlan(activity.activity_id),
+                WeeklyPlannerService.getActivityCommunities(activity.activity_id)
             ]);
 
             setOptions({
@@ -50,6 +52,19 @@ export default function MaterialDeliveryModal({ isOpen, onClose, activity, onSuc
                     ...d,
                     tempId: Math.random().toString(36).substr(2, 9),
                     isExpanded: false // UI state
+                })));
+            } else if (plannedCommunities && plannedCommunities.length > 0) {
+                // Auto-seed delivery stops from planned communities (activity_community)
+                setDeliveries(plannedCommunities.map(pc => ({
+                    tempId: Math.random().toString(36).substr(2, 9),
+                    delivery_id: null,
+                    community_id: pc.community_id || pc.community?.community_id,
+                    delivery_status: 'PENDING',
+                    notes: '',
+                    pieces: [],
+                    materials: [],
+                    tools: [],
+                    isExpanded: false
                 })));
             } else {
                 setDeliveries([]);

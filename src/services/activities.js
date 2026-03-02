@@ -50,6 +50,10 @@ export const ActivityService = {
                 related_manufacturing:manufacturing_order!manufacturing_order_related_activity_id_fkey (
                     mo_id, status, notes, piece_id, quantity_planned,
                     piece:piece!piece_id (name)
+                ),
+                planned_communities:activity_community (
+                    id, source_type, source_id, sort_order,
+                    community:community (community_id, name, department, municipality)
                 )
             `)
             .order('planned_start_week', { ascending: false });
@@ -84,6 +88,10 @@ export const ActivityService = {
             crewName: activity.assigned_crew?.name,
             crewMembers: activity.assigned_crew?.crew_member || [],
             communityName: activity.target_community?.name,
+            plannedCommunities: (activity.planned_communities || []).map(pc => ({
+                ...pc,
+                communityName: pc.community?.name
+            })),
             millCode: activity.target_mill?.code,
             millName: activity.target_mill?.name,
             createdByName: activity.created_by_person
@@ -118,7 +126,11 @@ export const ActivityService = {
                 related_work_order:work_order (*),
                 related_diagnosis:diagnosis (*),
                 related_concertation:community_concertation (*),
-                created_by_person:person!created_by (*)
+                created_by_person:person!created_by (*),
+                planned_communities:activity_community (
+                    id, source_type, source_id, sort_order,
+                    community:community (community_id, name, department, municipality)
+                )
             `)
             .eq('activity_id', activityId)
             .single();

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
     X, CheckCircle, Play, CheckSquare, Users, ClipboardList, Link as LinkIcon,
-    FileText, User, Save, Loader2, AlertCircle, Plus, Calendar, Trash2, MessageCircle
+    FileText, User, Save, Loader2, AlertCircle, Plus, Calendar, Trash2, MessageCircle,
+    MapPin, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { ActivityExecutionService } from '../../services/activityExecution';
 import { DeliveryService } from '../../services/deliveries';
@@ -953,8 +954,12 @@ function TabReports({ activity, selectedDate }) {
         fabItems: [],
         maintItems: [],
         concertationItems: [],
-        deliveryItems: []
+        deliveryItems: [],
+        communityVisits: []
     });
+
+    // Planned communities for MAINTENANCE community checkbox
+    const plannedCommunities = activity.planned_communities || [];
 
     useEffect(() => { loadReports(); }, []);
 
@@ -978,16 +983,25 @@ function TabReports({ activity, selectedDate }) {
     useEffect(() => {
         if (rType === 'DELIVERY') {
             DeliveryService.getDeliveryPlan(activity.activity_id).then(plan => {
-                const pendingItems = plan.filter(p => p.delivery_status !== 'COMPLETED').map(p => ({
+                const pendingItems = (plan || []).filter(p => p.delivery_status !== 'COMPLETED').map(p => ({
                     community_id: p.community_id,
                     community_name: p.community?.name || `Comunidad #${p.community_id}`,
                     is_successful: true,
                     notes: ''
                 }));
-                setFormData(prev => ({
-                    ...prev,
-                    deliveryItems: pendingItems
-                }));
+
+                // If no delivery plan, fallback to planned communities
+                if (pendingItems.length === 0 && plannedCommunities.length > 0) {
+                    const fromPlanned = plannedCommunities.map(pc => ({
+                        community_id: pc.community?.community_id || pc.community_id,
+                        community_name: pc.community?.name || 'Comunidad',
+                        is_successful: true,
+                        notes: ''
+                    }));
+                    setFormData(prev => ({ ...prev, deliveryItems: fromPlanned }));
+                } else {
+                    setFormData(prev => ({ ...prev, deliveryItems: pendingItems }));
+                }
             }).catch(console.error);
         }
     }, [activity.activity_id, rType]);
@@ -1014,13 +1028,14 @@ function TabReports({ activity, selectedDate }) {
                 report_date: formData.report_date,
                 report_type: rType,
                 general_notes: formData.general_notes,
-                items
+                items,
+                communityVisits: rType === 'MAINTENANCE' ? formData.communityVisits.filter(cv => cv.visited) : []
             };
 
             await ActivityExecutionService.saveDailyReport(payload);
             setShowForm(false);
             loadReports();
-            setFormData({ ...formData, general_notes: '', fabItems: [], maintItems: [], concertationItems: [], deliveryItems: formData.deliveryItems }); // reset items except base delivery plan structure
+            setFormData({ ...formData, general_notes: '', fabItems: [], maintItems: [], concertationItems: [], deliveryItems: formData.deliveryItems, communityVisits: [] }); // reset items except base delivery plan structure
         } catch (err) { alert(err.message); }
         finally { setSaving(false); }
     };
@@ -1168,7 +1183,124 @@ function TabReports({ activity, selectedDate }) {
                                 </button>
                             </div>
 
-                            {formData.maintItems.length === 0 && <p className="text-xs text-slate-400 italic">No hay intervenciones agregadas.</p>}
+                            {/* Community Checkpoints from planned communities */}
+                            {plannedCommunities.length > 0 && (
+                                <div className="space-y-2 mb-4">
+                                    <p className="text-xs font-bold text-brand-600 uppercase tracking-wider flex items-center gap-1.5">
+                                        <MapPin size={12} /> Comunidades Planificadas
+                                    </p>
+                                    <div className="space-y-2">
+                                        {plannedCommunities.map((pc) => {
+                                            const communityId = pc.community?.community_id;
+                                            const communityName = pc.community?.name || 'Sin nombre';
+                                            const visit = formData.communityVisits.find(cv => cv.community_id === communityId);
+                                            const isChecked = !!visit?.visited;
+
+                                            const toggleVisit = () => {
+                                                setFormData(prev => {
+                                                    const existing = prev.communityVisits.find(cv => cv.community_id === communityId);
+                                                    if (existing) {
+                                                        return {
+                                                            ...prev,
+                                                            communityVisits: prev.communityVisits.map(cv =>
+                                                                cv.community_id === communityId
+                                                                    ? { ...cv, visited: !cv.visited }
+                                                                    : cv
+                                                            )
+                                                        };
+                                                    } else {
+                                                        return {
+                                                            ...prev,
+                                                            communityVisits: [...prev.communityVisits, {
+                                                                community_id: communityId,
+                                                                community_name: communityName,
+                                                                visited: true,
+                                                                work_performed: '',
+                                                                technical_notes: '',
+                                                                issues_found: '',
+                                                                next_steps: ''
+                                                            }]
+                                                        };
+                                                    }
+                                                });
+                                            };
+
+                                            const updateVisitField = (field, value) => {
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    communityVisits: prev.communityVisits.map(cv =>
+                                                        cv.community_id === communityId
+                                                            ? { ...cv, [field]: value }
+                                                            : cv
+                                                    )
+                                                }));
+                                            };
+
+                                            return (
+                                                <div key={communityId} className={`rounded-lg border transition-all ${isChecked ? 'border-brand-300 bg-brand-50/30 shadow-sm' : 'border-slate-200 bg-white'
+                                                    }`}>
+                                                    <button type="button" onClick={toggleVisit}
+                                                        className="w-full flex items-center gap-3 p-3 text-left">
+                                                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${isChecked ? 'bg-brand-600 border-brand-600' : 'border-slate-300 bg-white'
+                                                            }`}>
+                                                            {isChecked && <CheckCircle size={12} className="text-white" />}
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <span className={`font-semibold text-sm ${isChecked ? 'text-brand-800' : 'text-slate-600'
+                                                                }`}>{communityName}</span>
+                                                            {pc.source_type && (
+                                                                <span className="ml-2 text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-500">
+                                                                    {pc.source_type === 'work_order' ? 'OT' : pc.source_type === 'diagnosis' ? 'Diag.' : pc.source_type === 'concertation' ? 'Conc.' : pc.source_type}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        {isChecked ? <ChevronUp size={16} className="text-brand-500" /> : <ChevronDown size={16} className="text-slate-400" />}
+                                                    </button>
+
+                                                    {/* Expanded technical form */}
+                                                    {isChecked && visit && (
+                                                        <div className="px-3 pb-3 space-y-3 border-t border-brand-200 pt-3">
+                                                            <div>
+                                                                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Trabajo Realizado</label>
+                                                                <textarea value={visit.work_performed || ''}
+                                                                    onChange={e => updateVisitField('work_performed', e.target.value)}
+                                                                    className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-500 min-h-[50px]"
+                                                                    placeholder="Descripción del trabajo realizado en esta comunidad..." />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Observaciones Técnicas</label>
+                                                                <textarea value={visit.technical_notes || ''}
+                                                                    onChange={e => updateVisitField('technical_notes', e.target.value)}
+                                                                    className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-500 min-h-[50px]"
+                                                                    placeholder="Notas técnicas, observaciones relevantes..." />
+                                                            </div>
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                                <div>
+                                                                    <label className="block text-[10px] font-bold text-red-500 uppercase mb-1">Problemas Encontrados</label>
+                                                                    <textarea value={visit.issues_found || ''}
+                                                                        onChange={e => updateVisitField('issues_found', e.target.value)}
+                                                                        className="w-full border border-red-200 bg-red-50/30 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-400 min-h-[40px]"
+                                                                        placeholder="Fallas, averías o problemas..." />
+                                                                </div>
+                                                                <div>
+                                                                    <label className="block text-[10px] font-bold text-emerald-600 uppercase mb-1">Próximos Pasos</label>
+                                                                    <textarea value={visit.next_steps || ''}
+                                                                        onChange={e => updateVisitField('next_steps', e.target.value)}
+                                                                        className="w-full border border-emerald-200 bg-emerald-50/30 rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-400 min-h-[40px]"
+                                                                        placeholder="Tareas pendientes o seguimiento..." />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Manual maintenance items (fallback / additional) */}
+                            {formData.maintItems.length === 0 && plannedCommunities.length === 0 && <p className="text-xs text-slate-400 italic">No hay intervenciones agregadas.</p>}
 
                             {formData.maintItems.map((item, idx) => (
                                 <div key={idx} className="bg-white p-4 rounded-lg border border-slate-200 relative group space-y-3">
@@ -1327,6 +1459,29 @@ function TabReports({ activity, selectedDate }) {
                                                 )}
                                             </div>
                                         ))}
+                                    </div>
+                                )}
+
+                                {/* Community visits for maintenance reports */}
+                                {r.report_type === 'MAINTENANCE' && r.community_visits && r.community_visits.length > 0 && (
+                                    <div className="mb-3">
+                                        <p className="text-[10px] font-bold text-brand-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                            <MapPin size={10} /> Comunidades Visitadas
+                                        </p>
+                                        <div className="space-y-2">
+                                            {r.community_visits.map((cv) => (
+                                                <div key={cv.id} className="bg-brand-50/50 p-3 rounded-lg text-sm border border-brand-100">
+                                                    <p className="font-semibold text-brand-800 mb-1 flex items-center gap-1.5">
+                                                        <CheckCircle size={12} className="text-brand-500" />
+                                                        {cv.community?.name || `Comunidad #${cv.community_id}`}
+                                                    </p>
+                                                    {cv.work_performed && <p className="text-slate-600 text-xs mt-1"><strong>Trabajo:</strong> {cv.work_performed}</p>}
+                                                    {cv.technical_notes && <p className="text-slate-600 text-xs mt-0.5"><strong>Notas:</strong> {cv.technical_notes}</p>}
+                                                    {cv.issues_found && <p className="text-red-600 text-xs mt-0.5"><strong>Problemas:</strong> {cv.issues_found}</p>}
+                                                    {cv.next_steps && <p className="text-emerald-600 text-xs mt-0.5"><strong>Próximos pasos:</strong> {cv.next_steps}</p>}
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
 

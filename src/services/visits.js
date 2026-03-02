@@ -277,6 +277,10 @@ export const VisitService = {
                         manufacturing_orders:manufacturing_order!manufacturing_order_related_activity_id_fkey (
                             id:mo_id,
                             status
+                        ),
+                        planned_communities:activity_community (
+                            id, community_id, source_type, source_id, sort_order,
+                            community:community (community_id, name, department, municipality, latitude, longitude, geotracker_route)
                         )
                     )
                 `)
@@ -319,6 +323,7 @@ export const VisitService = {
                     date: data.related_activity.activity_date,
                     type: data.related_activity.activity_type?.name,
                     community: data.related_activity.community,
+                    planned_communities: data.related_activity.planned_communities || [],
                     crew: data.related_activity.crew,
                     linkedEntities: {
                         workOrders: data.related_activity.work_orders?.map(wo => ({

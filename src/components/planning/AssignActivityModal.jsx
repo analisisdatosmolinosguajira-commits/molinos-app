@@ -136,8 +136,12 @@ const AssignActivityModal = ({ isOpen, onClose, onAssign }) => {
                                         <span>Semana {activity.planned_start_week}</span>
                                     </div>
                                     <div className="flex items-center gap-1.5">
-                                        <MapPin size={14} className="text-slate-400" />
-                                        <span className="truncate">{activity.communityName || 'Sin comunidad'}</span>
+                                        <MapPin size={14} className="text-slate-400 shrink-0" />
+                                        <span className="truncate">
+                                            {activity.plannedCommunities?.length > 0
+                                                ? activity.plannedCommunities.map(pc => pc.communityName || pc.community?.name).filter(Boolean).join(', ')
+                                                : activity.communityName || 'Sin comunidad'}
+                                        </span>
                                     </div>
                                     <div className="flex items-center gap-1.5 col-span-2">
                                         <Users size={14} className="text-slate-400" />

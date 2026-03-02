@@ -50,6 +50,10 @@ export const ActivityExecutionService = {
                     mo_id,
                     code,
                     status
+                ),
+                planned_communities:activity_community (
+                    id, source_type, source_id, sort_order,
+                    community:community (community_id, name, department, municipality)
                 )
             `)
             .eq('activity_id', activityId)
@@ -337,7 +341,10 @@ export const ActivityExecutionService = {
                 fabrication_items:activity_report_fabrication_item(*),
                 maintenance_items:activity_report_maintenance_item(*),
                 concertation_items:activity_report_concertation_item(*),
-                delivery_items:activity_report_delivery_item(*)
+                delivery_items:activity_report_delivery_item(*),
+                community_visits:daily_report_community_visit(
+                    *, community:community(community_id, name)
+                )
             `)
             .eq('activity_id', activityId)
             .order('report_date', { ascending: false })
@@ -384,6 +391,28 @@ export const ActivityExecutionService = {
                 .insert(itemsPayload);
 
             if (itemsError) throw itemsError;
+        }
+
+        // 3. Insert community visits for MAINTENANCE reports
+        if (payload.communityVisits && payload.communityVisits.length > 0) {
+            const visitsPayload = payload.communityVisits.map(v => ({
+                report_id: report.report_id,
+                community_id: v.community_id,
+                visited: v.visited !== false,
+                technical_notes: v.technical_notes || null,
+                work_performed: v.work_performed || null,
+                issues_found: v.issues_found || null,
+                next_steps: v.next_steps || null
+            }));
+
+            const { error: visitsError } = await supabase
+                .from('daily_report_community_visit')
+                .insert(visitsPayload);
+
+            if (visitsError) {
+                console.error('Error saving community visits:', visitsError);
+                // Don't throw - report already saved
+            }
         }
 
         return report;

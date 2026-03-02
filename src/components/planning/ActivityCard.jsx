@@ -1,4 +1,4 @@
-import { Calendar, Clock, Users, MapPin, AlertCircle, Edit2, Trash2, Link, ClipboardList, Stethoscope, Factory, X, ArrowRightLeft } from 'lucide-react';
+import { Calendar, Clock, Users, MapPin, AlertCircle, Edit2, Trash2, Link, ClipboardList, Stethoscope, Factory, X, ArrowRightLeft, School } from 'lucide-react';
 
 const ActivityCard = ({ activity, onEdit, onDelete, onLinkMovement, onUnlinkEntity }) => {
     // Priority colors
@@ -91,8 +91,8 @@ const ActivityCard = ({ activity, onEdit, onDelete, onLinkMovement, onUnlinkEnti
                     </div>
                 )}
 
-                {/* Location */}
-                {(activity.communityName || activity.millName) && (
+                {/* Location - Legacy single community */}
+                {!activity.plannedCommunities?.length && (activity.communityName || activity.millName) && (
                     <div className="flex items-center gap-2 text-sm">
                         <MapPin size={16} className="text-slate-400" />
                         <span className="text-slate-600">
@@ -101,6 +101,26 @@ const ActivityCard = ({ activity, onEdit, onDelete, onLinkMovement, onUnlinkEnti
                     </div>
                 )}
             </div>
+
+            {/* Planned Communities (multi) */}
+            {(activity.plannedCommunities?.length > 0 || activity.includes_sena_workshop) && (
+                <div className="mb-3">
+                    <div className="flex flex-wrap gap-1.5">
+                        {activity.includes_sena_workshop && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <School size={12} /> Taller SENA
+                            </span>
+                        )}
+                        {activity.plannedCommunities?.map((pc, idx) => (
+                            <span key={pc.id || idx}
+                                className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-brand-50 text-brand-700 border border-brand-100">
+                                <MapPin size={12} />
+                                {pc.communityName || pc.community?.name || 'Comunidad'}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Responsible Person */}
             {activity.responsibleName && (
