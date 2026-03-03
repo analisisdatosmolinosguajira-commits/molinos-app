@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
     Save, X, Calendar, User, Briefcase, FileText,
@@ -9,6 +9,7 @@ import {
 import { WorkOrderService } from '../../services/work_orders';
 import { MillService } from '../../services/mills';
 import { CrewService } from '../../services/crews';
+import AiAssistantPanel from '../../components/ai/AiAssistantPanel';
 
 export default function WorkOrderForm({ orderId, onBack }) {
     // Mode
@@ -79,6 +80,24 @@ export default function WorkOrderForm({ orderId, onBack }) {
         safety: [],     // { safety_id, quantity_required, tempId? }
         components: []  // { component_id, status, observation } (Loaded from mill)
     });
+
+    const handleAiApplyFields = useCallback((fields) => {
+        setFormData(prev => {
+            const updated = { ...prev };
+            if (fields.description) updated.description = fields.description;
+            if (fields.diagnosis) updated.diagnosis = fields.diagnosis;
+            if (fields.type) updated.type = fields.type;
+            if (fields.priority) updated.priority = fields.priority;
+            if (fields.scheduled_date) updated.scheduled_date = fields.scheduled_date;
+            if (fields.notes) updated.notes = fields.notes;
+            if (fields.is_reintervention !== undefined) updated.is_reintervention = fields.is_reintervention;
+            // Mill matching via fuzzy
+            if (fields.mill_id) updated.mill_id = fields.mill_id;
+            // Crew matching via fuzzy
+            if (fields.crew_id) updated.crew_id = fields.crew_id;
+            return updated;
+        });
+    }, []);
 
     // Load Data Effect
     useEffect(() => {
@@ -677,6 +696,16 @@ export default function WorkOrderForm({ orderId, onBack }) {
                 {/* 1. GENERAL TAB */}
                 {activeTab === 'general' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                        {/* AI Assistant - only for creation */}
+                        {!isEditing && (
+                            <div className="col-span-2">
+                                <AiAssistantPanel
+                                    modalType="work_order"
+                                    onApplyFields={handleAiApplyFields}
+                                />
+                            </div>
+                        )}
+
                         <div className="col-span-2">
                             <label className="block text-sm font-bold text-slate-700 mb-2">Código (Auto-generado)</label>
                             <input

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Save, Users, FileText, Play, CheckCircle, Trash2, Plus, Download } from 'lucide-react';
 import { ConcertationService } from '../../services/concertations';
@@ -6,6 +6,7 @@ import { MillService } from '../../services/mills';
 import { DiagnosisService } from '../../services/diagnosis';
 import { ConcertationPDF } from '../../services/ConcertationPDF';
 import StatusBadge from '../../components/ui/StatusBadge';
+import AiAssistantPanel from '../../components/ai/AiAssistantPanel';
 
 export default function ConcertationForm({ concertationId, onBack }) {
     const isEditing = !!concertationId;
@@ -44,6 +45,18 @@ export default function ConcertationForm({ concertationId, onBack }) {
         communityMembers: [],
         personnel: []
     });
+
+    const handleAiApplyFields = useCallback((fields) => {
+        setFormData(prev => {
+            const updated = { ...prev };
+            if (fields.community_id) updated.community_id = String(fields.community_id);
+            if (fields.meeting_date) updated.meeting_date = fields.meeting_date;
+            if (fields.decision) updated.decision = fields.decision;
+            if (fields.conditions) updated.conditions = fields.conditions;
+            if (fields.notes) updated.notes = fields.notes;
+            return updated;
+        });
+    }, []);
 
     useEffect(() => {
         loadInitialData();
@@ -372,6 +385,13 @@ export default function ConcertationForm({ concertationId, onBack }) {
                     {/* TAB: GENERAL */}
                     {activeTab === 'general' && (
                         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 space-y-6">
+                            {!isEditing && (
+                                <AiAssistantPanel
+                                    modalType="concertation"
+                                    onApplyFields={handleAiApplyFields}
+                                    disabled={saving}
+                                />
+                            )}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Comunidad *</label>

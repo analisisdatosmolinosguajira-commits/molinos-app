@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { X, Save, Calendar, AlertCircle, MapPin, Plus, Search, Trash2, School } from 'lucide-react';
 import { ActivityService } from '../../services/activities';
 import { OperationalStaffService } from '../../services/operationalStaff';
 import { CommunityService } from '../../services/communities';
 import { MillService } from '../../services/mills';
 import { WeeklyPlannerService } from '../../services/weeklyPlannerService';
+import AiAssistantPanel from '../ai/AiAssistantPanel';
 import CrewAssignmentSelector from './CrewAssignmentSelector';
 
 const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = null, onSuccess }) => {
@@ -38,6 +39,29 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
     });
 
     const [errors, setErrors] = useState({});
+
+    const handleAiApplyFields = useCallback((fields) => {
+        setFormData(prev => {
+            const updated = { ...prev };
+            if (fields.title) updated.title = fields.title;
+            if (fields.description) updated.description = fields.description;
+            if (fields.priority) updated.priority = fields.priority;
+            if (fields.activity_type_id) updated.activity_type_id = String(fields.activity_type_id);
+            if (fields.estimated_duration_days) updated.estimated_duration_days = String(fields.estimated_duration_days);
+            if (fields.target_location_notes) updated.target_location_notes = fields.target_location_notes;
+            if (fields.additional_resources_notes) updated.additional_resources_notes = fields.additional_resources_notes;
+            return updated;
+        });
+        // Handle matched communities from AI
+        if (fields._matched_communities && Array.isArray(fields._matched_communities)) {
+            setSelectedCommunities(prev => {
+                const newComms = fields._matched_communities.filter(
+                    mc => !prev.some(p => p.communityId === mc.communityId)
+                ).map(mc => ({ ...mc, sourceType: 'community', sourceId: null }));
+                return [...prev, ...newComms];
+            });
+        }
+    }, []);
 
     useEffect(() => {
         if (isOpen) {
@@ -249,6 +273,15 @@ const ActivityFormModal = ({ isOpen, onClose, activity = null, initialData = nul
                     {/* Form */}
                     <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
                         <div className="px-6 py-4 space-y-6">
+                            {/* AI Assistant Panel */}
+                            {!activity && (
+                                <AiAssistantPanel
+                                    modalType="activity"
+                                    onApplyFields={handleAiApplyFields}
+                                    disabled={loading}
+                                />
+                            )}
+
                             {/* Basic Info Section */}
                             <div className="space-y-4">
                                 <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">

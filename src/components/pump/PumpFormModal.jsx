@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, Loader, Settings, Wrench, Activity, Package, Calendar, MapPin } from 'lucide-react';
 import { PumpService } from '../../services/pumps';
 import { supabase } from '../../services/supabase';
+import AiAssistantPanel from '../ai/AiAssistantPanel';
 
 /**
  * Create/Edit Pump Modal
@@ -31,6 +32,25 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
         notes: ''
     });
     const [errors, setErrors] = useState({});
+
+    const handleAiApplyFields = useCallback((fields) => {
+        setFormData(prev => {
+            const updated = { ...prev };
+            if (fields.serial_number) updated.serial_number = fields.serial_number;
+            if (fields.model) updated.model = fields.model;
+            if (fields.type) updated.type = fields.type;
+            if (fields.origin) updated.origin = fields.origin;
+            if (fields.status) updated.status = fields.status;
+            if (fields.max_depth) updated.max_depth = fields.max_depth;
+            if (fields.capacity) updated.capacity = fields.capacity;
+            if (fields.manufacture_date) updated.manufacture_date = fields.manufacture_date;
+            if (fields.storage_location) updated.storage_location = fields.storage_location;
+            if (fields.notes) updated.notes = fields.notes;
+            // Supplier matching via fuzzy
+            if (fields.supplier_id) updated.supplier_id = fields.supplier_id;
+            return updated;
+        });
+    }, []);
 
     useEffect(() => {
         if (isOpen) {
@@ -186,6 +206,14 @@ const PumpFormModal = ({ isOpen, onClose, onSuccess, pumpData = null }) => {
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto">
+                    {/* AI Assistant - only for creation */}
+                    {!isEdit && (
+                        <AiAssistantPanel
+                            modalType="pump"
+                            onApplyFields={handleAiApplyFields}
+                        />
+                    )}
+
                     {/* Section 1: Identification */}
                     <div className="bg-slate-50 p-6 rounded-xl space-y-4">
                         <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">

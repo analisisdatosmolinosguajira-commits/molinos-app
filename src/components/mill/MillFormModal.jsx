@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, Loader, MapPin, Calendar, Activity, FileText, Link2, Boxes, Plus, Trash2 } from 'lucide-react';
 import { supabase } from '../../services/supabase';
 import { MillService } from '../../services/mills';
 import { ComponentService } from '../../services/components';
+import AiAssistantPanel from '../ai/AiAssistantPanel';
 
 /**
  * Create/Edit Mill Modal
@@ -36,6 +37,42 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
     });
     const [selectedComponents, setSelectedComponents] = useState([]);
     const [errors, setErrors] = useState({});
+
+    // AI field mapping: maps Gemini output fields to form state
+    const handleAiApplyFields = useCallback((fields) => {
+        setFormData(prev => {
+            const updated = { ...prev };
+            if (fields.code) updated.code = fields.code;
+            if (fields.registration_number) updated.registration_number = fields.registration_number;
+            if (fields.name) updated.name = fields.name;
+            if (fields.community_id) updated.community_id = String(fields.community_id);
+            if (fields.location_description) updated.location_description = fields.location_description;
+            if (fields.latitude) updated.latitude = String(fields.latitude);
+            if (fields.longitude) updated.longitude = String(fields.longitude);
+            if (fields.model) updated.model = fields.model;
+            if (fields.manufacturer) updated.manufacturer = fields.manufacturer;
+            if (fields.installation_date) updated.installation_date = fields.installation_date;
+            if (fields.status) updated.status = fields.status;
+            if (fields.notes) updated.notes = fields.notes;
+            if (fields.technical_specs_url) updated.technical_specs_url = fields.technical_specs_url;
+            return updated;
+        });
+
+        // Handle components if extracted
+        if (fields.components && Array.isArray(fields.components)) {
+            const mappedComponents = fields.components.map(comp => ({
+                component_id: comp.component_id || null,
+                component_name: comp.name || comp.component_name || 'Componente',
+                component_code: comp.code || comp.component_code || '',
+                installed_date: comp.installed_date || new Date().toISOString().split('T')[0],
+                status: comp.status || 'FUNCIONAL',
+                relation_id: null
+            }));
+            if (mappedComponents.length > 0) {
+                setSelectedComponents(prev => [...prev, ...mappedComponents]);
+            }
+        }
+    }, []);
 
     useEffect(() => {
         if (isOpen) {
@@ -298,6 +335,13 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto">
+                    {/* AI Assistant Panel */}
+                    <AiAssistantPanel
+                        modalType="mill"
+                        onApplyFields={handleAiApplyFields}
+                        disabled={loading}
+                    />
+
                     {/* Section 1: Basic Information */}
                     <div className="bg-slate-50 p-6 rounded-xl space-y-4">
                         <h3 className="text-lg font-bold text-slate-900 mb-4">

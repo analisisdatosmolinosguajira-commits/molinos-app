@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { X, AlertTriangle, Send, Loader } from 'lucide-react';
 import { supabase } from '../../services/supabase';
+import AiAssistantPanel from '../ai/AiAssistantPanel';
 
 export default function FailureReportModal({ isOpen, onClose, millId, millName }) {
     const [loading, setLoading] = useState(false);
@@ -9,6 +10,16 @@ export default function FailureReportModal({ isOpen, onClose, millId, millName }
         priority: 'MEDIA',
         description: ''
     });
+
+    const handleAiApplyFields = useCallback((fields) => {
+        setFormData(prev => {
+            const updated = { ...prev };
+            if (fields.reported_by_name) updated.reported_by_name = fields.reported_by_name;
+            if (fields.priority) updated.priority = fields.priority;
+            if (fields.description) updated.description = fields.description;
+            return updated;
+        });
+    }, []);
 
     if (!isOpen) return null;
 
@@ -49,6 +60,11 @@ export default function FailureReportModal({ isOpen, onClose, millId, millName }
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                    <AiAssistantPanel
+                        modalType="failure_report"
+                        onApplyFields={handleAiApplyFields}
+                        disabled={loading}
+                    />
                     <div className="bg-slate-50 p-4 rounded-xl text-sm text-slate-600 mb-2">
                         Reportando incidencia para: <span className="font-bold text-slate-800">{millName}</span>
                     </div>

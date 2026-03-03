@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, MapPin, Factory, Loader } from 'lucide-react';
+import AiAssistantPanel from '../ai/AiAssistantPanel';
 
 const DEPARTMENTS = ['La Guajira', 'Cesar', 'Magdalena', 'Atlantico']; // Extend as needed
 
@@ -14,6 +15,20 @@ const CreateCommunityModal = ({ isOpen, onClose, onSave, initialData = null }) =
         notes: ''
     });
     const [saving, setSaving] = useState(false);
+
+    const handleAiApplyFields = useCallback((fields) => {
+        setFormData(prev => {
+            const updated = { ...prev };
+            if (fields.name) updated.name = fields.name;
+            if (fields.municipality) updated.municipality = fields.municipality;
+            if (fields.department) updated.department = fields.department;
+            if (fields.latitude) updated.latitude = String(fields.latitude);
+            if (fields.longitude) updated.longitude = String(fields.longitude);
+            if (fields.location_description) updated.location_description = fields.location_description;
+            if (fields.notes) updated.notes = fields.notes;
+            return updated;
+        });
+    }, []);
 
     useEffect(() => {
         if (isOpen) {
@@ -70,6 +85,11 @@ const CreateCommunityModal = ({ isOpen, onClose, onSave, initialData = null }) =
                 </div>
 
                 <form onSubmit={handleSave} className="p-6 space-y-4">
+                    <AiAssistantPanel
+                        modalType="community"
+                        onApplyFields={handleAiApplyFields}
+                        disabled={saving}
+                    />
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Nombre</label>
                         <input
