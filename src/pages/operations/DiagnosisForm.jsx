@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
     Save, X, Calendar, User, Briefcase, FileText,
@@ -10,6 +10,7 @@ import { MillService } from '../../services/mills';
 import { CrewService } from '../../services/crews';
 import { WorkOrderService } from '../../services/work_orders';
 import { supabase } from '../../services/supabase';
+import AiAssistantPanel from '../../components/ai/AiAssistantPanel';
 
 export default function DiagnosisForm({ diagnosisId, onBack }) {
     // Mode
@@ -89,6 +90,30 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
         // Enhanced Component Status (Tab 5)
         components: []  // { component_id, status, observation, wear_percentage, vibration_level, etc. }
     });
+
+    const handleAiApplyFields = useCallback((fields) => {
+        setFormData(prev => {
+            const updated = { ...prev };
+            if (fields.description) updated.description = fields.description;
+            if (fields.diagnosis_type) updated.diagnosis_type = fields.diagnosis_type;
+            if (fields.priority) updated.priority = fields.priority;
+            if (fields.severity) updated.severity = fields.severity;
+            if (fields.diagnosis_date) updated.diagnosis_date = fields.diagnosis_date;
+            if (fields.scheduled_date) updated.scheduled_date = fields.scheduled_date;
+            if (fields.notes) updated.notes = fields.notes;
+            // Technical findings tab
+            if (fields.technical_findings) updated.technical_findings = fields.technical_findings;
+            if (fields.root_cause_analysis) updated.root_cause_analysis = fields.root_cause_analysis;
+            if (fields.recommendations) updated.recommendations = fields.recommendations;
+            // Pump tab
+            if (fields.pump_condition) updated.pump_condition = fields.pump_condition;
+            if (fields.pump_observations) updated.pump_observations = fields.pump_observations;
+            // Fuzzy-matched IDs from Edge Function
+            if (fields.mill_id) updated.mill_id = String(fields.mill_id);
+            if (fields.crew_id) updated.crew_id = String(fields.crew_id);
+            return updated;
+        });
+    }, []);
 
     // Load Data Effect
     useEffect(() => {
@@ -809,6 +834,16 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                 {/* 1. GENERAL TAB */}
                 {activeTab === 'general' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                        {/* AI Assistant - only for creation */}
+                        {!isEditing && (
+                            <div className="col-span-2">
+                                <AiAssistantPanel
+                                    modalType="diagnosis"
+                                    onApplyFields={handleAiApplyFields}
+                                />
+                            </div>
+                        )}
+
                         <div className="col-span-2 md:col-span-1">
                             <label className="block text-sm font-bold text-slate-700 mb-2">Código (Auto-generado)</label>
                             <input
