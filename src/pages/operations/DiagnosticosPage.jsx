@@ -28,6 +28,11 @@ export default function DiagnosticosPage() {
         if (searchParams.get('action') === 'new') {
             setIsCreateMode(true);
         }
+        // Auto-select a specific diagnosis from URL ?id=
+        const targetId = searchParams.get('id');
+        if (targetId) {
+            setSelectedDiagnosisId(targetId);
+        }
     }, [searchParams]);
 
     useEffect(() => {

@@ -26,6 +26,11 @@ export default function ConcertacionesPage() {
         if (searchParams.get('action') === 'new') {
             setIsCreateMode(true);
         }
+        // Auto-select a specific concertation from URL ?id=
+        const targetId = searchParams.get('id');
+        if (targetId) {
+            setSelectedConcertationId(targetId);
+        }
     }, [searchParams]);
 
     useEffect(() => {

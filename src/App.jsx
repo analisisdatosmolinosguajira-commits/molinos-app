@@ -27,6 +27,7 @@ import OperationsControlPage from './pages/admin/OperationsControlPage';
 import SSTPage from './pages/sst/SSTPage';
 import PersonSSTDetail from './pages/sst/PersonSSTDetail';
 import NotificationsPage from './pages/notifications/NotificationsPage';
+import AlertsPage from './pages/dashboard/AlertsPage';
 
 function App() {
   return (
@@ -76,6 +77,7 @@ function App() {
           {/* Profile & Admin */}
           <Route path="perfil" element={<ProfilePage />} />
           <Route path="notificaciones" element={<NotificationsPage />} />
+          <Route path="alertas" element={<AlertsPage />} />
           <Route path="admin/operaciones" element={<OperationsControlPage />} />
 
           {/* Fallback */}

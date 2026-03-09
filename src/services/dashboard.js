@@ -15,6 +15,8 @@ export const DashboardService = {
             { count: comunidadesImpactadas },
             { count: alertasCriticas },
             { count: bombasInstaladas },
+            { count: molinosConInfo },
+            { count: molinosSinInfo },
         ] = await Promise.all([
             supabase.from('mill').select('*', { count: 'exact', head: true }),
             supabase.from('mill').select('*', { count: 'exact', head: true }).eq('status', 'OPERATIONAL'),
@@ -25,18 +27,37 @@ export const DashboardService = {
             supabase.from('community').select('*', { count: 'exact', head: true }),
             supabase.from('work_order').select('*', { count: 'exact', head: true }).in('priority', ['CRITICAL', 'HIGH']),
             supabase.from('mill_pump').select('*', { count: 'exact', head: true }).is('removed_date', null),
+            // Mills WITH info (exclude WITHOUT_INFO)
+            supabase.from('mill').select('*', { count: 'exact', head: true }).neq('status', 'WITHOUT_INFO'),
+            // Mills WITHOUT info
+            supabase.from('mill').select('*', { count: 'exact', head: true }).eq('status', 'WITHOUT_INFO'),
         ]);
+
+        // Meta 2026: count non-reintervention completed OTs in 2026
+        const { data: meta2026Data } = await supabase
+            .from('work_order')
+            .select('work_order_id')
+            .eq('status', 'COMPLETED')
+            .eq('is_reintervention', false)
+            .gte('start_date', '2026-01-01T00:00:00')
+            .lte('start_date', '2026-12-31T23:59:59');
+
+        const meta2026Count = meta2026Data?.length || 0;
 
         return {
             totalMolinos: totalMolinos || 0,
             molinosOperativos: molinosOperativos || 0,
             molinosInactivos: molinosInactivos || 0,
+            molinosConInfo: molinosConInfo || 0,
+            molinosSinInfo: molinosSinInfo || 0,
             otsAbiertas: otsAbiertas || 0,
             diagnosticosPendientes: diagnosticosPendientes || 0,
             concertacionesActivas: concertacionesActivas || 0,
             comunidadesImpactadas: comunidadesImpactadas || 0,
             alertasCriticas: alertasCriticas || 0,
             bombasInstaladas: bombasInstaladas || 0,
+            meta2026: meta2026Count,
+            meta2026Goal: 200,
         };
     },
 
@@ -225,6 +246,7 @@ export const DashboardService = {
             MAINTENANCE: 'Mantenimiento',
             INACTIVE: 'Inactivo',
             INSTALLED: 'Instalado',
+            WITHOUT_INFO: 'Sin Información',
             SIN_ESTADO: 'Sin Estado',
         };
 
@@ -233,6 +255,7 @@ export const DashboardService = {
             MAINTENANCE: '#f59e0b',
             INACTIVE: '#ef4444',
             INSTALLED: '#3b82f6',
+            WITHOUT_INFO: '#a78bfa',
             SIN_ESTADO: '#94a3b8',
         };
 

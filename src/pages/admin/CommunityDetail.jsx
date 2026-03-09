@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
     Users, MapPin, Factory, History, Calendar,
     Phone, Award, Trash2, Edit2, Plus, Package,
-    ChevronDown, ChevronUp, Hash
+    ChevronDown, ChevronUp, Hash, Home, Baby,
+    GraduationCap, Briefcase, Building2, BookOpen
 } from 'lucide-react';
 import StatusBadge from '../../components/ui/StatusBadge';
 import SocialInfoSection from '../../components/social/SocialInfoSection';
@@ -145,6 +146,64 @@ const CommunityDetail = ({
                                     </button>
                                 </div>
                             )}
+                        </section>
+
+                        {/* Social Impact Data */}
+                        <section>
+                            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <Users size={16} /> Información Social e Impacto
+                            </h3>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600"><Home size={20} /></div>
+                                    <div>
+                                        <p className="text-blue-500 text-[10px] uppercase font-bold">Familias</p>
+                                        <p className="text-xl font-bold text-blue-800">{community.number_of_families ?? <span className="text-sm text-slate-400 italic">Sin info</span>}</p>
+                                    </div>
+                                </div>
+                                <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100 flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600"><Users size={20} /></div>
+                                    <div>
+                                        <p className="text-emerald-500 text-[10px] uppercase font-bold">Habitantes</p>
+                                        <p className="text-xl font-bold text-emerald-800">{community.number_of_inhabitants ?? <span className="text-sm text-slate-400 italic">Sin info</span>}</p>
+                                    </div>
+                                </div>
+                                <div className="bg-pink-50 p-4 rounded-xl border border-pink-100 flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center text-pink-600"><Baby size={20} /></div>
+                                    <div>
+                                        <p className="text-pink-500 text-[10px] uppercase font-bold">Niños</p>
+                                        <p className="text-xl font-bold text-pink-800">{community.number_of_children ?? <span className="text-sm text-slate-400 italic">Sin info</span>}</p>
+                                    </div>
+                                </div>
+                                <div className="bg-amber-50 p-4 rounded-xl border border-amber-100 flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600"><GraduationCap size={20} /></div>
+                                    <div>
+                                        <p className="text-amber-500 text-[10px] uppercase font-bold">UCA / Colegio</p>
+                                        <p className="text-sm font-semibold text-amber-800">{community.uca_school || <span className="text-slate-400 italic">Sin info</span>}</p>
+                                    </div>
+                                </div>
+                                <div className="bg-purple-50 p-4 rounded-xl border border-purple-100 flex items-center gap-3 col-span-2">
+                                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600"><Briefcase size={20} /></div>
+                                    <div>
+                                        <p className="text-purple-500 text-[10px] uppercase font-bold">Actividad Productiva Principal</p>
+                                        <p className="text-sm font-semibold text-purple-800">{community.main_productive_activity || <span className="text-slate-400 italic">Sin info</span>}</p>
+                                    </div>
+                                </div>
+                                <div className="bg-teal-50 p-4 rounded-xl border border-teal-100 flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center text-teal-600"><Building2 size={20} /></div>
+                                    <div>
+                                        <p className="text-teal-500 text-[10px] uppercase font-bold">Com. Beneficiadas</p>
+                                        <p className="text-xl font-bold text-teal-800">{community.benefited_communities_count ?? <span className="text-sm text-slate-400 italic">Sin info</span>}</p>
+                                    </div>
+                                </div>
+                                <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600"><BookOpen size={20} /></div>
+                                    <div>
+                                        <p className="text-indigo-500 text-[10px] uppercase font-bold">Com. p/ Formación</p>
+                                        <p className="text-sm font-semibold text-indigo-800">{community.training_communities || <span className="text-slate-400 italic">Sin info</span>}</p>
+                                    </div>
+                                </div>
+                            </div>
                         </section>
 
                         {/* Recent Activity Summary */}

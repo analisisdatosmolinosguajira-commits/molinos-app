@@ -1,5 +1,5 @@
 import React from 'react';
-import { Eye, Edit, Trash2, CheckCircle, XCircle, AlertTriangle, Loader } from 'lucide-react';
+import { Eye, Edit, Trash2, CheckCircle, XCircle, AlertTriangle, Loader, HelpCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 /**
@@ -21,7 +21,7 @@ const MillTable = ({ mills, onEdit, onDelete, loading }) => {
             'UNDER_MAINTENANCE': <AlertTriangle className="text-yellow-500" size={16} />,
             'DECOMMISSIONED': <XCircle className="text-gray-500" size={16} />
         };
-        return icons[status] || icons['OPERATIONAL'];
+        return icons[status] || <HelpCircle className="text-slate-400" size={16} />;
     };
 
     const getStatusLabel = (status) => {
@@ -31,7 +31,7 @@ const MillTable = ({ mills, onEdit, onDelete, loading }) => {
             'UNDER_MAINTENANCE': 'Mantenimiento',
             'DECOMMISSIONED': 'Desmantelado'
         };
-        return labels[status] || status;
+        return labels[status] || 'Sin información';
     };
 
     if (loading) {

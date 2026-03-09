@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, CircleMarker, Popup, ZoomControl, useMap } fro
 import { useNavigate } from 'react-router-dom';
 import {
     ExternalLink, Wind, Droplets, MapPin, ClipboardList,
-    Stethoscope, Handshake, Filter
+    Stethoscope, Handshake, Filter, HelpCircle
 } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
@@ -16,6 +16,7 @@ const STATUS_COLORS = {
     MAINTENANCE: { fill: '#f59e0b', stroke: '#d97706', label: 'En Mantenimiento' },
     INACTIVE: { fill: '#ef4444', stroke: '#dc2626', label: 'No Operativo' },
     INSTALLED: { fill: '#3b82f6', stroke: '#2563eb', label: 'Instalado' },
+    WITHOUT_INFO: { fill: '#a78bfa', stroke: '#7c3aed', label: 'Sin Información' },
     DEFAULT: { fill: '#94a3b8', stroke: '#64748b', label: 'Sin Estado' },
 };
 
@@ -65,13 +66,15 @@ export default function MillMap({ mills = [], height = '500px' }) {
             OPERATIONAL: 0,
             INACTIVE: 0,
             MAINTENANCE: 0,
+            SIN_INFO: 0,
             OT_ACTIVA: 0,
             DIAG_PENDIENTE: 0,
             CONCERTACION: 0,
         };
         geoMills.forEach(m => {
             // Status counts - normalize non-operational
-            if (m.status === 'OPERATIONAL' || m.status === 'INSTALLED') counts.OPERATIONAL++;
+            if (m.status === 'WITHOUT_INFO') counts.SIN_INFO++;
+            else if (m.status === 'OPERATIONAL' || m.status === 'INSTALLED') counts.OPERATIONAL++;
             else if (m.status === 'MAINTENANCE') counts.MAINTENANCE++;
             else counts.INACTIVE++;
 
@@ -92,9 +95,11 @@ export default function MillMap({ mills = [], height = '500px' }) {
                 case 'OPERATIONAL':
                     return m.status === 'OPERATIONAL' || m.status === 'INSTALLED';
                 case 'INACTIVE':
-                    return m.status !== 'OPERATIONAL' && m.status !== 'INSTALLED' && m.status !== 'MAINTENANCE';
+                    return m.status !== 'OPERATIONAL' && m.status !== 'INSTALLED' && m.status !== 'MAINTENANCE' && m.status !== 'WITHOUT_INFO';
                 case 'MAINTENANCE':
                     return m.status === 'MAINTENANCE';
+                case 'SIN_INFO':
+                    return m.status === 'WITHOUT_INFO';
                 case 'OT_ACTIVA':
                     return m.activeOTs > 0;
                 case 'DIAG_PENDIENTE':
@@ -109,6 +114,7 @@ export default function MillMap({ mills = [], height = '500px' }) {
 
     // Determine marker color based on active filter
     function getMarkerColor(mill) {
+        if (activeFilter === 'SIN_INFO') return { fill: '#a78bfa', stroke: '#7c3aed' };
         if (activeFilter === 'OT_ACTIVA') return { fill: '#f97316', stroke: '#ea580c' };
         if (activeFilter === 'DIAG_PENDIENTE') return { fill: '#8b5cf6', stroke: '#7c3aed' };
         if (activeFilter === 'CONCERTACION') return { fill: '#ec4899', stroke: '#db2777' };
@@ -167,6 +173,14 @@ export default function MillMap({ mills = [], height = '500px' }) {
                         label="Mantenimiento"
                         count={filterCounts.MAINTENANCE}
                     />
+                    <FilterChip
+                        active={activeFilter === 'SIN_INFO'}
+                        onClick={() => toggleFilter('SIN_INFO')}
+                        color="#a78bfa"
+                        label="Sin Info"
+                        count={filterCounts.SIN_INFO}
+                        icon={HelpCircle}
+                    />
                 </div>
 
                 {/* Row 2: Contextual filters */}
@@ -221,18 +235,20 @@ export default function MillMap({ mills = [], height = '500px' }) {
                         const color = getMarkerColor(mill);
                         const lat = parseFloat(mill.latitude);
                         const lng = parseFloat(mill.longitude);
+                        const isSinInfo = mill.status === 'WITHOUT_INFO';
 
                         return (
                             <CircleMarker
                                 key={mill.mill_id}
                                 center={[lat, lng]}
-                                radius={10}
+                                radius={isSinInfo ? 12 : 10}
                                 pathOptions={{
                                     fillColor: color.fill,
                                     color: color.stroke,
-                                    weight: 2.5,
-                                    fillOpacity: 0.85,
+                                    weight: isSinInfo ? 3 : 2.5,
+                                    fillOpacity: isSinInfo ? 0.7 : 0.85,
                                     opacity: 1,
+                                    dashArray: isSinInfo ? '4 3' : undefined,
                                 }}
                             >
                                 <Popup className="mill-popup" maxWidth={300}>
@@ -240,8 +256,8 @@ export default function MillMap({ mills = [], height = '500px' }) {
                                         {/* Header */}
                                         <div className="flex items-center justify-between mb-2">
                                             <div className="flex items-center gap-2">
-                                                <Wind size={16} className="text-brand-600" />
-                                                <span className="font-bold text-slate-800 text-sm">{mill.code}</span>
+                                                {isSinInfo ? <HelpCircle size={16} className="text-purple-500" /> : <Wind size={16} className="text-brand-600" />}
+                                                <span className="font-bold text-slate-800 text-sm">{mill.code || mill.community_name || 'Molino'}</span>
                                             </div>
                                             <span
                                                 className="px-2 py-0.5 rounded-full text-[10px] font-bold text-white"
@@ -259,11 +275,21 @@ export default function MillMap({ mills = [], height = '500px' }) {
                                             </div>
                                         )}
 
+                                        {/* Sin Info notice */}
+                                        {isSinInfo && (
+                                            <div className="flex items-center gap-1.5 text-xs text-purple-600 bg-purple-50 rounded-lg px-2 py-1.5 mb-2 border border-purple-200">
+                                                <HelpCircle size={12} />
+                                                <span className="font-medium">Sin información registrada</span>
+                                            </div>
+                                        )}
+
                                         {/* Pump */}
-                                        <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-2">
-                                            <Droplets size={12} />
-                                            <span>{mill.has_pump ? `Bomba: ${mill.pump_model || 'instalada'}` : 'Sin bomba'}</span>
-                                        </div>
+                                        {!isSinInfo && (
+                                            <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-2">
+                                                <Droplets size={12} />
+                                                <span>{mill.has_pump ? `Bomba: ${mill.pump_model || 'instalada'}` : 'Sin bomba'}</span>
+                                            </div>
+                                        )}
 
                                         {/* Activity badges */}
                                         <div className="flex flex-wrap gap-1.5 mb-2">

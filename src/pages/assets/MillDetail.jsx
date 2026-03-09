@@ -234,38 +234,49 @@ export default function MillDetail() {
                         <div className="space-y-4">
                             <h3 className="text-lg font-bold text-slate-800 mb-4">Línea de Vida (Life Record)</h3>
                             <div className="relative pl-8 space-y-8 before:absolute before:left-3 before:top-2 before:bottom-0 before:w-0.5 before:bg-slate-200 h-[600px] overflow-y-auto pr-4 custom-scrollbar">
-                                {lifeRecord.map(event => (
-                                    <div
-                                        key={event.id}
-                                        className="relative animate-fade-in group cursor-pointer"
-                                        onClick={() => {
-                                            // Future: Open detail modal or navigate
-                                            if (event.type === 'WORK_ORDER') navigate(`/ordenes/${event.id.replace('wo-', '')}`);
-                                            else if (event.type === 'DIAGNOSIS') navigate(`/diagnosticos/${event.id.replace('dia-', '')}`);
-                                        }}
-                                    >
-                                        <div className={`absolute -left-[29px] w-6 h-6 rounded-full border-4 border-white shadow-sm flex items-center justify-center transition-transform group-hover:scale-110
-                                            ${event.type === 'WORK_ORDER' ? 'bg-brand-500' : event.type === 'DIAGNOSIS' ? 'bg-purple-500' : 'bg-orange-500'}`}>
-                                        </div>
+                                {lifeRecord.map(event => {
+                                    // Extract the real entity ID from the event id (e.g., "wo-123" → "123")
+                                    const entityId = event.id?.split('-').slice(1).join('-') || '';
+                                    const typeConfig = {
+                                        'WORK_ORDER': { bg: 'bg-brand-500', badge: 'bg-brand-50 text-brand-600 border-brand-100', label: 'Orden de Trabajo', link: `/ordenes?id=${entityId}` },
+                                        'DIAGNOSIS': { bg: 'bg-purple-500', badge: 'bg-purple-50 text-purple-600 border-purple-100', label: 'Diagnóstico', link: `/diagnosticos?id=${entityId}` },
+                                        'CONCERTATION': { bg: 'bg-green-500', badge: 'bg-green-50 text-green-600 border-green-100', label: 'Concertación', link: `/concertaciones?id=${entityId}` },
+                                        'INSTALLATION': { bg: 'bg-cyan-500', badge: 'bg-cyan-50 text-cyan-600 border-cyan-100', label: 'Instalación', link: null },
+                                        'REMOVAL': { bg: 'bg-rose-500', badge: 'bg-rose-50 text-rose-600 border-rose-100', label: 'Desinstalación', link: null },
+                                        'REPAIR': { bg: 'bg-amber-500', badge: 'bg-amber-50 text-amber-600 border-amber-100', label: 'Reparación', link: null },
+                                    };
+                                    const cfg = typeConfig[event.type] || { bg: 'bg-orange-500', badge: 'bg-orange-50 text-orange-600 border-orange-100', label: event.type, link: null };
 
-                                        <div className="bg-white rounded-xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-all hover:border-brand-200 group-hover:translate-x-1">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{new Date(event.date).toLocaleDateString()}</span>
-                                                <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-full border
-                                                    ${event.type === 'WORK_ORDER' ? 'bg-brand-50 text-brand-600 border-brand-100' :
-                                                        event.type === 'DIAGNOSIS' ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-orange-50 text-orange-600 border-orange-100'}`}>
-                                                    {event.type}
-                                                </span>
+                                    return (
+                                        <div
+                                            key={event.id}
+                                            className={`relative animate-fade-in group ${cfg.link ? 'cursor-pointer' : ''}`}
+                                            onClick={() => {
+                                                if (cfg.link) navigate(cfg.link);
+                                            }}
+                                        >
+                                            <div className={`absolute -left-[29px] w-6 h-6 rounded-full border-4 border-white shadow-sm flex items-center justify-center transition-transform group-hover:scale-110 ${cfg.bg}`}>
                                             </div>
-                                            <h4 className="font-bold text-slate-800">{event.title}</h4>
-                                            <p className="text-sm text-slate-500 mt-1">{event.subtitle}</p>
 
-                                            <div className="mt-3 flex items-center text-xs text-brand-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
-                                                Ver detalles completeto →
+                                            <div className="bg-white rounded-xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-all hover:border-brand-200 group-hover:translate-x-1">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{new Date(event.date).toLocaleDateString()}</span>
+                                                    <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-full border ${cfg.badge}`}>
+                                                        {cfg.label}
+                                                    </span>
+                                                </div>
+                                                <h4 className="font-bold text-slate-800">{event.title}</h4>
+                                                <p className="text-sm text-slate-500 mt-1">{event.subtitle}</p>
+
+                                                {cfg.link && (
+                                                    <div className="mt-3 flex items-center text-xs text-brand-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        Ver detalles →
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
 
                                 {lifeRecord.length === 0 && (
                                     <div className="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-500">

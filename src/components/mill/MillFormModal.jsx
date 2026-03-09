@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Loader, MapPin, Calendar, Activity, FileText, Link2, Boxes, Plus, Trash2 } from 'lucide-react';
 import { supabase } from '../../services/supabase';
 import { MillService } from '../../services/mills';
@@ -314,8 +315,8 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+    return createPortal(
+        <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-[9999] p-4 overflow-y-auto">
             <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full my-8">
                 {/* Header */}
                 <div className="p-6 border-b border-slate-200">
@@ -738,7 +739,8 @@ const MillFormModal = ({ isOpen, onClose, onSuccess, millData = null }) => {
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

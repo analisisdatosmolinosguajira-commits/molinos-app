@@ -28,6 +28,11 @@ export default function OrdenesPage() {
         if (searchParams.get('action') === 'new') {
             setIsCreateMode(true);
         }
+        // Auto-select a specific order from URL ?id=
+        const targetId = searchParams.get('id');
+        if (targetId) {
+            setSelectedOrderId(targetId);
+        }
     }, [searchParams]);
 
     useEffect(() => {

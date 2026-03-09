@@ -5,7 +5,7 @@ import { useAllPermissions } from '../../hooks/usePermissions';
 import {
     LayoutDashboard, Map, ClipboardList, Stethoscope, Users,
     Wind, Droplet, Package, BarChart3, Menu, X, ChevronRight,
-    Settings, Home, Wrench, User, Shield, ShieldCheck, Truck
+    Settings, Home, Wrench, User, Shield, ShieldCheck, Truck, AlertTriangle
 } from 'lucide-react';
 
 const cn = (...classes) => classes.filter(Boolean).join(' ');
@@ -19,7 +19,8 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
         {
             title: 'Principal',
             items: [
-                { path: '/', label: 'Panel de Control', icon: LayoutDashboard, module: 'dashboard' }
+                { path: '/', label: 'Panel de Control', icon: LayoutDashboard, module: 'dashboard' },
+                { path: '/alertas', label: 'Alertas Inteligentes', icon: AlertTriangle, module: 'dashboard' }
             ]
         },
         {

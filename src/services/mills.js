@@ -188,6 +188,13 @@ export const MillService = {
     },
 
     async getLifeRecord(millId) {
+        // 0. Get mill's community_id
+        const { data: millInfo } = await supabase
+            .from('mill')
+            .select('community_id')
+            .eq('mill_id', millId)
+            .single();
+
         // 1. Fetch Work Orders
         const { data: workOrders } = await supabase
             .from('work_order')
@@ -212,6 +219,16 @@ export const MillService = {
             .select('*, pump(model, serial_number)')
             .eq('mill_id', millId);
 
+        // 5. Fetch Concertations via community
+        let concertations = [];
+        if (millInfo?.community_id) {
+            const { data: concData } = await supabase
+                .from('community_concertation')
+                .select('*')
+                .eq('community_id', millInfo.community_id);
+            concertations = concData || [];
+        }
+
         // Normalize Work Orders
         const woEvents = (workOrders || []).map(wo => ({
             id: `wo-${wo.work_order_id}`,
@@ -232,6 +249,16 @@ export const MillService = {
             status: d.status,
             title: `Diagnóstico ${d.diagnosis_type}`,
             subtitle: d.notes ? d.notes.substring(0, 50) + (d.notes.length > 50 ? '...' : '') : `Estado: ${d.status}`
+        }));
+
+        // Normalize Concertations
+        const concertationEvents = concertations.map(c => ({
+            id: `conc-${c.concertation_id}`,
+            date: c.meeting_date || c.created_at,
+            type: 'CONCERTATION',
+            status: c.status,
+            title: 'Concertación Comunitaria',
+            subtitle: c.notes ? c.notes.substring(0, 50) + (c.notes.length > 50 ? '...' : '') : `Estado: ${c.status || 'pendiente'}`
         }));
 
         // Normalize Pump History (Install/Remove from mill_pump)
@@ -270,7 +297,7 @@ export const MillService = {
             notes: se.notes
         }));
 
-        const allEvents = [...woEvents, ...diagnosisEvents, ...historyEvents, ...specializedTimelineEvents];
+        const allEvents = [...woEvents, ...diagnosisEvents, ...concertationEvents, ...historyEvents, ...specializedTimelineEvents];
 
         // Sort by date descending
         return allEvents.sort((a, b) => new Date(b.date) - new Date(a.date));

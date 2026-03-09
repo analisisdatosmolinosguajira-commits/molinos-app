@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     X, CheckCircle, Play, CheckSquare, Users, ClipboardList, Link as LinkIcon,
     FileText, User, Save, Loader2, AlertCircle, Plus, Calendar, Trash2, MessageCircle,
@@ -9,6 +9,7 @@ import { DeliveryService } from '../../services/deliveries';
 import { supabase } from '../../services/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import MaterialDeliveryModal from './MaterialDeliveryModal';
+import AiAssistantPanel from '../ai/AiAssistantPanel';
 
 const TABS = [
     { id: 'summary', label: 'Resumen', icon: FileText },
@@ -958,6 +959,47 @@ function TabReports({ activity, selectedDate }) {
         communityVisits: []
     });
 
+    const handleAiApplyFields = useCallback((fields) => {
+        setFormData(prev => {
+            const updated = { ...prev };
+            if (fields.general_notes) updated.general_notes = fields.general_notes;
+            if (fields.report_date) updated.report_date = fields.report_date;
+            // FABRICATION
+            if (fields.fab_pieces?.length > 0) {
+                updated.fabItems = fields.fab_pieces.map(p => ({
+                    piece_name: p.piece_name || '',
+                    target_quantity: Number(p.target_quantity) || 0,
+                    produced_quantity: Number(p.produced_quantity) || 0,
+                    defective_quantity: Number(p.defective_quantity) || 0
+                }));
+            }
+            // MAINTENANCE
+            if (fields.maint_communities?.length > 0) {
+                updated.maintItems = fields.maint_communities.map(m => ({
+                    community_name: m.community_name || '',
+                    is_reintervention: !!m.is_reintervention,
+                    technical_report: m.technical_report || ''
+                }));
+            }
+            // CONCERTATION
+            if (fields.concertation_items?.length > 0) {
+                updated.concertationItems = fields.concertation_items.map(c => ({
+                    community_name: c.community_name || '',
+                    concertation_summary: c.concertation_summary || ''
+                }));
+            }
+            // DELIVERY
+            if (fields.delivery_items?.length > 0) {
+                updated.deliveryItems = fields.delivery_items.map(d => ({
+                    community_name: d.community_name || '',
+                    is_successful: d.is_successful !== false,
+                    notes: d.notes || ''
+                }));
+            }
+            return updated;
+        });
+    }, []);
+
     // Planned communities for MAINTENANCE community checkbox
     const plannedCommunities = activity.planned_communities || [];
 
@@ -1118,6 +1160,12 @@ function TabReports({ activity, selectedDate }) {
                     <h4 className="font-bold text-brand-800 border-b border-brand-100 pb-2 mb-4">
                         Crear Reporte - {rType === 'FABRICATION' ? 'Taller / Producción' : rType === 'MAINTENANCE' ? 'Mantenimiento en Terreno' : rType === 'CONCERTATION' ? 'Concertación / Social' : rType === 'DELIVERY' ? 'Entrega de Materiales' : 'Avance General'}
                     </h4>
+
+                    {/* AI Assistant for pre-filling daily report */}
+                    <AiAssistantPanel
+                        modalType="daily_report"
+                        onApplyFields={handleAiApplyFields}
+                    />
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>

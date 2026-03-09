@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     Wind, Droplets, ClipboardList, Stethoscope, Users, MapPin,
     AlertTriangle, CheckCircle, Activity, ArrowRight, Clock,
-    ChevronRight, Wrench, Handshake, XCircle, BarChart3, Zap
+    ChevronRight, Wrench, Handshake, XCircle, BarChart3, Zap, Target, HelpCircle
 } from 'lucide-react';
 import {
     PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -107,6 +107,45 @@ export default function DashboardPage() {
                 </div>
             </div>
 
+            {/* Meta 2026 Progress Bar */}
+            {stats && (
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2.5">
+                            <div className="p-2 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl">
+                                <Target size={18} className="text-white" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-slate-800 text-sm">Meta 2026 — Nuevas Intervenciones</h3>
+                                <p className="text-xs text-slate-400">Intervenciones nuevas (sin reintervención) completadas en 2026</p>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <span className="text-2xl font-bold text-brand-600">{stats.meta2026}</span>
+                            <span className="text-sm text-slate-400"> / {stats.meta2026Goal}</span>
+                        </div>
+                    </div>
+                    <div className="relative">
+                        <div className="h-4 bg-slate-100 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-gradient-to-r from-brand-500 to-brand-600 rounded-full transition-all duration-1000 ease-out relative"
+                                style={{ width: `${Math.min((stats.meta2026 / stats.meta2026Goal) * 100, 100)}%` }}
+                            >
+                                <div className="absolute inset-0 bg-white/20 animate-pulse rounded-full" />
+                            </div>
+                        </div>
+                        <div className="flex justify-between mt-1.5">
+                            <span className="text-xs font-semibold text-brand-600">
+                                {Math.round((stats.meta2026 / stats.meta2026Goal) * 100)}% completado
+                            </span>
+                            <span className="text-xs text-slate-400">
+                                Faltan {Math.max(stats.meta2026Goal - stats.meta2026, 0)} intervenciones
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* KPI Strip */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 <KpiCard
@@ -121,7 +160,7 @@ export default function DashboardPage() {
                     value={stats?.molinosOperativos}
                     icon={CheckCircle}
                     gradient="from-green-500 to-emerald-600"
-                    highlight={stats?.totalMolinos ? `${Math.round((stats.molinosOperativos / stats.totalMolinos) * 100)}%` : null}
+                    highlight={stats?.molinosConInfo ? `${Math.round((stats.molinosOperativos / stats.molinosConInfo) * 100)}%` : null}
                 />
                 <KpiCard
                     label="OTs Abiertas"
