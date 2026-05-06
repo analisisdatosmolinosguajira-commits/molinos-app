@@ -6,8 +6,7 @@ import {
     ChevronRight, Wrench, Handshake, XCircle, BarChart3, Zap, Target, HelpCircle
 } from 'lucide-react';
 import {
-    PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid,
-    Tooltip, Legend
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip
 } from 'recharts';
 import MillMap from '../../components/dashboard/MillMap';
 import { DashboardService } from '../../services/dashboard';
@@ -33,28 +32,30 @@ export default function DashboardPage() {
     const [mapMills, setMapMills] = useState([]);
     const [activities, setActivities] = useState([]);
     const [alerts, setAlerts] = useState([]);
-    const [statusChart, setStatusChart] = useState([]);
+    const [failureStats, setFailureStats] = useState(null);
     const [monthlyChart, setMonthlyChart] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedYear, setSelectedYear] = useState(2026);
 
     useEffect(() => {
         async function loadDashboard() {
+            setLoading(true);
             try {
-                const [kpis, mills, activityFeed, alertsFeed, statusDist, monthlyWO] = await Promise.all([
-                    DashboardService.getStats(),
-                    DashboardService.getMapMills(),
+                const [kpis, mills, activityFeed, alertsFeed, fails, monthlyWO] = await Promise.all([
+                    DashboardService.getStats(selectedYear),
+                    DashboardService.getMapMills(selectedYear),
                     DashboardService.getActivityFeed(),
                     DashboardService.getRecentAlerts(),
-                    DashboardService.getMillStatusDistribution(),
-                    DashboardService.getMonthlyWorkOrders(),
+                    DashboardService.getFailureStats(selectedYear),
+                    DashboardService.getMonthlyWorkOrders(selectedYear),
                 ]);
 
                 setStats(kpis);
                 setMapMills(mills || []);
                 setActivities(activityFeed || []);
                 setAlerts(alertsFeed || []);
-                setStatusChart(statusDist || []);
+                setFailureStats(fails || null);
                 setMonthlyChart(monthlyWO || []);
             } catch (err) {
                 console.error('Dashboard error:', err);
@@ -64,7 +65,54 @@ export default function DashboardPage() {
             }
         }
         loadDashboard();
-    }, []);
+    }, [selectedYear]);
+
+    const socialStats = React.useMemo(() => {
+        let families = 0, inhabitants = 0, children = 0;
+        let interventions = 0, reinterventions = 0, activeMills = 0;
+        const activities = {};
+
+        mapMills.forEach(m => {
+            if (m.hasIntervention || m.hasReintervention) {
+                activeMills++;
+                interventions += m.interventionsCount || 0;
+                reinterventions += m.reinterventionsCount || 0;
+
+                const soc = m.social || {};
+                families += soc.number_of_families || 0;
+                inhabitants += soc.number_of_inhabitants || 0;
+                children += soc.number_of_children || 0;
+
+                const act = soc.main_productive_activity;
+                let normalizedAct = act && act.trim() !== '' ? act.trim() : 'Sin Información';
+                
+                if (normalizedAct !== 'Sin Información') {
+                    const lowerAct = normalizedAct.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    if ((lowerAct.includes('artesania') || lowerAct.includes('aretesania')) && lowerAct.includes('pastoreo')) {
+                        normalizedAct = 'Artesanías y Pastoreo';
+                    } else if (lowerAct === 'pastoreo') {
+                        normalizedAct = 'Pastoreo';
+                    } else if (lowerAct.includes('artesania') || lowerAct.includes('aretesania')) {
+                        normalizedAct = 'Artesanías';
+                    } else {
+                        // Title Case
+                        normalizedAct = normalizedAct.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                    }
+                }
+
+                activities[normalizedAct] = (activities[normalizedAct] || 0) + 1;
+            }
+        });
+
+        const topActivities = Object.entries(activities)
+            .sort((a, b) => {
+                if (a[0] === 'Sin Información') return 1;
+                if (b[0] === 'Sin Información') return -1;
+                return b[1] - a[1];
+            }); // Show all, no slice
+
+        return { families, inhabitants, children, interventions, reinterventions, activeMills, topActivities };
+    }, [mapMills]);
 
     if (loading) {
         return (
@@ -91,6 +139,8 @@ export default function DashboardPage() {
 
     const greeting = getGreeting();
 
+
+
     return (
         <div className="space-y-8 animate-slide-up">
             {/* Header with greeting */}
@@ -101,13 +151,30 @@ export default function DashboardPage() {
                     </h1>
                     <p className="text-slate-500 mt-1 text-lg">Resumen operativo del Proyecto Molinos de Viento</p>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-slate-400">
-                    <Clock size={14} />
-                    <span>{new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                <div className="flex flex-col md:items-end gap-2 text-xs text-slate-400">
+                    <div className="flex items-center gap-2">
+                        <Clock size={14} />
+                        <span>{new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                    </div>
+                    {/* Year Selector */}
+                    <div className="flex bg-slate-100 p-1 rounded-lg">
+                        <button 
+                            onClick={() => setSelectedYear(2025)}
+                            className={`px-3 py-1.5 rounded-md font-semibold transition-all ${selectedYear === 2025 ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                            Año 2025
+                        </button>
+                        <button 
+                            onClick={() => setSelectedYear(2026)}
+                            className={`px-3 py-1.5 rounded-md font-semibold transition-all ${selectedYear === 2026 ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                            Año 2026
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            {/* Meta 2026 Progress Bar */}
+            {/* Meta Progress Bar */}
             {stats && (
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
                     <div className="flex items-center justify-between mb-3">
@@ -116,83 +183,121 @@ export default function DashboardPage() {
                                 <Target size={18} className="text-white" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-slate-800 text-sm">Meta 2026 — Nuevas Intervenciones</h3>
-                                <p className="text-xs text-slate-400">Intervenciones nuevas (sin reintervención) completadas en 2026</p>
+                                <h3 className="font-bold text-slate-800 text-sm">Meta {selectedYear} — Nuevas Intervenciones</h3>
+                                <p className="text-xs text-slate-400">Intervenciones nuevas (sin reintervención) completadas en {selectedYear}</p>
                             </div>
                         </div>
                         <div className="text-right">
-                            <span className="text-2xl font-bold text-brand-600">{stats.meta2026}</span>
-                            <span className="text-sm text-slate-400"> / {stats.meta2026Goal}</span>
+                            <span className="text-2xl font-bold text-brand-600">{stats.metaYear}</span>
+                            <span className="text-sm text-slate-400"> / {stats.metaYearGoal}</span>
                         </div>
                     </div>
                     <div className="relative">
                         <div className="h-4 bg-slate-100 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-gradient-to-r from-brand-500 to-brand-600 rounded-full transition-all duration-1000 ease-out relative"
-                                style={{ width: `${Math.min((stats.meta2026 / stats.meta2026Goal) * 100, 100)}%` }}
+                                style={{ width: `${Math.min((stats.metaYear / stats.metaYearGoal) * 100, 100)}%` }}
                             >
                                 <div className="absolute inset-0 bg-white/20 animate-pulse rounded-full" />
                             </div>
                         </div>
                         <div className="flex justify-between mt-1.5">
                             <span className="text-xs font-semibold text-brand-600">
-                                {Math.round((stats.meta2026 / stats.meta2026Goal) * 100)}% completado
+                                {Math.round((stats.metaYear / stats.metaYearGoal) * 100)}% completado
                             </span>
                             <span className="text-xs text-slate-400">
-                                Faltan {Math.max(stats.meta2026Goal - stats.meta2026, 0)} intervenciones
+                                Faltan {Math.max(stats.metaYearGoal - stats.metaYear, 0)} intervenciones
                             </span>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* KPI Strip */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <KpiCard
-                    label="Molinos"
-                    value={stats?.totalMolinos}
-                    icon={Wind}
-                    gradient="from-brand-500 to-brand-700"
-                    onClick={() => navigate('/molinos')}
-                />
-                <KpiCard
-                    label="Operativos"
-                    value={stats?.molinosOperativos}
-                    icon={CheckCircle}
-                    gradient="from-green-500 to-emerald-600"
-                    highlight={stats?.molinosConInfo ? `${Math.round((stats.molinosOperativos / stats.molinosConInfo) * 100)}%` : null}
-                />
-                <KpiCard
-                    label="OTs Abiertas"
-                    value={stats?.otsAbiertas}
-                    icon={ClipboardList}
-                    gradient="from-amber-500 to-orange-600"
-                    onClick={() => navigate('/ordenes')}
-                />
-                <KpiCard
-                    label="Diagnósticos"
-                    value={stats?.diagnosticosPendientes}
-                    icon={Stethoscope}
-                    gradient="from-rose-500 to-red-600"
-                    onClick={() => navigate('/diagnosticos')}
-                />
-                <KpiCard
-                    label="Comunidades"
-                    value={stats?.comunidadesImpactadas}
-                    icon={Users}
-                    gradient="from-violet-500 to-purple-600"
-                    onClick={() => navigate('/comunidades')}
-                />
-                <KpiCard
-                    label="Bombas"
-                    value={stats?.bombasInstaladas}
-                    icon={Droplets}
-                    gradient="from-cyan-500 to-teal-600"
-                    onClick={() => navigate('/bombas')}
-                />
+
+
+            {/* Social & Productive Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl p-6 shadow-sm text-white relative overflow-hidden">
+                    <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                            <Users size={20} className="text-white" />
+                        </div>
+                        <h3 className="font-bold text-lg">Impacto Social {selectedYear}</h3>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-4 mb-4">
+                        <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm border border-white/10">
+                            <p className="text-white/70 text-xs font-medium mb-1">Molinos Intervenidos</p>
+                            <p className="text-2xl font-bold">{socialStats.activeMills}</p>
+                        </div>
+                        <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm border border-white/10">
+                            <p className="text-white/70 text-xs font-medium mb-1">Intervenciones</p>
+                            <p className="text-2xl font-bold">{socialStats.interventions}</p>
+                        </div>
+                        <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm border border-white/10">
+                            <p className="text-white/70 text-xs font-medium mb-1">Reintervenciones</p>
+                            <p className="text-2xl font-bold">{socialStats.reinterventions}</p>
+                        </div>
+                    </div>
+
+                    <div className="flex gap-6 pt-4 border-t border-white/20">
+                        <div>
+                            <p className="text-white/70 text-xs font-medium">Familias</p>
+                            <p className="text-lg font-bold">{socialStats.families.toLocaleString('es-CO')}</p>
+                        </div>
+                        <div>
+                            <p className="text-white/70 text-xs font-medium">Habitantes</p>
+                            <p className="text-lg font-bold">{socialStats.inhabitants.toLocaleString('es-CO')}</p>
+                        </div>
+                        <div>
+                            <p className="text-white/70 text-xs font-medium">Niños</p>
+                            <p className="text-lg font-bold">{socialStats.children.toLocaleString('es-CO')}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-brand-50 rounded-xl">
+                            <BarChart3 size={20} className="text-brand-600" />
+                        </div>
+                        <h3 className="font-bold text-slate-800 text-lg">Actividad Productiva {selectedYear}</h3>
+                    </div>
+                    
+                    <div className="space-y-4 mt-6 max-h-[160px] overflow-y-auto pr-2 custom-scrollbar">
+                        {socialStats.topActivities.length > 0 ? socialStats.topActivities
+                            .filter(([activity, count]) => Math.round((count / socialStats.activeMills) * 100) > 0)
+                            .map(([activity, count], idx) => (
+                            <div key={idx} className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <span className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500 shrink-0">
+                                        {idx + 1}
+                                    </span>
+                                    <span className="font-medium text-slate-700 capitalize truncate" title={activity.toLowerCase()}>{activity.toLowerCase()}</span>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                    <div className="w-24 md:w-32 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                        <div 
+                                            className="h-full bg-brand-500 rounded-full" 
+                                            style={{ width: `${(count / socialStats.activeMills) * 100}%` }}
+                                        />
+                                    </div>
+                                    <span className="text-sm font-bold text-brand-600 w-9 text-right">
+                                        {Math.round((count / socialStats.activeMills) * 100)}%
+                                    </span>
+                                </div>
+                            </div>
+                        )) : (
+                            <div className="text-center py-6 text-slate-400 text-sm">
+                                No hay datos de actividad para {selectedYear}
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
 
-            {/* Map Section — PRIORITY */}
+            {/* Map Section */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
@@ -216,49 +321,39 @@ export default function DashboardPage() {
 
             {/* Charts + Alerts Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Donut: Mill Status */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                    <div className="flex items-center gap-2 mb-4">
-                        <BarChart3 size={18} className="text-slate-400" />
-                        <h3 className="font-bold text-slate-800">Estado de Molinos</h3>
+                {/* Failure Stats */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <Activity size={18} className="text-slate-400" />
+                            <h3 className="font-bold text-slate-800">Tasa de Falla {selectedYear}</h3>
+                        </div>
                     </div>
-                    {statusChart.length > 0 ? (
-                        <div className="flex items-center justify-center" style={{ height: 260 }}>
-                            <PieChart width={260} height={260}>
-                                <Pie
-                                    data={statusChart}
-                                    cx="50%"
-                                    cy="45%"
-                                    innerRadius={55}
-                                    outerRadius={90}
-                                    paddingAngle={3}
-                                    dataKey="value"
-                                    stroke="none"
-                                >
-                                    {statusChart.map((entry, i) => (
-                                        <Cell key={i} fill={entry.fill} />
-                                    ))}
-                                </Pie>
-                                <Tooltip
-                                    contentStyle={{
-                                        borderRadius: '12px',
-                                        border: '1px solid #e2e8f0',
-                                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                                        fontSize: '13px',
-                                    }}
-                                    formatter={(value, name) => [`${value} molinos`, name]}
-                                />
-                                <Legend
-                                    verticalAlign="bottom"
-                                    iconType="circle"
-                                    iconSize={8}
-                                    wrapperStyle={{ fontSize: '12px', paddingTop: '12px' }}
-                                />
-                            </PieChart>
+                    {failureStats ? (
+                        <div className="flex-1 flex flex-col justify-center items-center text-center">
+                            <div className="relative inline-flex items-center justify-center mb-4">
+                                <svg className="w-32 h-32 transform -rotate-90">
+                                    <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-slate-100" />
+                                    <circle 
+                                        cx="64" cy="64" r="56" 
+                                        stroke="currentColor" 
+                                        strokeWidth="12" 
+                                        fill="transparent" 
+                                        strokeDasharray={`${2 * Math.PI * 56}`}
+                                        strokeDashoffset={`${2 * Math.PI * 56 * (1 - failureStats.failureRate / 100)}`}
+                                        className={`${failureStats.failureRate > 15 ? 'text-red-500' : failureStats.failureRate > 5 ? 'text-amber-500' : 'text-green-500'} transition-all duration-1000 ease-out`} 
+                                    />
+                                </svg>
+                                <span className="absolute text-2xl font-bold text-slate-700">{failureStats.failureRate}%</span>
+                            </div>
+                            <p className="text-sm font-medium text-slate-500">
+                                <span className="font-bold text-slate-700">{failureStats.failedMills}</span> reintervenciones<br/>
+                                en <span className="font-bold text-slate-700">{failureStats.totalIntervenedMills}</span> intervenciones nuevas
+                            </p>
                         </div>
                     ) : (
-                        <div className="h-[260px] flex items-center justify-center text-slate-400 text-sm">
-                            Sin datos de estado
+                        <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">
+                            Sin datos de falla
                         </div>
                     )}
                 </div>
@@ -397,32 +492,9 @@ export default function DashboardPage() {
 
 // ─── Sub-Components ────────────────────────────────
 
-function KpiCard({ label, value, icon: Icon, gradient, highlight, onClick }) {
-    return (
-        <div
-            onClick={onClick}
-            className={`relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br ${gradient} text-white shadow-md hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 ${onClick ? 'cursor-pointer' : ''}`}
-        >
-            <div className="flex items-start justify-between">
-                <div>
-                    <p className="text-3xl font-bold tracking-tight">{value ?? '-'}</p>
-                    <p className="text-sm font-medium text-white/80 mt-1">{label}</p>
-                </div>
-                <div className="p-2 bg-white/15 rounded-xl backdrop-blur-sm">
-                    <Icon size={22} />
-                </div>
-            </div>
-            {highlight && (
-                <div className="mt-2 text-xs font-semibold text-white/90 bg-white/15 inline-block px-2 py-0.5 rounded-full">
-                    {highlight}
-                </div>
-            )}
-            {/* Decorative circle */}
-            <div className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
-        </div>
-    );
-}
 
+
+// eslint-disable-next-line no-unused-vars
 function QuickAction({ icon: Icon, label, onClick, color }) {
     const colorMap = {
         blue: 'hover:border-brand-300 hover:bg-brand-50 text-brand-600',

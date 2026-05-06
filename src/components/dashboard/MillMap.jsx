@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Popup, ZoomControl, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap } from 'react-leaflet';
+import L from 'leaflet';
 import { useNavigate } from 'react-router-dom';
 import {
     ExternalLink, Wind, Droplets, MapPin, ClipboardList,
-    Stethoscope, Handshake, Filter, HelpCircle
+    Stethoscope, Handshake, Filter, HelpCircle, Activity, Settings2, Users
 } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
@@ -11,25 +12,6 @@ import 'leaflet/dist/leaflet.css';
 const DEFAULT_CENTER = [11.60, -72.50];
 const DEFAULT_ZOOM = 10;
 
-const STATUS_COLORS = {
-    OPERATIONAL: { fill: '#22c55e', stroke: '#16a34a', label: 'Operativo' },
-    MAINTENANCE: { fill: '#f59e0b', stroke: '#d97706', label: 'En Mantenimiento' },
-    INACTIVE: { fill: '#ef4444', stroke: '#dc2626', label: 'No Operativo' },
-    INSTALLED: { fill: '#3b82f6', stroke: '#2563eb', label: 'Instalado' },
-    WITHOUT_INFO: { fill: '#a78bfa', stroke: '#7c3aed', label: 'Sin Información' },
-    DEFAULT: { fill: '#94a3b8', stroke: '#64748b', label: 'Sin Estado' },
-};
-
-function getStatusColor(status) {
-    return STATUS_COLORS[status] || STATUS_COLORS.DEFAULT;
-}
-
-// Contextual filter markers get special styling
-const CONTEXT_FILTERS = {
-    OT_ACTIVA: { color: '#f97316', label: 'Con OT Activa', icon: ClipboardList },
-    DIAG_PENDIENTE: { color: '#8b5cf6', label: 'Diagnóstico Pendiente', icon: Stethoscope },
-    CONCERTACION: { color: '#ec4899', label: 'Concertación Activa', icon: Handshake },
-};
 
 // Auto-fit bounds to visible mills
 function FitBounds({ mills }) {
@@ -61,65 +43,71 @@ export default function MillMap({ mills = [], height = '500px' }) {
 
     // Compute counts for each filter
     const filterCounts = useMemo(() => {
-        const counts = {
-            ALL: geoMills.length,
-            OPERATIONAL: 0,
-            INACTIVE: 0,
-            MAINTENANCE: 0,
-            SIN_INFO: 0,
-            OT_ACTIVA: 0,
-            DIAG_PENDIENTE: 0,
-            CONCERTACION: 0,
-        };
+        let INTERVENTION = 0, REINTERVENTION = 0;
         geoMills.forEach(m => {
-            // Status counts - normalize non-operational
-            if (m.status === 'WITHOUT_INFO') counts.SIN_INFO++;
-            else if (m.status === 'OPERATIONAL' || m.status === 'INSTALLED') counts.OPERATIONAL++;
-            else if (m.status === 'MAINTENANCE') counts.MAINTENANCE++;
-            else counts.INACTIVE++;
-
-            // Contextual counts
-            if (m.activeOTs > 0) counts.OT_ACTIVA++;
-            if (m.pendingDiagnosis > 0) counts.DIAG_PENDIENTE++;
-            if (m.activeConcertation) counts.CONCERTACION++;
+            if (m.hasIntervention) INTERVENTION++;
+            if (m.hasReintervention) REINTERVENTION++;
         });
-        return counts;
+        return { ALL: geoMills.length, INTERVENTION, REINTERVENTION };
     }, [geoMills]);
 
     // Apply active filter to mills
     const visibleMills = useMemo(() => {
         if (activeFilter === 'ALL') return geoMills;
-
-        return geoMills.filter(m => {
-            switch (activeFilter) {
-                case 'OPERATIONAL':
-                    return m.status === 'OPERATIONAL' || m.status === 'INSTALLED';
-                case 'INACTIVE':
-                    return m.status !== 'OPERATIONAL' && m.status !== 'INSTALLED' && m.status !== 'MAINTENANCE' && m.status !== 'WITHOUT_INFO';
-                case 'MAINTENANCE':
-                    return m.status === 'MAINTENANCE';
-                case 'SIN_INFO':
-                    return m.status === 'WITHOUT_INFO';
-                case 'OT_ACTIVA':
-                    return m.activeOTs > 0;
-                case 'DIAG_PENDIENTE':
-                    return m.pendingDiagnosis > 0;
-                case 'CONCERTACION':
-                    return m.activeConcertation;
-                default:
-                    return true;
-            }
-        });
+        if (activeFilter === 'INTERVENTION') return geoMills.filter(m => m.hasIntervention);
+        if (activeFilter === 'REINTERVENTION') return geoMills.filter(m => m.hasReintervention);
+        return geoMills;
     }, [geoMills, activeFilter]);
 
-    // Determine marker color based on active filter
-    function getMarkerColor(mill) {
-        if (activeFilter === 'SIN_INFO') return { fill: '#a78bfa', stroke: '#7c3aed' };
-        if (activeFilter === 'OT_ACTIVA') return { fill: '#f97316', stroke: '#ea580c' };
-        if (activeFilter === 'DIAG_PENDIENTE') return { fill: '#8b5cf6', stroke: '#7c3aed' };
-        if (activeFilter === 'CONCERTACION') return { fill: '#ec4899', stroke: '#db2777' };
-        return getStatusColor(mill.status);
+    // Create custom multi-color icon based on intervention/reintervention
+    function getCustomIcon(mill) {
+        const hasInt = mill.hasIntervention;
+        const hasRe = mill.hasReintervention;
+        const isSinInfo = mill.status === 'WITHOUT_INFO';
+    
+        let bgStyle = '';
+        let borderStyle = '';
+        
+        // Colors
+        const colInt = '#3b82f6'; // Blue
+        const colRe = '#f59e0b'; // Amber
+        const colNone = '#94a3b8'; // Slate
+        
+        if (hasInt && hasRe) {
+            bgStyle = `background: conic-gradient(${colInt} 0deg 180deg, ${colRe} 180deg 360deg);`;
+            borderStyle = 'border: 2px solid white;';
+        } else if (hasInt) {
+            bgStyle = `background-color: ${colInt};`;
+            borderStyle = 'border: 2px solid #2563eb;';
+        } else if (hasRe) {
+            bgStyle = `background-color: ${colRe};`;
+            borderStyle = 'border: 2px solid #d97706;';
+        } else {
+            bgStyle = `background-color: ${colNone}; opacity: ${isSinInfo ? 0.4 : 0.6};`;
+            borderStyle = `border: 2px solid #64748b; ${isSinInfo ? 'border-style: dashed;' : ''}`;
+        }
+    
+        const size = isSinInfo ? 18 : 20;
+    
+        const html = `<div style="
+            width: ${size}px; 
+            height: ${size}px; 
+            border-radius: 50%; 
+            ${bgStyle} 
+            ${borderStyle} 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+            transition: all 0.2s;
+        "></div>`;
+    
+        return L.divIcon({
+            html,
+            className: 'custom-mill-marker',
+            iconSize: [size, size],
+            iconAnchor: [size/2, size/2]
+        });
     }
+
+
 
     if (mills.length === 0) {
         return (
@@ -139,78 +127,33 @@ export default function MillMap({ mills = [], height = '500px' }) {
     return (
         <div className="relative">
             {/* Filter Bar */}
-            <div className="mb-3 space-y-2">
-                {/* Row 1: Status filters */}
-                <div className="flex items-center gap-2 flex-wrap">
-                    <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium mr-1">
-                        <Filter size={13} /> Estado
+            <div className="mb-3">
+                <div className="flex items-center gap-2 flex-wrap bg-white p-2 rounded-xl border border-slate-100 shadow-sm">
+                    <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold ml-1 mr-2">
+                        <Filter size={14} /> Filtro Anual
                     </div>
                     <FilterChip
                         active={activeFilter === 'ALL'}
                         onClick={() => setActiveFilter('ALL')}
                         color="#334155"
-                        label="Todos"
+                        label="Todas"
                         count={filterCounts.ALL}
                     />
                     <FilterChip
-                        active={activeFilter === 'OPERATIONAL'}
-                        onClick={() => toggleFilter('OPERATIONAL')}
-                        color="#22c55e"
-                        label="Operativo"
-                        count={filterCounts.OPERATIONAL}
+                        active={activeFilter === 'INTERVENTION'}
+                        onClick={() => toggleFilter('INTERVENTION')}
+                        color="#3b82f6"
+                        label="Intervenciones"
+                        count={filterCounts.INTERVENTION}
+                        icon={Settings2}
                     />
                     <FilterChip
-                        active={activeFilter === 'INACTIVE'}
-                        onClick={() => toggleFilter('INACTIVE')}
-                        color="#ef4444"
-                        label="No Operativo"
-                        count={filterCounts.INACTIVE}
-                    />
-                    <FilterChip
-                        active={activeFilter === 'MAINTENANCE'}
-                        onClick={() => toggleFilter('MAINTENANCE')}
+                        active={activeFilter === 'REINTERVENTION'}
+                        onClick={() => toggleFilter('REINTERVENTION')}
                         color="#f59e0b"
-                        label="Mantenimiento"
-                        count={filterCounts.MAINTENANCE}
-                    />
-                    <FilterChip
-                        active={activeFilter === 'SIN_INFO'}
-                        onClick={() => toggleFilter('SIN_INFO')}
-                        color="#a78bfa"
-                        label="Sin Info"
-                        count={filterCounts.SIN_INFO}
-                        icon={HelpCircle}
-                    />
-                </div>
-
-                {/* Row 2: Contextual filters */}
-                <div className="flex items-center gap-2 flex-wrap">
-                    <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium mr-1">
-                        <ClipboardList size={13} /> Actividad
-                    </div>
-                    <FilterChip
-                        active={activeFilter === 'OT_ACTIVA'}
-                        onClick={() => toggleFilter('OT_ACTIVA')}
-                        color="#f97316"
-                        label="OTs Activas"
-                        count={filterCounts.OT_ACTIVA}
-                        icon={ClipboardList}
-                    />
-                    <FilterChip
-                        active={activeFilter === 'DIAG_PENDIENTE'}
-                        onClick={() => toggleFilter('DIAG_PENDIENTE')}
-                        color="#8b5cf6"
-                        label="Diagnósticos"
-                        count={filterCounts.DIAG_PENDIENTE}
-                        icon={Stethoscope}
-                    />
-                    <FilterChip
-                        active={activeFilter === 'CONCERTACION'}
-                        onClick={() => toggleFilter('CONCERTACION')}
-                        color="#ec4899"
-                        label="Concertaciones"
-                        count={filterCounts.CONCERTACION}
-                        icon={Handshake}
+                        label="Reintervenciones"
+                        count={filterCounts.REINTERVENTION}
+                        icon={Activity}
                     />
                 </div>
             </div>
@@ -232,24 +175,15 @@ export default function MillMap({ mills = [], height = '500px' }) {
                     <FitBounds mills={visibleMills} />
 
                     {visibleMills.map(mill => {
-                        const color = getMarkerColor(mill);
                         const lat = parseFloat(mill.latitude);
                         const lng = parseFloat(mill.longitude);
                         const isSinInfo = mill.status === 'WITHOUT_INFO';
 
                         return (
-                            <CircleMarker
+                            <Marker
                                 key={mill.mill_id}
-                                center={[lat, lng]}
-                                radius={isSinInfo ? 12 : 10}
-                                pathOptions={{
-                                    fillColor: color.fill,
-                                    color: color.stroke,
-                                    weight: isSinInfo ? 3 : 2.5,
-                                    fillOpacity: isSinInfo ? 0.7 : 0.85,
-                                    opacity: 1,
-                                    dashArray: isSinInfo ? '4 3' : undefined,
-                                }}
+                                position={[lat, lng]}
+                                icon={getCustomIcon(mill)}
                             >
                                 <Popup className="mill-popup" maxWidth={300}>
                                     <div className="p-1">
@@ -259,12 +193,17 @@ export default function MillMap({ mills = [], height = '500px' }) {
                                                 {isSinInfo ? <HelpCircle size={16} className="text-purple-500" /> : <Wind size={16} className="text-brand-600" />}
                                                 <span className="font-bold text-slate-800 text-sm">{mill.code || mill.community_name || 'Molino'}</span>
                                             </div>
-                                            <span
-                                                className="px-2 py-0.5 rounded-full text-[10px] font-bold text-white"
-                                                style={{ backgroundColor: getStatusColor(mill.status).fill }}
-                                            >
-                                                {getStatusColor(mill.status).label}
-                                            </span>
+                                            {(mill.hasIntervention || mill.hasReintervention) && (
+                                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                                    mill.hasIntervention && mill.hasReintervention 
+                                                        ? 'bg-gradient-to-r from-blue-500 to-amber-500 text-white'
+                                                        : mill.hasIntervention 
+                                                            ? 'bg-blue-100 text-blue-700' 
+                                                            : 'bg-amber-100 text-amber-700'
+                                                }`}>
+                                                    {mill.hasIntervention && mill.hasReintervention ? 'Ambas' : mill.hasIntervention ? 'Intervención' : 'Reintervención'}
+                                                </span>
+                                            )}
                                         </div>
 
                                         {/* Community */}
@@ -283,32 +222,33 @@ export default function MillMap({ mills = [], height = '500px' }) {
                                             </div>
                                         )}
 
-                                        {/* Pump */}
-                                        {!isSinInfo && (
-                                            <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-2">
-                                                <Droplets size={12} />
-                                                <span>{mill.has_pump ? `Bomba: ${mill.pump_model || 'instalada'}` : 'Sin bomba'}</span>
+                                        {/* Social Stats Info */}
+                                        <div className="flex flex-col gap-1.5 mt-3 mb-3 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                                            <div className="flex items-center gap-1.5 mb-1">
+                                                <Users size={14} className="text-brand-600" />
+                                                <span className="text-xs font-bold text-slate-800">Censo Comunitario</span>
                                             </div>
-                                        )}
-
-                                        {/* Activity badges */}
-                                        <div className="flex flex-wrap gap-1.5 mb-2">
-                                            {mill.activeOTs > 0 && (
-                                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-orange-50 text-orange-700 text-[10px] font-bold rounded-md border border-orange-200">
-                                                    <ClipboardList size={10} /> {mill.activeOTs} OT{mill.activeOTs > 1 ? 's' : ''}
+                                            <div className="flex justify-between items-center text-xs">
+                                                <span className="text-slate-500 font-medium">Familias:</span>
+                                                <span className="font-bold text-slate-700">{mill.social?.number_of_families || 0}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-xs">
+                                                <span className="text-slate-500 font-medium">Habitantes:</span>
+                                                <span className="font-bold text-slate-700">{mill.social?.number_of_inhabitants || 0}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-xs">
+                                                <span className="text-slate-500 font-medium">Niños:</span>
+                                                <span className="font-bold text-slate-700">{mill.social?.number_of_children || 0}</span>
+                                            </div>
+                                            <div className="flex justify-between items-start text-xs pt-2 border-t border-slate-200 mt-1">
+                                                <span className="text-slate-500 font-medium">Actividad:</span>
+                                                <span className="font-bold text-slate-700 text-right capitalize line-clamp-2 w-24">
+                                                    {mill.social?.main_productive_activity?.toLowerCase() || 'No definida'}
                                                 </span>
-                                            )}
-                                            {mill.pendingDiagnosis > 0 && (
-                                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-purple-50 text-purple-700 text-[10px] font-bold rounded-md border border-purple-200">
-                                                    <Stethoscope size={10} /> {mill.pendingDiagnosis} Diag.
-                                                </span>
-                                            )}
-                                            {mill.activeConcertation && (
-                                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-pink-50 text-pink-700 text-[10px] font-bold rounded-md border border-pink-200">
-                                                    <Handshake size={10} /> Concertación
-                                                </span>
-                                            )}
+                                            </div>
                                         </div>
+
+
 
                                         {/* Footer */}
                                         <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
@@ -324,7 +264,7 @@ export default function MillMap({ mills = [], height = '500px' }) {
                                         </div>
                                     </div>
                                 </Popup>
-                            </CircleMarker>
+                            </Marker>
                         );
                     })}
                 </MapContainer>

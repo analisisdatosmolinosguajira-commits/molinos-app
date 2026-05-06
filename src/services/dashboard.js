@@ -4,7 +4,10 @@ export const DashboardService = {
     /**
      * Core KPIs — all queries run in parallel for speed
      */
-    async getStats() {
+    async getStats(year = 2026) {
+        const startOfYear = `${year}-01-01T00:00:00`;
+        const endOfYear = `${year}-12-31T23:59:59`;
+
         const [
             { count: totalMolinos },
             { count: molinosOperativos },
@@ -21,11 +24,11 @@ export const DashboardService = {
             supabase.from('mill').select('*', { count: 'exact', head: true }),
             supabase.from('mill').select('*', { count: 'exact', head: true }).eq('status', 'OPERATIONAL'),
             supabase.from('mill').select('*', { count: 'exact', head: true }).neq('status', 'OPERATIONAL'),
-            supabase.from('work_order').select('*', { count: 'exact', head: true }).eq('status', 'PENDING'),
-            supabase.from('diagnosis').select('*', { count: 'exact', head: true }).in('status', ['SCHEDULED', 'scheduled', 'PENDING', 'pending']),
-            supabase.from('community_concertation').select('*', { count: 'exact', head: true }).in('status', ['ACTIVA', 'activa', 'PENDIENTE', 'pendiente', 'en_proceso']),
+            supabase.from('work_order').select('*', { count: 'exact', head: true }).eq('status', 'PENDING').gte('start_date', startOfYear).lte('start_date', endOfYear),
+            supabase.from('diagnosis').select('*', { count: 'exact', head: true }).in('status', ['SCHEDULED', 'scheduled', 'PENDING', 'pending']).gte('diagnosis_date', startOfYear).lte('diagnosis_date', endOfYear),
+            supabase.from('community_concertation').select('*', { count: 'exact', head: true }).in('status', ['ACTIVA', 'activa', 'PENDIENTE', 'pendiente', 'en_proceso']).gte('meeting_date', startOfYear).lte('meeting_date', endOfYear),
             supabase.from('community').select('*', { count: 'exact', head: true }),
-            supabase.from('work_order').select('*', { count: 'exact', head: true }).in('priority', ['CRITICAL', 'HIGH']),
+            supabase.from('work_order').select('*', { count: 'exact', head: true }).in('priority', ['CRITICAL', 'HIGH']).gte('start_date', startOfYear).lte('start_date', endOfYear),
             supabase.from('mill_pump').select('*', { count: 'exact', head: true }).is('removed_date', null),
             // Mills WITH info (exclude WITHOUT_INFO)
             supabase.from('mill').select('*', { count: 'exact', head: true }).neq('status', 'WITHOUT_INFO'),
@@ -33,16 +36,18 @@ export const DashboardService = {
             supabase.from('mill').select('*', { count: 'exact', head: true }).eq('status', 'WITHOUT_INFO'),
         ]);
 
-        // Meta 2026: count non-reintervention completed OTs in 2026
-        const { data: meta2026Data } = await supabase
+        // Meta 2026/2025: count non-reintervention completed OTs in the selected year
+        const metaGoal = year === 2025 ? 300 : 280;
+
+        const { data: metaData } = await supabase
             .from('work_order')
             .select('work_order_id')
             .eq('status', 'COMPLETED')
             .eq('is_reintervention', false)
-            .gte('start_date', '2026-01-01T00:00:00')
-            .lte('start_date', '2026-12-31T23:59:59');
+            .gte('start_date', startOfYear)
+            .lte('start_date', endOfYear);
 
-        const meta2026Count = meta2026Data?.length || 0;
+        const metaYearCount = metaData?.length || 0;
 
         return {
             totalMolinos: totalMolinos || 0,
@@ -56,8 +61,8 @@ export const DashboardService = {
             comunidadesImpactadas: comunidadesImpactadas || 0,
             alertasCriticas: alertasCriticas || 0,
             bombasInstaladas: bombasInstaladas || 0,
-            meta2026: meta2026Count,
-            meta2026Goal: 200,
+            metaYear: metaYearCount,
+            metaYearGoal: metaGoal,
         };
     },
 
@@ -88,66 +93,65 @@ export const DashboardService = {
     /**
      * Mills for map — with geolocation data
      */
-    async getMapMills() {
-        // Fetch mills + contextual data in parallel
-        const [millsRes, otsRes, diagRes, concRes] = await Promise.all([
+    async getMapMills(year = 2026) {
+        const startOfYear = `${year}-01-01T00:00:00`;
+        const endOfYear = `${year}-12-31T23:59:59`;
+
+        // Fetch mills + community social data, and work orders for the selected year
+        const [millsRes, otsRes] = await Promise.all([
             supabase
                 .from('mill')
                 .select(`
                     mill_id, code, community_name, status, latitude, longitude, installation_date,
                     community_id,
+                    community!fk_mill_community ( number_of_families, number_of_inhabitants, number_of_children, main_productive_activity ),
                     installed_pump:mill_pump (
                         id,
                         removed_date,
                         pump ( serial_number, model )
                     )
                 `),
-            // Active work orders per mill
+            // All work orders for the year to calculate interventions/reinterventions
             supabase
                 .from('work_order')
-                .select('mill_id')
-                .in('status', ['PENDING', 'IN_PROGRESS', 'pending', 'in_progress']),
-            // Pending diagnoses per mill
-            supabase
-                .from('diagnosis')
-                .select('mill_id')
-                .in('status', ['SCHEDULED', 'scheduled', 'PENDING', 'pending']),
-            // Active concertations per community
-            supabase
-                .from('community_concertation')
-                .select('community_id')
-                .in('status', ['ACTIVA', 'activa', 'PENDIENTE', 'pendiente', 'en_proceso']),
+                .select('mill_id, is_reintervention')
+                .eq('status', 'COMPLETED')
+                .gte('start_date', startOfYear)
+                .lte('start_date', endOfYear),
         ]);
 
         if (millsRes.error) throw millsRes.error;
 
-        // Build lookup maps: mill_id -> count
-        const otCounts = {};
+        // Build lookup map for interventions
+        const otStats = {};
         (otsRes.data || []).forEach(wo => {
-            if (wo.mill_id) otCounts[wo.mill_id] = (otCounts[wo.mill_id] || 0) + 1;
-        });
-
-        const diagCounts = {};
-        (diagRes.data || []).forEach(d => {
-            if (d.mill_id) diagCounts[d.mill_id] = (diagCounts[d.mill_id] || 0) + 1;
-        });
-
-        // Concertations are per community, map community_id -> count
-        const concCommunities = new Set();
-        (concRes.data || []).forEach(c => {
-            if (c.community_id) concCommunities.add(c.community_id);
+            if (wo.mill_id) {
+                if (!otStats[wo.mill_id]) otStats[wo.mill_id] = { interventions: 0, reinterventions: 0 };
+                if (wo.is_reintervention) {
+                    otStats[wo.mill_id].reinterventions++;
+                } else {
+                    otStats[wo.mill_id].interventions++;
+                }
+            }
         });
 
         return (millsRes.data || []).map(m => {
             const activePump = m.installed_pump?.find(mp => !mp.removed_date);
+            const stats = otStats[m.mill_id] || { interventions: 0, reinterventions: 0 };
+            
+            // Handle array or object from PostgREST
+            const cData = Array.isArray(m.community) ? m.community[0] : m.community;
+
             return {
                 ...m,
                 community: m.community_name,
+                social: cData || {},
                 has_pump: !!activePump,
                 pump_model: activePump?.pump?.model || null,
-                activeOTs: otCounts[m.mill_id] || 0,
-                pendingDiagnosis: diagCounts[m.mill_id] || 0,
-                activeConcertation: m.community_id ? concCommunities.has(m.community_id) : false,
+                hasIntervention: stats.interventions > 0,
+                hasReintervention: stats.reinterventions > 0,
+                interventionsCount: stats.interventions,
+                reinterventionsCount: stats.reinterventions,
             };
         });
     },
@@ -227,84 +231,89 @@ export const DashboardService = {
     },
 
     /**
-     * Chart data — mill status distribution for donut chart
+     * Failure statistics
+     * A failure is a mill that was intervened in `year` and re-intervened in `year` or `year+1`.
      */
-    async getMillStatusDistribution() {
-        const { data, error } = await supabase
-            .from('mill')
-            .select('status');
-        if (error) throw error;
+    async getFailureStats(year = 2026) {
+        const startOfYear = `${year}-01-01T00:00:00`;
+        const endOfYear = `${year}-12-31T23:59:59`;
+        const endOfNextYear = `${year + 1}-12-31T23:59:59`;
 
-        const counts = {};
-        (data || []).forEach(m => {
-            const s = m.status || 'SIN_ESTADO';
-            counts[s] = (counts[s] || 0) + 1;
-        });
+        // 1. Get all base interventions for the given year
+        const { data: baseInterventions, error: err1 } = await supabase
+            .from('work_order')
+            .select('mill_id')
+            .eq('status', 'COMPLETED')
+            .eq('is_reintervention', false)
+            .gte('start_date', startOfYear)
+            .lte('start_date', endOfYear);
+            
+        if (err1) throw err1;
 
-        const STATUS_LABELS = {
-            OPERATIONAL: 'Operativo',
-            MAINTENANCE: 'Mantenimiento',
-            INACTIVE: 'Inactivo',
-            INSTALLED: 'Instalado',
-            WITHOUT_INFO: 'Sin Información',
-            SIN_ESTADO: 'Sin Estado',
-        };
+        const totalIntervenedMills = baseInterventions.length;
+        const intervenedMillIds = [...new Set(baseInterventions.map(wo => wo.mill_id).filter(Boolean))];
 
-        const STATUS_CHART_COLORS = {
-            OPERATIONAL: '#22c55e',
-            MAINTENANCE: '#f59e0b',
-            INACTIVE: '#ef4444',
-            INSTALLED: '#3b82f6',
-            WITHOUT_INFO: '#a78bfa',
-            SIN_ESTADO: '#94a3b8',
-        };
+        if (totalIntervenedMills === 0) {
+            return { totalIntervenedMills: 0, failedMills: 0, failureRate: 0 };
+        }
 
-        return Object.entries(counts).map(([status, count]) => ({
-            name: STATUS_LABELS[status] || status,
-            value: count,
-            fill: STATUS_CHART_COLORS[status] || '#94a3b8',
-        }));
+        // 2. Check for reinterventions in year or year+1 for these specific mills
+        const { data: reinterventions, error: err2 } = await supabase
+            .from('work_order')
+            .select('mill_id')
+            .eq('status', 'COMPLETED')
+            .eq('is_reintervention', true)
+            .gte('start_date', startOfYear)
+            .lte('start_date', endOfNextYear)
+            .in('mill_id', intervenedMillIds);
+            
+        if (err2) throw err2;
+
+        const failedMillIds = new Set(reinterventions.map(wo => wo.mill_id).filter(Boolean));
+        const failedMills = failedMillIds.size;
+
+        const failureRate = (failedMills / totalIntervenedMills) * 100;
+
+        return { totalIntervenedMills, failedMills, failureRate: Math.round(failureRate * 10) / 10 };
     },
 
     /**
-     * Monthly work orders for the last 6 months (bar chart data)
+     * Monthly work orders for the selected year
      */
-    async getMonthlyWorkOrders() {
-        const sixMonthsAgo = new Date();
-        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    async getMonthlyWorkOrders(year = 2026) {
+        const startOfYear = `${year}-01-01T00:00:00`;
+        const endOfYear = `${year}-12-31T23:59:59`;
 
         const { data, error } = await supabase
             .from('work_order')
-            .select('created_at, status')
-            .gte('created_at', sixMonthsAgo.toISOString());
+            .select('start_date, status')
+            .gte('start_date', startOfYear)
+            .lte('start_date', endOfYear);
 
         if (error) throw error;
 
         const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
         const months = {};
 
-        // Initialize last 6 months
-        for (let i = 5; i >= 0; i--) {
-            const d = new Date();
-            d.setMonth(d.getMonth() - i);
-            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-            months[key] = { month: monthNames[d.getMonth()], total: 0, completed: 0, pending: 0 };
+        // Initialize 12 months
+        for (let i = 0; i < 12; i++) {
+            const key = `${year}-${String(i + 1).padStart(2, '0')}`;
+            months[key] = { month: monthNames[i], total: 0, completed: 0, pending: 0 };
         }
 
         (data || []).forEach(wo => {
-            const d = new Date(wo.created_at);
-            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            if (!wo.start_date) return;
+            // Parse UTC month directly from the date string (YYYY-MM-DD)
+            const monthStr = wo.start_date.substring(5, 7);
+            const key = `${year}-${monthStr}`;
             if (months[key]) {
                 months[key].total++;
-                if (wo.status === 'COMPLETED' || wo.status === 'completed') {
-                    months[key].completed++;
-                } else {
-                    months[key].pending++;
-                }
+                if (wo.status === 'COMPLETED') months[key].completed++;
+                else months[key].pending++;
             }
         });
 
-        return Object.values(months);
+        return Object.keys(months).sort().map(k => months[k]);
     },
 };
 
