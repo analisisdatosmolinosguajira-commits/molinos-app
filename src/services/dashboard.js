@@ -278,15 +278,15 @@ export const DashboardService = {
     },
 
     /**
-     * Monthly work orders for the selected year
+     * Chart work orders for the selected year
      */
-    async getMonthlyWorkOrders(year = 2026) {
+    async getChartWorkOrders(year = 2026) {
         const startOfYear = `${year}-01-01T00:00:00`;
         const endOfYear = `${year}-12-31T23:59:59`;
 
         const { data, error } = await supabase
             .from('work_order')
-            .select('start_date, status')
+            .select('start_date, status, is_reintervention')
             .gte('start_date', startOfYear)
             .lte('start_date', endOfYear);
 
@@ -298,22 +298,27 @@ export const DashboardService = {
         // Initialize 12 months
         for (let i = 0; i < 12; i++) {
             const key = `${year}-${String(i + 1).padStart(2, '0')}`;
-            months[key] = { month: monthNames[i], total: 0, completed: 0, pending: 0 };
+            months[key] = { month: monthNames[i], total: 0, intervention: 0, reintervention: 0 };
         }
 
         (data || []).forEach(wo => {
-            if (!wo.start_date) return;
-            // Parse UTC month directly from the date string (YYYY-MM-DD)
+            if (!wo.start_date || wo.status !== 'COMPLETED') return;
             const monthStr = wo.start_date.substring(5, 7);
             const key = `${year}-${monthStr}`;
             if (months[key]) {
                 months[key].total++;
-                if (wo.status === 'COMPLETED') months[key].completed++;
-                else months[key].pending++;
+                if (wo.is_reintervention) {
+                    months[key].reintervention++;
+                } else {
+                    months[key].intervention++;
+                }
             }
         });
 
-        return Object.keys(months).sort().map(k => months[k]);
+        return {
+            monthlyData: Object.keys(months).sort().map(k => months[k]),
+            rawOrders: data || []
+        };
     },
 };
 

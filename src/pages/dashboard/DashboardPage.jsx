@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import {
     Wind, Droplets, ClipboardList, Stethoscope, Users, MapPin,
     AlertTriangle, CheckCircle, Activity, ArrowRight, Clock,
-    ChevronRight, Wrench, Handshake, XCircle, BarChart3, Zap, Target, HelpCircle
+    ChevronRight, ChevronLeft, Wrench, Handshake, XCircle, BarChart3, Zap, Target, HelpCircle
 } from 'lucide-react';
 import {
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 import MillMap from '../../components/dashboard/MillMap';
 import { DashboardService } from '../../services/dashboard';
@@ -34,6 +34,10 @@ export default function DashboardPage() {
     const [alerts, setAlerts] = useState([]);
     const [failureStats, setFailureStats] = useState(null);
     const [monthlyChart, setMonthlyChart] = useState([]);
+    const [rawChartOrders, setRawChartOrders] = useState([]);
+    const [chartView, setChartView] = useState('monthly'); // 'monthly' | 'weekly'
+    const [selectedWeek, setSelectedWeek] = useState(1);
+    
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedYear, setSelectedYear] = useState(2026);
@@ -42,13 +46,13 @@ export default function DashboardPage() {
         async function loadDashboard() {
             setLoading(true);
             try {
-                const [kpis, mills, activityFeed, alertsFeed, fails, monthlyWO] = await Promise.all([
+                const [kpis, mills, activityFeed, alertsFeed, fails, chartData] = await Promise.all([
                     DashboardService.getStats(selectedYear),
                     DashboardService.getMapMills(selectedYear),
                     DashboardService.getActivityFeed(),
                     DashboardService.getRecentAlerts(),
                     DashboardService.getFailureStats(selectedYear),
-                    DashboardService.getMonthlyWorkOrders(selectedYear),
+                    DashboardService.getChartWorkOrders(selectedYear),
                 ]);
 
                 setStats(kpis);
@@ -56,7 +60,22 @@ export default function DashboardPage() {
                 setActivities(activityFeed || []);
                 setAlerts(alertsFeed || []);
                 setFailureStats(fails || null);
-                setMonthlyChart(monthlyWO || []);
+                
+                if (chartData) {
+                    setMonthlyChart(chartData.monthlyData || []);
+                    setRawChartOrders(chartData.rawOrders || []);
+                }
+                
+                // Set initial week to current week if viewing current year, else 1
+                const now = new Date();
+                if (now.getFullYear() === selectedYear) {
+                    const start = new Date(now.getFullYear(), 0, 1);
+                    const days = Math.floor((now - start) / (24 * 60 * 60 * 1000));
+                    setSelectedWeek(Math.ceil((now.getDay() + 1 + days) / 7));
+                } else {
+                    setSelectedWeek(1);
+                }
+
             } catch (err) {
                 console.error('Dashboard error:', err);
                 setError(err.message || 'Error cargando datos del tablero');
@@ -113,6 +132,46 @@ export default function DashboardPage() {
 
         return { families, inhabitants, children, interventions, reinterventions, activeMills, topActivities };
     }, [mapMills]);
+
+    const weeklyChart = React.useMemo(() => {
+        if (chartView !== 'weekly' || !rawChartOrders.length) return [];
+        
+        const yearStart = new Date(selectedYear, 0, 1);
+        const format = { day: 'numeric', month: 'short' };
+        
+        const weeks = Array.from({ length: 53 }, (_, i) => {
+            const startDay = new Date(selectedYear, 0, 1 + i * 7);
+            const endDay = new Date(selectedYear, 0, startDay.getDate() + 6);
+            return {
+                day: `${startDay.toLocaleDateString('es-CO', format)} - ${endDay.toLocaleDateString('es-CO', format)}`,
+                intervention: 0,
+                reintervention: 0,
+                total: 0
+            };
+        });
+        
+        rawChartOrders.forEach(wo => {
+            if (!wo.start_date || wo.status !== 'COMPLETED') return;
+            const d = new Date(wo.start_date);
+            const dStart = new Date(yearStart.getFullYear(), yearStart.getMonth(), yearStart.getDate());
+            const dCurrent = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+            
+            const diffDays = Math.floor((dCurrent - dStart) / (24 * 60 * 60 * 1000));
+            const weekNo = Math.floor(diffDays / 7);
+            
+            if (weekNo >= 0 && weekNo < 53) {
+                if (wo.is_reintervention) {
+                    weeks[weekNo].reintervention++;
+                } else {
+                    weeks[weekNo].intervention++;
+                }
+                weeks[weekNo].total++;
+            }
+        });
+        
+        // Return only weeks that have records
+        return weeks.filter(w => w.total > 0);
+    }, [rawChartOrders, selectedYear, chartView]);
 
     if (loading) {
         return (
@@ -358,29 +417,50 @@ export default function DashboardPage() {
                     )}
                 </div>
 
-                {/* Bar: Monthly Work Orders */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                    <div className="flex items-center gap-2 mb-4">
-                        <Wrench size={18} className="text-slate-400" />
-                        <h3 className="font-bold text-slate-800">OTs por Mes</h3>
+                {/* Bar: Monthly/Weekly Work Orders */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <Wrench size={18} className="text-slate-400" />
+                            <h3 className="font-bold text-slate-800">OTs por {chartView === 'monthly' ? 'Mes' : 'Semana'}</h3>
+                        </div>
+                        <div className="flex bg-slate-100 p-1 rounded-lg">
+                            <button 
+                                onClick={() => setChartView('monthly')}
+                                className={`px-2 py-1 text-xs rounded-md font-medium transition-all ${chartView === 'monthly' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                Mes
+                            </button>
+                            <button 
+                                onClick={() => setChartView('weekly')}
+                                className={`px-2 py-1 text-xs rounded-md font-medium transition-all ${chartView === 'weekly' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                Sem
+                            </button>
+                        </div>
                     </div>
-                    {monthlyChart.length > 0 ? (
-                        <div style={{ width: '100%', overflowX: 'auto' }}>
-                            <BarChart width={380} height={260} data={monthlyChart} barGap={4}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                                <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
-                                <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} tickLine={false} axisLine={false} allowDecimals={false} />
-                                <Tooltip
-                                    contentStyle={{
-                                        borderRadius: '12px',
-                                        border: '1px solid #e2e8f0',
-                                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                                        fontSize: '13px',
-                                    }}
-                                />
-                                <Bar dataKey="completed" name="Completadas" fill="#22c55e" radius={[4, 4, 0, 0]} />
-                                <Bar dataKey="pending" name="Pendientes" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-                            </BarChart>
+
+                    {(chartView === 'monthly' ? monthlyChart : weeklyChart).length > 0 ? (
+                        <div className="flex-1 w-full mt-2 overflow-x-auto overflow-y-hidden" style={{ minHeight: '260px' }}>
+                            <div style={{ minWidth: chartView === 'weekly' ? `${Math.max(100, weeklyChart.length * 80)}px` : '100%', height: '260px' }}>
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={chartView === 'monthly' ? monthlyChart : weeklyChart} barGap={4}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                                        <XAxis dataKey={chartView === 'monthly' ? "month" : "day"} tick={{ fontSize: 12, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
+                                        <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                                        <Tooltip
+                                            contentStyle={{
+                                                borderRadius: '12px',
+                                                border: '1px solid #e2e8f0',
+                                                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                                fontSize: '13px',
+                                            }}
+                                        />
+                                        <Bar dataKey="intervention" name="Intervención" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                                        <Bar dataKey="reintervention" name="Reintervención" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
                         </div>
                     ) : (
                         <div className="h-[260px] flex items-center justify-center text-slate-400 text-sm">
