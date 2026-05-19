@@ -144,11 +144,45 @@ export function getStats(data, crewFilter) {
   const diasTotal = resumen.reduce((s, r) => s + (parseFloat(r.diasUtilizados) || 0), 0);
   const promedioDias = total > 0 ? (diasTotal / total).toFixed(2) : 0;
   const rendimiento = diasTotal > 0 ? (total / diasTotal).toFixed(2) : 0;
-  // Meta only applies to new interventions (MANTENIMIENTO GENERAL)
+
+  // Separate averages by category
   const resumenNuevas = resumen.filter(r => r.actividades === 'MANTENIMIENTO GENERAL');
-  const metaCumplidas = resumenNuevas.filter(r => (parseFloat(r.diasUtilizados) || 0) <= 2).length;
-  const metaPct = resumenNuevas.length > 0 ? ((metaCumplidas / resumenNuevas.length) * 100).toFixed(1) : 0;
-  const exceden = resumenNuevas.filter(r => (parseFloat(r.diasUtilizados) || 0) > 2);
+  const resumenReint = resumen.filter(r => r.actividades === 'REINTERVENCION');
+  const diasNuevas = resumenNuevas.reduce((s, r) => s + (parseFloat(r.diasUtilizados) || 0), 0);
+  const diasReint = resumenReint.reduce((s, r) => s + (parseFloat(r.diasUtilizados) || 0), 0);
+
+  // Group by community to sum days across weeks (same intervention split in 2 weeks)
+  const nuevasGrouped = {};
+  resumenNuevas.forEach(r => {
+    const key = r.comunidad;
+    if (!nuevasGrouped[key]) nuevasGrouped[key] = { comunidad: key, diasTotal: 0, semanas: [], observaciones: [] };
+    nuevasGrouped[key].diasTotal += parseFloat(r.diasUtilizados) || 0;
+    nuevasGrouped[key].semanas.push(r.semana);
+    if (r.observaciones) nuevasGrouped[key].observaciones.push(r.observaciones);
+  });
+  const nuevasGroupedArr = Object.values(nuevasGrouped);
+  const totalNuevasUnicas = nuevasGroupedArr.length;
+  const promedioDiasNuevas = totalNuevasUnicas > 0 ? (diasNuevas / totalNuevasUnicas).toFixed(2) : 0;
+
+  const reintGrouped = {};
+  resumenReint.forEach(r => {
+    const key = r.comunidad;
+    if (!reintGrouped[key]) reintGrouped[key] = { comunidad: key, diasTotal: 0, semanas: [] };
+    reintGrouped[key].diasTotal += parseFloat(r.diasUtilizados) || 0;
+    reintGrouped[key].semanas.push(r.semana);
+  });
+  const totalReintUnicas = Object.keys(reintGrouped).length;
+  const promedioDiasReint = totalReintUnicas > 0 ? (diasReint / totalReintUnicas).toFixed(2) : 0;
+
+  // Meta: <=2 days per unique new intervention (grouped by community)
+  const metaCumplidas = nuevasGroupedArr.filter(g => g.diasTotal <= 2).length;
+  const metaPct = totalNuevasUnicas > 0 ? ((metaCumplidas / totalNuevasUnicas) * 100).toFixed(1) : 0;
+  const exceden = nuevasGroupedArr.filter(g => g.diasTotal > 2).map(g => ({
+    comunidad: g.comunidad,
+    diasUtilizados: g.diasTotal,
+    observaciones: g.observaciones.join(' | '),
+    semanas: g.semanas.join(', '),
+  }));
 
   const porMunicipio = {};
   consolidado.forEach(r => {
@@ -202,7 +236,7 @@ export function getStats(data, crewFilter) {
   }));
 
   return {
-    total, nuevas, reintervenciones, diasTotal, promedioDias, rendimiento,
+    total, nuevas, reintervenciones, totalNuevasUnicas, diasTotal, promedioDias, promedioDiasNuevas, promedioDiasReint, rendimiento,
     metaCumplidas, metaPct, exceden, porMunicipio, semanasActivas,
     weeklyData, withDias, delayCauseDist, reintCauseDist, reintGaps,
   };
