@@ -362,11 +362,31 @@ export function getStats(data, crewFilter) {
     fechaPrimera: r.fechaPrimeraIntervencion,
     fechaReint: r.fechaInicio,
   }));
+  // Map data: group by community, sum days, include coordinates
+  const mapGrouped = {};
+  consolidado.forEach(r => {
+    if (!r.coordenadas) return;
+    const coords = r.coordenadas.split(',').map(c => parseFloat(c.trim()));
+    if (coords.length !== 2 || isNaN(coords[0]) || isNaN(coords[1])) return;
+    // Fix known bad longitudes (positive instead of negative for La Guajira)
+    let [lat, lng] = coords;
+    if (lng > 0) lng = -lng;
+    const key = (r.comunidadFull || r.comunidad).toUpperCase();
+    if (!mapGrouped[key]) {
+      mapGrouped[key] = { comunidad: r.comunidadFull || r.comunidad, lat, lng, dias: 0, categoria: r.categoria, municipio: r.municipio, intervenciones: 0 };
+    }
+    // Find matching resumen days
+    const matchRes = resumen.find(rr => rr.comunidad === r.comunidadFull || rr.comunidad === r.comunidad);
+    const d = matchRes ? parseFloat(matchRes.diasUtilizados) || 0 : getDaysDiff(r.fechaInicio, r.fechaFin);
+    mapGrouped[key].dias += d;
+    mapGrouped[key].intervenciones += 1;
+  });
+  const mapData = Object.values(mapGrouped);
 
   return {
     total, nuevas, reintervenciones, totalNuevasUnicas, diasTotal, diasNuevas, diasReint, promedioDias, promedioDiasNuevas, promedioDiasReint, rendimiento,
     metaCumplidas, metaPct, exceden, porMunicipio, semanasActivas,
-    weeklyData, withDias, delayCauseDist, reintCauseDist, reintGaps,
+    weeklyData, withDias, delayCauseDist, reintCauseDist, reintGaps, mapData,
   };
 }
 

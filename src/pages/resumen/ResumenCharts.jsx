@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  LineChart, Line, PieChart, Pie, Cell, ComposedChart, Area,
+  Line, PieChart, Pie, Cell, ComposedChart, Area,
 } from 'recharts';
+import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444', '#14b8a6', '#f97316', '#ec4899'];
 
@@ -29,23 +31,83 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
+function getDayColor(dias) {
+  if (dias <= 1) return '#10b981';
+  if (dias <= 2) return '#22c55e';
+  if (dias <= 3) return '#f59e0b';
+  if (dias <= 4) return '#f97316';
+  return '#ef4444';
+}
+
+function InterventionMap({ mapData }) {
+  const center = useMemo(() => {
+    if (!mapData.length) return [11.55, -72.55];
+    const avgLat = mapData.reduce((s, p) => s + p.lat, 0) / mapData.length;
+    const avgLng = mapData.reduce((s, p) => s + p.lng, 0) / mapData.length;
+    return [avgLat, avgLng];
+  }, [mapData]);
+
+  const maxDias = useMemo(() => Math.max(...mapData.map(p => p.dias), 1), [mapData]);
+
+  if (!mapData.length) {
+    return <p className="text-xs text-slate-500 text-center py-8">Sin datos con coordenadas</p>;
+  }
+
+  return (
+    <div className="rounded-lg overflow-hidden border border-slate-700/50" style={{ height: 380 }}>
+      <MapContainer center={center} zoom={8} style={{ height: '100%', width: '100%' }}
+        scrollWheelZoom={true} attributionControl={false}>
+        <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+        {mapData.map((point, i) => {
+          const color = getDayColor(point.dias);
+          const radius = 8 + (point.dias / maxDias) * 14;
+          return (
+            <CircleMarker key={i} center={[point.lat, point.lng]}
+              radius={radius} fillColor={color} color={color}
+              weight={2} opacity={0.9} fillOpacity={0.6}>
+              <Popup>
+                <div style={{ minWidth: 160 }}>
+                  <strong style={{ fontSize: 13 }}>{point.comunidad}</strong><br />
+                  <span style={{ fontSize: 11, color: '#666' }}>{point.municipio}</span>
+                  <hr style={{ margin: '4px 0', border: 'none', borderTop: '1px solid #ddd' }} />
+                  <div style={{ fontSize: 12 }}>
+                    <strong style={{ color }}>{point.dias} día(s)</strong> empleados
+                  </div>
+                  <div style={{ fontSize: 11, color: '#888' }}>
+                    {point.intervenciones} intervención(es) · {point.categoria}
+                  </div>
+                </div>
+              </Popup>
+            </CircleMarker>
+          );
+        })}
+      </MapContainer>
+      <div className="flex items-center justify-center gap-4 py-2 bg-slate-800/80 text-[10px] text-slate-400">
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full inline-block" style={{ background: '#10b981' }} /> 1 día</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full inline-block" style={{ background: '#22c55e' }} /> 2 días</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full inline-block" style={{ background: '#f59e0b' }} /> 3 días</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full inline-block" style={{ background: '#f97316' }} /> 4 días</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full inline-block" style={{ background: '#ef4444' }} /> 5+ días</span>
+      </div>
+    </div>
+  );
+}
+
 export default function ResumenCharts({ stats }) {
-  const { weeklyData, delayCauseDist, reintCauseDist } = stats;
+  const { weeklyData, delayCauseDist, reintCauseDist, mapData } = stats;
 
   const delayCauseData = Object.entries(delayCauseDist).map(([name, value]) => ({ name, value }));
   const reintCauseData = Object.entries(reintCauseDist).map(([name, value]) => ({ name, value }));
 
-  // Trend: cumulative interventions
   let cumul = 0;
   const trendData = weeklyData.map(w => {
     cumul += w.total;
-    return { ...w, acumulado: cumul, rendimiento: w.dias > 0 ? (w.total / w.dias).toFixed(2) : 0 };
+    return { ...w, acumulado: cumul };
   });
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Stacked bar: nuevas vs reintervenciones */}
         <ChartCard title="📊 Intervenciones por Semana (Nuevas vs Reintervenciones)">
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={weeklyData} barGap={2}>
@@ -60,7 +122,6 @@ export default function ResumenCharts({ stats }) {
           </ResponsiveContainer>
         </ChartCard>
 
-        {/* Line: trend with nuevas, reintervenciones, total */}
         <ChartCard title="📈 Tendencia Semanal (Nuevas, Reintervenciones, Total)">
           <ResponsiveContainer width="100%" height={280}>
             <ComposedChart data={trendData}>
@@ -78,8 +139,7 @@ export default function ResumenCharts({ stats }) {
           </ResponsiveContainer>
         </ChartCard>
 
-        {/* Pie: delay causes */}
-        <ChartCard title="🔍 Distribución de Causas de Demora (IA)">
+        <ChartCard title="🔍 Causas de Demora (IA)">
           {delayCauseData.length === 0 ? (
             <p className="text-xs text-slate-500 text-center py-8">Sin demoras detectadas</p>
           ) : (
@@ -96,8 +156,7 @@ export default function ResumenCharts({ stats }) {
           )}
         </ChartCard>
 
-        {/* Pie: reintervention causes */}
-        <ChartCard title="🔄 Distribución de Causas de Reintervención (IA)">
+        <ChartCard title="🔄 Causas de Reintervención (IA)">
           {reintCauseData.length === 0 ? (
             <p className="text-xs text-slate-500 text-center py-8">Sin reintervenciones</p>
           ) : (
@@ -115,19 +174,8 @@ export default function ResumenCharts({ stats }) {
         </ChartCard>
       </div>
 
-      {/* Days per intervention bar chart */}
-      <ChartCard title="⏱️ Días por Intervención vs Meta (2 días)">
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={weeklyData} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-            <XAxis type="number" tick={{ fill: '#94a3b8', fontSize: 11 }} />
-            <YAxis dataKey="name" type="category" tick={{ fill: '#94a3b8', fontSize: 11 }} width={40} />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Bar dataKey="dias" name="Días ejecutados" fill="#14b8a6" radius={[0, 4, 4, 0]} />
-            <Bar dataKey="diasDisponibles" name="Días disponibles" fill="#334155" radius={[0, 4, 4, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+      <ChartCard title="🗺️ Mapa de Intervenciones — Temperatura por Días Empleados">
+        <InterventionMap mapData={mapData || []} />
       </ChartCard>
     </div>
   );

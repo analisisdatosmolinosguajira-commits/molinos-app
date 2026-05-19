@@ -22,38 +22,49 @@ function KPICard({ icon: Icon, label, value, sub, color = 'emerald' }) {
   );
 }
 
+function KPIGroup({ title, children }) {
+  return (
+    <div className="bg-slate-800/30 border border-slate-700/30 rounded-xl p-3">
+      <h4 className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2 px-1">{title}</h4>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export default function ResumenStats({ stats }) {
   const {
     total, nuevas, reintervenciones, totalNuevasUnicas, diasTotal, diasNuevas, diasReint,
     promedioDias, promedioDiasNuevas, promedioDiasReint, rendimiento,
-    metaPct, metaCumplidas, exceden, porMunicipio, semanasActivas,
+    metaPct, metaCumplidas, exceden, porMunicipio,
     withDias, reintGaps,
   } = stats;
 
   return (
-    <div className="space-y-6">
-      {/* KPI Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-        <KPICard icon={Wind} label="Total Intervenciones" value={total} color="emerald" />
-        <KPICard icon={Wind} label="Nuevas" value={nuevas} sub={`${total > 0 ? ((nuevas/total)*100).toFixed(0) : 0}% del total`} color="blue" />
-        <KPICard icon={RefreshCw} label="Reintervenciones" value={reintervenciones} sub={`${total > 0 ? ((reintervenciones/total)*100).toFixed(0) : 0}% del total`} color="amber" />
-        <KPICard icon={Target} label="Meta (≤2 días nuevas)" value={`${metaPct}%`} sub={`${metaCumplidas} de ${totalNuevasUnicas} cumplen`}
+    <div className="space-y-4">
+      {/* Group 1: Intervenciones + Meta */}
+      <KPIGroup title="Intervenciones y Meta">
+        <KPICard icon={Wind} label="Total" value={total} color="emerald" />
+        <KPICard icon={Wind} label="Nuevas" value={nuevas} sub={`${total > 0 ? ((nuevas/total)*100).toFixed(0) : 0}%`} color="blue" />
+        <KPICard icon={RefreshCw} label="Reintervenciones" value={reintervenciones} sub={`${total > 0 ? ((reintervenciones/total)*100).toFixed(0) : 0}%`} color="amber" />
+        <KPICard icon={Target} label="Meta (≤2 días)" value={`${metaPct}%`} sub={`${metaCumplidas} de ${totalNuevasUnicas} cumplen`}
           color={parseFloat(metaPct) >= 60 ? 'emerald' : 'red'} />
-      </div>
+      </KPIGroup>
 
-      {/* Salidas row */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <KPICard icon={CalendarDays} label="Total Salidas" value={diasTotal} sub="días empleados en mantenimientos" color="cyan" />
-        <KPICard icon={CalendarDays} label="Salidas Nuevas" value={diasNuevas} sub="días en intervenciones nuevas" color="blue" />
-        <KPICard icon={CalendarDays} label="Salidas Reintervenciones" value={diasReint} sub="días en reintervenciones" color="amber" />
-      </div>
-
-      {/* Day averages row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KPICard icon={Clock} label="Días/Intervención (General)" value={promedioDias} sub="todas las intervenciones" color="cyan" />
-        <KPICard icon={Clock} label="Días/Intervención Nueva" value={promedioDiasNuevas} sub="solo mantenimiento general" color="blue" />
-        <KPICard icon={Clock} label="Días/Reintervención" value={promedioDiasReint} sub="solo reintervenciones" color="amber" />
+      {/* Group 2: Salidas + Promedios */}
+      <KPIGroup title="Salidas y Rendimiento">
+        <KPICard icon={CalendarDays} label="Total Salidas" value={diasTotal} sub="días en campo" color="cyan" />
+        <KPICard icon={CalendarDays} label="Salidas Nuevas" value={diasNuevas} sub="intervenciones nuevas" color="blue" />
+        <KPICard icon={CalendarDays} label="Salidas Reint." value={diasReint} sub="reintervenciones" color="amber" />
         <KPICard icon={TrendingUp} label="Rendimiento" value={rendimiento} sub="molinos/día" color="purple" />
+      </KPIGroup>
+
+      {/* Group 3: Promedios */}
+      <div className="grid grid-cols-3 gap-2">
+        <KPICard icon={Clock} label="Días/Intervención" value={promedioDias} sub="general" color="cyan" />
+        <KPICard icon={Clock} label="Días/Nueva" value={promedioDiasNuevas} sub="mantenimiento general" color="blue" />
+        <KPICard icon={Clock} label="Días/Reintervención" value={promedioDiasReint} sub="reintervenciones" color="amber" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -72,12 +83,8 @@ export default function ResumenStats({ stats }) {
                     <span className="font-semibold text-white">{r.comunidad}</span>
                     <span className="text-red-400 font-mono font-bold">{r.diasUtilizados} días</span>
                   </div>
-                  {r.semanas && (
-                    <p className="text-[10px] text-slate-500 mt-0.5">{r.semanas}</p>
-                  )}
-                  {r.observaciones && (
-                    <p className="text-slate-400 mt-1 text-[10px] leading-relaxed">{r.observaciones}</p>
-                  )}
+                  {r.semanas && <p className="text-[10px] text-slate-500 mt-0.5">{r.semanas}</p>}
+                  {r.observaciones && <p className="text-slate-400 mt-1 text-[10px] leading-relaxed">{r.observaciones}</p>}
                 </div>
               ))}
             </div>
