@@ -144,9 +144,11 @@ export function getStats(data, crewFilter) {
   const diasTotal = resumen.reduce((s, r) => s + (parseFloat(r.diasUtilizados) || 0), 0);
   const promedioDias = total > 0 ? (diasTotal / total).toFixed(2) : 0;
   const rendimiento = diasTotal > 0 ? (total / diasTotal).toFixed(2) : 0;
-  const metaCumplidas = resumen.filter(r => (parseFloat(r.diasUtilizados) || 0) <= 2).length;
-  const metaPct = total > 0 ? ((metaCumplidas / total) * 100).toFixed(1) : 0;
-  const exceden = resumen.filter(r => (parseFloat(r.diasUtilizados) || 0) > 2);
+  // Meta only applies to new interventions (MANTENIMIENTO GENERAL)
+  const resumenNuevas = resumen.filter(r => r.actividades === 'MANTENIMIENTO GENERAL');
+  const metaCumplidas = resumenNuevas.filter(r => (parseFloat(r.diasUtilizados) || 0) <= 2).length;
+  const metaPct = resumenNuevas.length > 0 ? ((metaCumplidas / resumenNuevas.length) * 100).toFixed(1) : 0;
+  const exceden = resumenNuevas.filter(r => (parseFloat(r.diasUtilizados) || 0) > 2);
 
   const porMunicipio = {};
   consolidado.forEach(r => {

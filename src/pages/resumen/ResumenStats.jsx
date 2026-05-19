@@ -38,7 +38,7 @@ export default function ResumenStats({ stats }) {
         <KPICard icon={RefreshCw} label="Reintervenciones" value={reintervenciones} sub={`${total > 0 ? ((reintervenciones/total)*100).toFixed(0) : 0}% del total`} color="amber" />
         <KPICard icon={Clock} label="Promedio Días" value={promedioDias} sub="por intervención" color="cyan" />
         <KPICard icon={TrendingUp} label="Rendimiento" value={rendimiento} sub="molinos/día" color="purple" />
-        <KPICard icon={Target} label="Meta (≤2 días)" value={`${metaPct}%`} sub={`${metaCumplidas} de ${total} cumplen`}
+        <KPICard icon={Target} label="Meta (≤2 días nuevas)" value={`${metaPct}%`} sub={`${metaCumplidas} de ${nuevas} cumplen`}
           color={parseFloat(metaPct) >= 60 ? 'emerald' : 'red'} />
       </div>
 
@@ -46,7 +46,7 @@ export default function ResumenStats({ stats }) {
         {/* Exceden meta */}
         <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
           <h4 className="text-sm font-semibold text-red-400 mb-3 flex items-center gap-2">
-            <AlertTriangle size={14} /> Intervenciones que exceden meta ({'>'}2 días)
+            <AlertTriangle size={14} /> Nuevas que exceden meta ({'>'}2 días)
           </h4>
           {exceden.length === 0 ? (
             <p className="text-xs text-slate-500">¡Todas cumplen la meta!</p>
