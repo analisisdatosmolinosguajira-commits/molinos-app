@@ -28,13 +28,15 @@ import SSTPage from './pages/sst/SSTPage';
 import PersonSSTDetail from './pages/sst/PersonSSTDetail';
 import NotificationsPage from './pages/notifications/NotificationsPage';
 import AlertsPage from './pages/dashboard/AlertsPage';
+import ResumenPage from './pages/resumen/ResumenPage';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public route */}
+        {/* Public routes */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/resumen" element={<ResumenPage />} />
 
         {/* Protected routes */}
         <Route path="/" element={

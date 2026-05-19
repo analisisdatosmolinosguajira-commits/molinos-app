@@ -1,0 +1,692 @@
+{
+  "consolidado": [
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "MANAURE",
+      "comunidad": "WAYUPIA",
+      "comunidadFull": "WAYUPIA (MANAURE)",
+      "coordenadas": "11.611124, -72.409207",
+      "semana": "Semana 1 (18 al 21 de febrero)",
+      "categoria": "REINTERVENCION",
+      "actividades": "CAMBIO BOMBA USANDO MISMOS TUBOS, 5 INF + 2 SUP; NIVEL FREATICO 25 MTS; CAMBIO DE 1 VARILLA POR DESGASTE; INSTALACION DE CENTRADOR DE TUBO; RESTAURACION DE SISTEMA DE FRENO; CAMBIO DE ACEITE.",
+      "fechaInicio": "2026-02-18",
+      "fechaFin": "2026-02-19",
+      "fechaPrimeraIntervencion": "2025-09-10",
+      "observaciones": "REPORTE DE FALLA: NO HAY AGUA, POSIBLE FALLA DE BOMBA",
+      "diferenciaMeses": 5.366666666666666
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "RIOHACHA",
+      "comunidad": "Kousatchon",
+      "comunidadFull": "KOUSATCHON (RIOHACHA)",
+      "coordenadas": "11.406198, -72.891708",
+      "semana": "Semana 1 (18 al 21 de febrero)",
+      "categoria": "MANTENIMIENTO GENERAL",
+      "actividades": "CAMBIO DE SISTEMA DE BOMBEO: BOMBA + TUBOS 7 INF + 2 SUP; NIVEL FREATICO 38 MTS; CAMBIO DE TUBERÍA PVC; CAMBIO DE ACEITE; PINTURA; CAMBIO DE PLATAFORMA; DESINSTALACION E INSTALACIÓN DE BOMBA ELECTRICA SUMERGIBLE.",
+      "fechaInicio": "2026-02-20",
+      "fechaFin": "2026-02-21",
+      "fechaPrimeraIntervencion": "",
+      "observaciones": "",
+      "diferenciaMeses": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "MANAURE",
+      "comunidad": "PIOLEKAT",
+      "comunidadFull": "PIOLEKAT (MANAURE)",
+      "coordenadas": "11.548559,-72.419186",
+      "semana": "Semana 2 (25 al 28 de febrero)",
+      "categoria": "REINTERVENCION",
+      "actividades": "DESMONTAJE DE SISTEMA ROTOR (JUEGOS DE ASPAS Y RADIOS) QUE ESTABA A PUNTO DE CAER POR FALLA/ROTURA DE LA MANZANA DEL ROTOR.\r\nMOLINO INOPERATIVO HASTA CONSEGUIR MANZANA\r\n\r\n",
+      "fechaInicio": "2026-02-25",
+      "fechaFin": "2026-02-25",
+      "fechaPrimeraIntervencion": "2025-10-24",
+      "observaciones": "REPORTE DE FALLA: SISTEMA ROTOR A PUNTO DE CAERSE",
+      "diferenciaMeses": 4.133333333333334
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "Maicao",
+      "comunidad": "Ceura 2",
+      "comunidadFull": "CEURA 2 (MAICAO)",
+      "coordenadas": "11.429428, 72.491752",
+      "semana": "Semana 2 (25 al 28 de febrero)\r\nSemana 3 (3 al 7 de marzo)",
+      "categoria": "MANTENIMIENTO GENERAL",
+      "actividades": "CAMBIO DE SISTEMA DE BOMBEO: BOMBA + TUBOS 5 INF + 2 SUP; NIVEL FREATICO 28 MTS; CAMBIO DE TUBERÍA PVC; CAMBIO DE ACEITE; PINTURA; CAMBIO DE PLATAFORMA; RECONSTRUCCION DE PEDESTAL.",
+      "fechaInicio": "2026-02-26",
+      "fechaFin": "2026-03-07",
+      "fechaPrimeraIntervencion": "",
+      "observaciones": "",
+      "diferenciaMeses": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "MANAURE",
+      "comunidad": "ISASHIMANA",
+      "comunidadFull": "ISASHIMANA (MANAURE)",
+      "coordenadas": "11.747956,-72.400545",
+      "semana": "Semana 2 (25 al 28 de febrero)\r\nSemana 3 (3 al 7 de marzo)",
+      "categoria": "REINTERVENCION",
+      "actividades": "DESMONTAJE DE ASPAS DAÑADAS Y MONTAJE DE NUEVO JUEGO DE 3 ASPAS; RESTAURACION DE SISTEMA DE FRENO CON NUEVAS PLATINAS Y CAMBIO DE GUAYA. CAMBIO DE PLATAFORMA Y CAMBIO DE ACEITE.",
+      "fechaInicio": "2026-02-28",
+      "fechaFin": "2026-03-03",
+      "fechaPrimeraIntervencion": "2025-10-09",
+      "observaciones": "REPORTE DE FALLA: FALLA EN ROTOR, SE CALLERON 3 ASPAS Y SE DAÑO EL FRENO",
+      "diferenciaMeses": 4.733333333333333
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "MANAURE",
+      "comunidad": "SAN MARTIN PULOI",
+      "comunidadFull": "SAN MARTIN PULOI (MANAURE)",
+      "coordenadas": "11.728785,-72.508326",
+      "semana": "Semana 3 (3 al 7 de marzo)",
+      "categoria": "REINTERVENCION",
+      "actividades": "CAMBIO BOMBA USANDO MISMOS TUBOS, 3 INF + 1 SUP; NIVEL FREATICO 15 MTS; CAMBIO DE 1 VARILLA; REAJUSTE DE SISTEMA DE FRENO.",
+      "fechaInicio": "2026-03-04",
+      "fechaFin": "2026-03-04",
+      "fechaPrimeraIntervencion": "2025-11-15",
+      "observaciones": "REPORTE DE FALLA: NO HAY SUMINISTRO DE AGUA",
+      "diferenciaMeses": 3.6333333333333333
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "MAICAO",
+      "comunidad": "MAICAITO",
+      "comunidadFull": "MAICAITO (MAICAO)",
+      "coordenadas": "",
+      "semana": "Semana 3 (3 al 7 de marzo)",
+      "categoria": "MANTENIMIENTO GENERAL",
+      "actividades": "Se completa el esquema de recubrimiento anticorrosivo de la estructua, Se instala varilla L faltante y pernos en el sistema de freno. Se prueba y lubrica el sistema de freno y se deja completamente funcional. Se instala varilla de mando en el convertidor. Se realiza prueba de funcionamiento. Molino 100% operativo y funcional. Se notifica a la autoridad y realiza entrega. Varillas de 1/2\"",
+      "fechaInicio": "2026-03-05",
+      "fechaFin": "2026-03-06",
+      "fechaPrimeraIntervencion": "",
+      "observaciones": "",
+      "diferenciaMeses": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "MANAURE",
+      "comunidad": "JAGUAIPIA",
+      "comunidadFull": "JAGUAIPIA (MANAURE)",
+      "coordenadas": "11.619247,-72.802643",
+      "semana": "Semana 4 (10 al 14 de marzo)",
+      "categoria": "MANTENIMIENTO GENERAL",
+      "actividades": "SE REALIZA REEMPLAZO DE TUNBERIAS, VARILLAS Y BOMBA ( 2 TUBOS INFERIOIRES Y 1.5 SUPERIORES, BOMBA INSERTADA ES NUEVA) Se realizó trabajo de pintura, aspas y estructura además de el pedestal. Bomba instalada  de las nuevas braewin, Se cambió PVC.  ",
+      "fechaInicio": "2026-03-10",
+      "fechaFin": "2026-03-11",
+      "fechaPrimeraIntervencion": "",
+      "observaciones": "",
+      "diferenciaMeses": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "MAICAO",
+      "comunidad": "AMALINA 2",
+      "comunidadFull": "AMALINA 2 (MAICAO)",
+      "coordenadas": "11.42969, -72.50631",
+      "semana": "Semana 4 (10 al 14 de marzo)",
+      "categoria": "REINTERVENCION",
+      "actividades": "REINTERVENCION  DEL SISTEMA DE FRENO, SE ENCUENTRA SUELTA POR UN PERNO LA PIEZA 609 DEL SISTEMA DE FRENO. Y SE HACE REMPLAZO DE PERNOS Y SE REALIZA AJUSTE DE GUAYA DE FRENO",
+      "fechaInicio": "2026-03-11",
+      "fechaFin": "2026-03-11",
+      "fechaPrimeraIntervencion": "2025-10-25",
+      "observaciones": "REPORTE DE FALLA: NO FRENA, SE SOLTÓ UNA VARILLA",
+      "diferenciaMeses": 4.566666666666666
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "MANAURE",
+      "comunidad": "MUSICHI",
+      "comunidadFull": "MUSICHI (MANAURE)",
+      "coordenadas": "",
+      "semana": "Semana 4 (10 al 14 de marzo)",
+      "categoria": "REINTERVENCION",
+      "actividades": "Cambio de bomba por sabotaje, le tiraron hierros y baterias por dentro de los tubos para dañar la bomba",
+      "fechaInicio": "2026-03-12",
+      "fechaFin": "2026-03-12",
+      "fechaPrimeraIntervencion": "2025-10-27",
+      "observaciones": "REPORTE DE FALLA: NO BOMBEA AGUA",
+      "diferenciaMeses": 4.533333333333333
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "MANAURE",
+      "comunidad": "COUSEPA",
+      "comunidadFull": "COUSEPA (MANAURE)",
+      "coordenadas": "",
+      "semana": "Semana 4 (10 al 14 de marzo)",
+      "categoria": "MANTENIMIENTO GENERAL",
+      "actividades": "Durante la inspección inicial, el molino de viento se encontró en estado operativo; sin embargo, se evidenció presencia de agua turbia, indicativa de procesos de corrosión interna en la tubería.\r\n\r\nSe realizó la extracción de la tubería y la bomba, efectuando el reemplazo de los componentes afectados. Durante esta actividad, se presentó daño en uno de los pernos del pedestal, lo que obligó a ejecutar la reparación de los pernos de anclaje para garantizar la estabilidad estructural del sistema. Asimismo, se completó el esquema de recubrimiento y pintura del molino. El sistema quedó configurado con dos (2) tubos por debajo del nivel del flange.\r\n\r\nComo resultado de la intervención, el molino quedó en condiciones óptimas de operación (100% funcional).\r\n\r\nVarillas de 1/2\"",
+      "fechaInicio": "2026-03-13",
+      "fechaFin": "2026-03-14",
+      "fechaPrimeraIntervencion": "",
+      "observaciones": "En días posteriores, la comunidad reportó una disminución en el flujo de agua. Se realizó inspección técnica mediante apertura de la unión universal, evidenciándose un flujo adecuado en el sistema. Se determinó que la reducción del caudal hacia la comunidad obedecía a derivaciones externas en la red de conducción y no a fallas en el funcionamiento del molino.",
+      "diferenciaMeses": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "MANAURE",
+      "comunidad": "JASAIKAT GUADALUPE",
+      "comunidadFull": "JASAIKAT GUADALUPE (MANAURE)",
+      "coordenadas": "11.734352,-72.509422",
+      "semana": "Semana 5 (17 al 21 de marzo)",
+      "categoria": "REINTERVENCION",
+      "actividades": "REINTERVENCION POR REQUERIMIENTO E BOBA DE 4\" QUE TENIA IGUALMENTE EL POZO, SE REALIZA EXTRACCION DE TUBERIA 3 TUBOS INFERIORES Y 1'5 TUBOS SUPERIORES",
+      "fechaInicio": "2026-03-17",
+      "fechaFin": "2026-03-17",
+      "fechaPrimeraIntervencion": "2025-12-03",
+      "observaciones": "REPORTE DE FALLA: QUIEREN QUE LE COLOQUEN SU BOMBA ANTIGUA DE 4\"",
+      "diferenciaMeses": 3.466666666666667
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "RIOHACHA",
+      "comunidad": "KEWIRRASHI",
+      "comunidadFull": "KEWIRRASHI (RIOHACHA)",
+      "coordenadas": "11.438755,-72.865612",
+      "semana": "Semana 5 (17 al 21 de marzo)",
+      "categoria": "MANTENIMIENTO GENERAL",
+      "actividades": "SE REALIZA REEMPLAZO DE TUBERIA, VARILLAS Y BOMBA, BOMBA INSERTADA ES RESTAURADA EN EL SENA, EL FLANCHE SE REALIZO CAMBIO, SE REALIZA AJUSTE DE VINCHA, SE INSTALA CENTRADOR DE 140CM. SE REALIZO TEMAS DE PINTURA EN ASPAS ROTOR Y PEDESTAL. CAMBIO DE PVC",
+      "fechaInicio": "2026-03-18",
+      "fechaFin": "2026-03-19",
+      "fechaPrimeraIntervencion": "",
+      "observaciones": "",
+      "diferenciaMeses": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "RIOHACHA",
+      "comunidad": "JALUAPIA 2",
+      "comunidadFull": "JALUAPIA 2 (RIOHACHA)",
+      "coordenadas": "",
+      "semana": "Semana 5 (17 al 21 de marzo)",
+      "categoria": "MANTENIMIENTO GENERAL",
+      "actividades": "Durante la inspección inicial, se evidenció que el molino de viento se encontraba operativo, pero con alto nivel de desgaste en sus componentes.\r\n\r\nEn el proceso de extracción de la tubería, se presentó el colapso del pedestal, lo que hizo necesaria la ejecución de actividades de reparación de obra civil para restablecer la base estructural del sistema. Se realizó la reparación de una de las esquinas del pedestal, tomando como referencia la estructura existente.\r\n\r\nPosteriormente, se efectuó el cambio de la tubería y la bomba, garantizando la recuperación del sistema hidráulico. De igual manera, se completó el esquema de recubrimiento y pintura del molino, con el fin de mejorar la protección contra agentes ambientales.\r\n\r\nComo resultado de la intervención, el sistema quedó en condiciones óptimas de operación (100% funcional) y fue entregado formalmente a la comunidad.\r\n(4) tubos debajo de nivel de flanche. Varillas de 1/2\"\r\n",
+      "fechaInicio": "2026-03-20",
+      "fechaFin": "2026-03-21",
+      "fechaPrimeraIntervencion": "",
+      "observaciones": "",
+      "diferenciaMeses": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "MANAURE",
+      "comunidad": "JASAIKAT GUADALUPE",
+      "comunidadFull": "JASAIKAT GUADALUPE (MANAURE)",
+      "coordenadas": "11.734352,-72.509422",
+      "semana": "Semana 6 (25 al 28 de marzo)",
+      "categoria": "REINTERVENCION",
+      "actividades": "REINTERVENCION POR REQUERIMIENTO DE CAMBIO DE BOMBA DE 4\" PORQUE LA ANTERIOR FALLO, SE REALIZA EXTRACCION DE TUBERIA 3 TUBOS INFERIORES Y 1'5 TUBOS SUPERIORES",
+      "fechaInicio": "2026-03-25",
+      "fechaFin": "2026-03-25",
+      "fechaPrimeraIntervencion": "2025-12-03",
+      "observaciones": "REPORTE DE FALLA: NO BOMBEA AGUA",
+      "diferenciaMeses": 3.7333333333333334
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "RIOHACHA",
+      "comunidad": "TOLOPONAKAT",
+      "comunidadFull": "TOLOPONAKAT (RIOHACHA)",
+      "coordenadas": "11.447700,-72.885305",
+      "semana": "Semana 6 (25 al 28 de marzo)\r\nSemana 7 (8 al 11 de abril)",
+      "categoria": "MANTENIMIENTO GENERAL",
+      "actividades": "Durante la inspección inicial, se evidenció que el molino de viento se encontraba fuera de servicio desde hace aproximadamente tres (3) meses, debido a fallas mecánicas y estructurales.\r\n\r\nSe ejecutaron actividades de mantenimiento correctivo, incluyendo la reparación de la guaya del sistema de freno y la intervención estructural de una pata de la torre mediante soldadura. Asimismo, se realizó la reparación de los cuatro (4) pernos de sujeción del flange.\r\n\r\nEn el sistema hidráulico, se efectuó el cambio de la tubería y la bomba (restaurada en el SENA), con instalación de cinco (5) tubos en la línea de descenso desde flanche y reparación de tramos en PVC. Adicionalmente, se tomó recorrido y aplicación de pintura protectora.\r\n\r\nEl sistema quedó en condiciones óptimas de operación (100% funcional) y fue entregado formalmente a la comunidad. Varillas de 1/2\"",
+      "fechaInicio": "2026-03-26",
+      "fechaFin": "2026-04-08",
+      "fechaPrimeraIntervencion": "",
+      "observaciones": "",
+      "diferenciaMeses": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "URIBIA",
+      "comunidad": "CHUPUTCHI",
+      "comunidadFull": "CHUPUTCHI (URIBIA)",
+      "coordenadas": "11.553948, -72.318472",
+      "semana": "Semana 7 (8 al 11 de abril)",
+      "categoria": "MANTENIMIENTO GENERAL",
+      "actividades": "SE REALIZA REEMPLAZO DE TUNBERIAS, VARILLAS Y BOMBA ( 6 TUBOS INFERIOIRES Y 1.5 SUPERIORES, BOMBA INSERTADA ES NUEVA) Se realizó trabajo de pintura, aspas y estructura además de el pedestal. Bomba instalada  de las nuevas braewin, Se cambió PVC.  ",
+      "fechaInicio": "2026-04-09",
+      "fechaFin": "2026-04-11",
+      "fechaPrimeraIntervencion": "",
+      "observaciones": "1er dia sin bomba\r\nCurso de alturas (-3 integrantes)",
+      "diferenciaMeses": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "URIBIA",
+      "comunidad": "BOTONCHON",
+      "comunidadFull": "BOTONCHON (URIBIA)",
+      "coordenadas": "11.534742, -72.305633",
+      "semana": "Semana 8 (13 al 18 de abril)",
+      "categoria": "MANTENIMIENTO GENERAL",
+      "actividades": "SE REALIZA REEMPLAZO DE TUNBERIAS, VARILLAS Y BOMBA ( 25TUBOS INFERIOIRES Y 1.5 SUPERIORES, BOMBA INSERTADA ES NUEVA) Se realizó trabajo de pintura, aspas y estructura además de el pedestal. Bomba instalada  de las nuevas braewin, Se cambió PVC.  ",
+      "fechaInicio": "2026-04-13",
+      "fechaFin": "2026-04-17",
+      "fechaPrimeraIntervencion": "",
+      "observaciones": "13 normal\r\n14 alertan el paro armado\r\n15 y 16 no se viaja\r\n17  se termina",
+      "diferenciaMeses": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "RIOHACHA",
+      "comunidad": "HIOTSHI",
+      "comunidadFull": "HIOTSHI (RIOHACHA)",
+      "coordenadas": "",
+      "semana": "Semana 8 (13 al 18 de abril)",
+      "categoria": "REINTERVENCION",
+      "actividades": "Se arregla freno y si tenian agua.",
+      "fechaInicio": "2026-04-17",
+      "fechaFin": "2026-04-17",
+      "fechaPrimeraIntervencion": "2025-10-25",
+      "observaciones": "REPORTE DE FALLA: Reportan no tener agua, ni freno\r\nDia 18 no se viaja / Jornada de taller",
+      "diferenciaMeses": 5.8
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "URIBIA (ALTA GUAJIRA)",
+      "comunidad": "KASUSPA",
+      "comunidadFull": "KASUSPA (URIBIA (ALTA GUAJIRA))",
+      "coordenadas": "11.924928, -72.668642",
+      "semana": "Semana 9 (20 al 25 de abril)",
+      "categoria": "MANTENIMIENTO GENERAL",
+      "actividades": "Cambio de sistema de bombeo 10 tubos inferiores y 1 superior, con varilla de 14mm e instalación de bomba nueva. \r\nLa veleta se encontraba colgando del resorte y de la varilla del amortiguador de veleta. Así que es desmontada para soldar ángulos nuevos en cada punta con los respectivos agujeros por dónde va el pasador de veleta. El pasador de veleta es restaurado con soldadura en la punta por desgaste. El amortiguador de veleta también es desarmado y restaurado al desdoblar y soldar piezas. El resorte de veleta se instala el mismo. \r\nEl sistema de freno no se pudo restaurar por el gran desgaste del Hub en el asiento de la vincha y por no disponer de la pieza 738, la cual estaba rota (se soldó pero no aguantó la fuerza y volvió a partir), la vincha no es instalada y Las varillas L  se entregan a la comunidad. El hub presenta desgaste contra el eje del rotor y buje flauta, causando fuga de aceite y \"juego\" entre las piezas. En el rotor se encontraron 6 radios con las puntas roscadas desgastadas (incluyendonla rosca en la manzana), así que se desinstalaron y cambiaron las puntas por varilla 5/8\" pasante con tuerca. Al rotos se le faltaban 5 aspas y otras presentaban gran deterioro en el costillal que las sostiene, así que se instalaron 7 aspas nuevas con su respectivo costillal y se les aplicó soldadura de refuerzo a las demás aspas antiguas. \r\nEn el convertidor, se realiza cambio de aceite aunque tiene la fuga a través del eje del rotor y tubo sostén. Se encuentra desgaste en bujes de biela que ocasionan golpe al funcionar el molino. \r\nSe realizan actividades de pintura en general y cambio de accesorios PVC. ",
+      "fechaInicio": "2026-04-21",
+      "fechaFin": "2026-04-24",
+      "fechaPrimeraIntervencion": "",
+      "observaciones": "20 dia de viaje\r\n21 , 22, 23 y 24 de trabajo\r\n25 de viaje",
+      "diferenciaMeses": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "URIBIA",
+      "comunidad": "BOTONCHON",
+      "comunidadFull": "BOTONCHON (URIBIA)",
+      "coordenadas": "",
+      "semana": "Semana 10 (27 de abril al 2 de mayo)",
+      "categoria": "REINTERVENCION",
+      "actividades": "Cambio de flanche",
+      "fechaInicio": "2026-04-27",
+      "fechaFin": "2026-04-27",
+      "fechaPrimeraIntervencion": "",
+      "observaciones": "REPORTE DE FALLA: Fuga en Flanche",
+      "diferenciaMeses": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "MANAURE",
+      "comunidad": "JAWAIPIAK",
+      "comunidadFull": "JAWAIPIAK (MANAURE)",
+      "coordenadas": "",
+      "semana": "Semana 10 (27 de abril al 2 de mayo)",
+      "categoria": "MANTENIMIENTO GENERAL",
+      "actividades": "Mantenimiento general",
+      "fechaInicio": "2026-04-28",
+      "fechaFin": "2026-04-29",
+      "fechaPrimeraIntervencion": "",
+      "observaciones": "",
+      "diferenciaMeses": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "MANAURE",
+      "comunidad": "TAMASIKOMANA",
+      "comunidadFull": "TAMASIKOMANA (MANAURE)",
+      "coordenadas": "11.587220,-72.605086",
+      "semana": "Semana 10 (27 de abril al 2 de mayo)",
+      "categoria": "MANTENIMIENTO GENERAL",
+      "actividades": "Se encuentra molino operativo y con daño estructural severo. Se realizó reemplazo del sistema de bombeo completa. Bomba sumergible, 5 tubos debajo de flan che y tubería externa con varillaje de 1/2”. Se ajustó sistema de freno. Se realizó refuerzo estructural mayor reemplazando 3 de los ángulos de soporte de la base. Se realizó grateado y pintado de las zonas más afectadas. Se evidencia adelgazamiento de pared severo en uno de los ángulos principales, el cual fue reparado y pintado para evitar avance de la corrosión. Molino queda 100% funcional con recomendación de seguimiento de integridad estructural en futuras reparaciones.",
+      "fechaInicio": "2026-04-30",
+      "fechaFin": "2026-05-02",
+      "fechaPrimeraIntervencion": "",
+      "observaciones": "",
+      "diferenciaMeses": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "MANAURE",
+      "comunidad": "KAYATANAMA",
+      "comunidadFull": "KAYATANAMA (MANAURE)",
+      "coordenadas": "11.575435,-72.649463",
+      "semana": "Semana 11 (5 al 9 de mayo)",
+      "categoria": "MANTENIMIENTO GENERAL",
+      "actividades": "SE REALIZA REEMPLAZO DE TUBERIAS, VARILLAS Y BOMBA ( 5 TUBOS INFERIOIRES Y 1.5 SUPERIORES, BOMBA INSERTADA ES REPARADA). Se revisa sistema de freno. Se realizó trabajo de pintura, aspas y estructura además de el pedestal. Se cambió PVC.  ",
+      "fechaInicio": "2026-05-05",
+      "fechaFin": "2026-05-06",
+      "fechaPrimeraIntervencion": "",
+      "observaciones": "Dia 07/05/2026 no se viaja por parada de seguridad",
+      "diferenciaMeses": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "municipio": "MANAURE",
+      "comunidad": "WAYUCHEIN",
+      "comunidadFull": "WAYUCHEIN (MANAURE)",
+      "coordenadas": "11.567812,-72.642758",
+      "semana": "Semana 11 (5 al 9 de mayo)",
+      "categoria": "MANTENIMIENTO GENERAL",
+      "actividades": "Se encuentra molino operativo, sistema de freno y estructura en buen estado. Se procede a realizar mantenimiento programado. Se realiza cambio de tubería, sin embargo. Por petición de la comunidad se instaló la misma bomba. Se realizó pintado de aspas, sistema convertidor y pedestal. El molino queda 100% operativo y se hace entrega a la comunidad. ",
+      "fechaInicio": "2026-05-08",
+      "fechaFin": "2026-05-09",
+      "fechaPrimeraIntervencion": "",
+      "observaciones": "",
+      "diferenciaMeses": ""
+    }
+  ],
+  "resumen": [
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 1 (18 al 21 de febrero)\r\n4 Dias",
+      "comunidad": "WAYUPIA (MANAURE)",
+      "actividades": "REINTERVENCION",
+      "diasUtilizados": 2,
+      "observaciones": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 1 (18 al 21 de febrero)\r\n4 Dias",
+      "comunidad": "KOUSATCHON (RIOHACHA)",
+      "actividades": "MANTENIMIENTO GENERAL",
+      "diasUtilizados": 2,
+      "observaciones": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 2 (25 al 28 de febrero)\r\n4 Dias",
+      "comunidad": "PIOLEKAT (MANAURE)",
+      "actividades": "REINTERVENCION",
+      "diasUtilizados": 1,
+      "observaciones": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 2 (25 al 28 de febrero)\r\n4 Dias",
+      "comunidad": "CEURA 2 (MAICAO)",
+      "actividades": "MANTENIMIENTO GENERAL",
+      "diasUtilizados": 2,
+      "observaciones": "Requirió reconstruccion de pedestal"
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 2 (25 al 28 de febrero)\r\n4 Dias",
+      "comunidad": "ISASHIMANA (MANAURE)",
+      "actividades": "REINTERVENCION",
+      "diasUtilizados": 1,
+      "observaciones": "Montaje de aspas"
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 3 (3 al 7 de marzo)\r\n5 Dias",
+      "comunidad": "ISASHIMANA (MANAURE)",
+      "actividades": "REINTERVENCION",
+      "diasUtilizados": 1,
+      "observaciones": "Restauracion de frenos"
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 3 (3 al 7 de marzo)\r\n5 Dias",
+      "comunidad": "SAN MARTIN PULOI (MANAURE)",
+      "actividades": "REINTERVENCION",
+      "diasUtilizados": 1,
+      "observaciones": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 3 (3 al 7 de marzo)\r\n5 Dias",
+      "comunidad": "MAICAITO (MAICAO)",
+      "actividades": "MANTENIMIENTO GENERAL",
+      "diasUtilizados": 2,
+      "observaciones": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 3 (3 al 7 de marzo)\r\n5 Dias",
+      "comunidad": "CEURA 2 (MAICAO)",
+      "actividades": "MANTENIMIENTO GENERAL",
+      "diasUtilizados": 1,
+      "observaciones": "Acabados de pedestal y conexión"
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 4 (10 al 14 de marzo)\r\n5 Dias",
+      "comunidad": "JAGUAIPIA (MANAURE)",
+      "actividades": "MANTENIMIENTO GENERAL",
+      "diasUtilizados": 2,
+      "observaciones": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 4 (10 al 14 de marzo)\r\n5 Dias",
+      "comunidad": "AMALINA 2 (MAICAO)",
+      "actividades": "REINTERVENCION",
+      "diasUtilizados": 0,
+      "observaciones": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 4 (10 al 14 de marzo)\r\n5 Dias",
+      "comunidad": "MUSICHI (MANAURE)",
+      "actividades": "REINTERVENCION",
+      "diasUtilizados": 1,
+      "observaciones": "Fallo de Bomba, se encontraron objetos dentro de la bomba (Clavos, baterias)"
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 4 (10 al 14 de marzo)\r\n5 Dias",
+      "comunidad": "COUSEPA (MANAURE)",
+      "actividades": "MANTENIMIENTO GENERAL",
+      "diasUtilizados": 2,
+      "observaciones": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 5 (17 al 21 de marzo)\r\n5 Dias",
+      "comunidad": "JASAIKAT GUADALUPE (MANAURE)",
+      "actividades": "REINTERVENCION",
+      "diasUtilizados": 1,
+      "observaciones": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 5 (17 al 21 de marzo)\r\n5 Dias",
+      "comunidad": "KEWIRRASHI (RIOHACHA)",
+      "actividades": "MANTENIMIENTO GENERAL",
+      "diasUtilizados": 2,
+      "observaciones": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 5 (17 al 21 de marzo)\r\n5 Dias",
+      "comunidad": "JALUAPIA 2 (RIOHACHA)",
+      "actividades": "MANTENIMIENTO GENERAL",
+      "diasUtilizados": 2,
+      "observaciones": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 6 (25 al 28 de marzo)\r\n4 Dias",
+      "comunidad": "JASAIKAT GUADALUPE (MANAURE)",
+      "actividades": "REINTERVENCION",
+      "diasUtilizados": 1,
+      "observaciones": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 6 (25 al 28 de marzo)\r\n4 Dias",
+      "comunidad": "COUSEPA (MANAURE)",
+      "actividades": "MANTENIMIENTO GENERAL",
+      "diasUtilizados": 1,
+      "observaciones": "Revisita por bajo caudal"
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 6 (25 al 28 de marzo)\r\n4 Dias",
+      "comunidad": "TOLOPONAKAT (RIOHACHA)",
+      "actividades": "MANTENIMIENTO GENERAL",
+      "diasUtilizados": 2,
+      "observaciones": "Bomba instalada presentó mal funcionamiento."
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 7 (8 al 11 de abril)\r\n4 Dias",
+      "comunidad": "TOLOPONAKAT (RIOHACHA)",
+      "actividades": "MANTENIMIENTO GENERAL",
+      "diasUtilizados": 1,
+      "observaciones": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 7 (8 al 11 de abril)\r\n4 Dias",
+      "comunidad": "CHUPUTCHI (URIBIA)",
+      "actividades": "MANTENIMIENTO GENERAL",
+      "diasUtilizados": 3,
+      "observaciones": "Entrenamiento de alturas (-3 integrantes)"
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 8 (13 al 18 de abril)\r\n6 Dias",
+      "comunidad": "BOTONCHON (URIBIA)",
+      "actividades": "MANTENIMIENTO GENERAL",
+      "diasUtilizados": 2.5,
+      "observaciones": "2,5 dias en paro armado sin salidas"
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 8 (13 al 18 de abril)\r\n6 Dias",
+      "comunidad": "HIOTSHI (RIOHACHA)",
+      "actividades": "REINTERVENCION",
+      "diasUtilizados": 1,
+      "observaciones": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 9 (20 al 25 de abril)\r\n6 Dias",
+      "comunidad": "KASUSPA (URIBIA (ALTA GUAJIRA))",
+      "actividades": "MANTENIMIENTO GENERAL",
+      "diasUtilizados": 4,
+      "observaciones": "1 Dia de viaje (7 horas) y 1 dia de regreso"
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 10 (27 de abril al 2 de mayo)\r\n6 Dias",
+      "comunidad": "BOTONCHON (URIBIA)",
+      "actividades": "REINTERVENCION",
+      "diasUtilizados": 1,
+      "observaciones": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 10 (27 de abril al 2 de mayo)\r\n6 Dias",
+      "comunidad": "JAWAIPIAK (MANAURE)",
+      "actividades": "MANTENIMIENTO GENERAL",
+      "diasUtilizados": 2,
+      "observaciones": ""
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 10 (27 de abril al 2 de mayo)\r\n6 Dias",
+      "comunidad": "TAMASIKOMANA (MANAURE)",
+      "actividades": "MANTENIMIENTO GENERAL",
+      "diasUtilizados": 3,
+      "observaciones": "Incluye reparacion estructural por daño severo"
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 11 (5 al 9 de mayo)\r\n5 Dias",
+      "comunidad": "KAYATANAMA (MANAURE)",
+      "actividades": "MANTENIMIENTO GENERAL",
+      "diasUtilizados": 2,
+      "observaciones": "Dia 07/05/2026 no se viaja por parada de seguridad"
+    },
+    {
+      "cuadrilla": "Andrés Bonivento",
+      "semana": "Semana 11 (5 al 9 de mayo)\r\n5 Dias",
+      "comunidad": "WAYUCHEIN (MANAURE)",
+      "actividades": "MANTENIMIENTO GENERAL",
+      "diasUtilizados": 2,
+      "observaciones": ""
+    }
+  ],
+  "weeks": [
+    {
+      "label": "Semana 1 (18 al 21 de febrero)",
+      "numero": 1,
+      "rango": "18 al 21 de febrero",
+      "diasDisponibles": 4,
+      "raw": "Semana 1 (18 al 21 de febrero)\r\n4 Dias"
+    },
+    {
+      "label": "Semana 2 (25 al 28 de febrero)",
+      "numero": 2,
+      "rango": "25 al 28 de febrero",
+      "diasDisponibles": 4,
+      "raw": "Semana 2 (25 al 28 de febrero)\r\n4 Dias"
+    },
+    {
+      "label": "Semana 3 (3 al 7 de marzo)",
+      "numero": 3,
+      "rango": "3 al 7 de marzo",
+      "diasDisponibles": 5,
+      "raw": "Semana 3 (3 al 7 de marzo)\r\n5 Dias"
+    },
+    {
+      "label": "Semana 4 (10 al 14 de marzo)",
+      "numero": 4,
+      "rango": "10 al 14 de marzo",
+      "diasDisponibles": 5,
+      "raw": "Semana 4 (10 al 14 de marzo)\r\n5 Dias"
+    },
+    {
+      "label": "Semana 5 (17 al 21 de marzo)",
+      "numero": 5,
+      "rango": "17 al 21 de marzo",
+      "diasDisponibles": 5,
+      "raw": "Semana 5 (17 al 21 de marzo)\r\n5 Dias"
+    },
+    {
+      "label": "Semana 6 (25 al 28 de marzo)",
+      "numero": 6,
+      "rango": "25 al 28 de marzo",
+      "diasDisponibles": 4,
+      "raw": "Semana 6 (25 al 28 de marzo)\r\n4 Dias"
+    },
+    {
+      "label": "Semana 7 (8 al 11 de abril)",
+      "numero": 7,
+      "rango": "8 al 11 de abril",
+      "diasDisponibles": 4,
+      "raw": "Semana 7 (8 al 11 de abril)\r\n4 Dias"
+    },
+    {
+      "label": "Semana 8 (13 al 18 de abril)",
+      "numero": 8,
+      "rango": "13 al 18 de abril",
+      "diasDisponibles": 6,
+      "raw": "Semana 8 (13 al 18 de abril)\r\n6 Dias"
+    },
+    {
+      "label": "Semana 9 (20 al 25 de abril)",
+      "numero": 9,
+      "rango": "20 al 25 de abril",
+      "diasDisponibles": 6,
+      "raw": "Semana 9 (20 al 25 de abril)\r\n6 Dias"
+    },
+    {
+      "label": "Semana 10 (27 de abril al 2 de mayo)",
+      "numero": 10,
+      "rango": "27 de abril al 2 de mayo",
+      "diasDisponibles": 6,
+      "raw": "Semana 10 (27 de abril al 2 de mayo)\r\n6 Dias"
+    },
+    {
+      "label": "Semana 11 (5 al 9 de mayo)",
+      "numero": 11,
+      "rango": "5 al 9 de mayo",
+      "diasDisponibles": 5,
+      "raw": "Semana 11 (5 al 9 de mayo)\r\n5 Dias"
+    }
+  ]
+}
