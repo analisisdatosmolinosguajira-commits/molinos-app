@@ -1,5 +1,5 @@
 import React from 'react';
-import { Wind, RefreshCw, Target, Clock, TrendingUp, MapPin, AlertTriangle } from 'lucide-react';
+import { Wind, RefreshCw, Target, Clock, TrendingUp, MapPin, AlertTriangle, CalendarDays } from 'lucide-react';
 
 function KPICard({ icon: Icon, label, value, sub, color = 'emerald' }) {
   const colors = {
@@ -24,7 +24,8 @@ function KPICard({ icon: Icon, label, value, sub, color = 'emerald' }) {
 
 export default function ResumenStats({ stats }) {
   const {
-    total, nuevas, reintervenciones, totalNuevasUnicas, promedioDias, promedioDiasNuevas, promedioDiasReint, rendimiento,
+    total, nuevas, reintervenciones, totalNuevasUnicas, diasTotal, diasNuevas, diasReint,
+    promedioDias, promedioDiasNuevas, promedioDiasReint, rendimiento,
     metaPct, metaCumplidas, exceden, porMunicipio, semanasActivas,
     withDias, reintGaps,
   } = stats;
@@ -38,6 +39,13 @@ export default function ResumenStats({ stats }) {
         <KPICard icon={RefreshCw} label="Reintervenciones" value={reintervenciones} sub={`${total > 0 ? ((reintervenciones/total)*100).toFixed(0) : 0}% del total`} color="amber" />
         <KPICard icon={Target} label="Meta (≤2 días nuevas)" value={`${metaPct}%`} sub={`${metaCumplidas} de ${totalNuevasUnicas} cumplen`}
           color={parseFloat(metaPct) >= 60 ? 'emerald' : 'red'} />
+      </div>
+
+      {/* Salidas row */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <KPICard icon={CalendarDays} label="Total Salidas" value={diasTotal} sub="días empleados en mantenimientos" color="cyan" />
+        <KPICard icon={CalendarDays} label="Salidas Nuevas" value={diasNuevas} sub="días en intervenciones nuevas" color="blue" />
+        <KPICard icon={CalendarDays} label="Salidas Reintervenciones" value={diasReint} sub="días en reintervenciones" color="amber" />
       </div>
 
       {/* Day averages row */}

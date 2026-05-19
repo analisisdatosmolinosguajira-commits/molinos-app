@@ -364,7 +364,7 @@ export function getStats(data, crewFilter) {
   }));
 
   return {
-    total, nuevas, reintervenciones, totalNuevasUnicas, diasTotal, promedioDias, promedioDiasNuevas, promedioDiasReint, rendimiento,
+    total, nuevas, reintervenciones, totalNuevasUnicas, diasTotal, diasNuevas, diasReint, promedioDias, promedioDiasNuevas, promedioDiasReint, rendimiento,
     metaCumplidas, metaPct, exceden, porMunicipio, semanasActivas,
     weeklyData, withDias, delayCauseDist, reintCauseDist, reintGaps,
   };
