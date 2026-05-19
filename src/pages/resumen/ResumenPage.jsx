@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Wind, Table, BarChart3, Brain, CalendarPlus, Filter, RotateCcw, X, Check } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Wind, Table, BarChart3, Brain, CalendarPlus, Filter, RotateCcw, X, Check, Loader2 } from 'lucide-react';
 import ResumenSpreadsheet from './ResumenSpreadsheet';
 import ResumenSummarySheet from './ResumenSummarySheet';
 import ResumenStats from './ResumenStats';
 import ResumenCharts from './ResumenCharts';
 import ResumenAIAnalysis from './ResumenAIAnalysis';
 import {
-  loadData, saveData, resetData, createWeek, getStats, getCrews,
+  loadData, createWeek, addWeek, getStats, getCrews,
   addConsolidadoRow, addResumenRow, updateConsolidadoRow, updateResumenRow,
-  deleteConsolidadoRow, deleteResumenRow,
+  deleteConsolidadoRow, deleteResumenRow, bulkInsertConsolidado, bulkInsertResumen,
 } from './resumenData';
 
 const TABS = [
@@ -19,38 +19,157 @@ const TABS = [
 ];
 
 export default function ResumenPage() {
-  const [data, setData] = useState(loadData);
+  const [data, setData] = useState({ consolidado: [], resumen: [], weeks: [] });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [tab, setTab] = useState('stats');
   const [crewFilter, setCrewFilter] = useState('Todas');
   const [showNewWeek, setShowNewWeek] = useState(false);
   const [newWeek, setNewWeek] = useState({ numero: '', rangoTexto: '', fechaInicio: '', fechaFin: '', diasDisponibles: '' });
 
-  useEffect(() => { saveData(data); }, [data]);
+  // Load data from Supabase on mount
+  useEffect(() => {
+    loadData().then(d => { setData(d); setLoading(false); });
+  }, []);
+
+  const reload = useCallback(async () => {
+    setLoading(true);
+    const d = await loadData();
+    setData(d);
+    setLoading(false);
+  }, []);
 
   const crews = useMemo(() => getCrews(data), [data]);
   const stats = useMemo(() => getStats(data, crewFilter), [data, crewFilter]);
 
-  const handleReset = () => {
-    if (window.confirm('¿Restaurar datos originales? Se perderán los cambios.')) {
-      setData(resetData());
-    }
-  };
-
-  const handleAddWeek = () => {
+  const handleAddWeek = async () => {
     const { numero, rangoTexto, diasDisponibles } = newWeek;
     if (!numero || !rangoTexto || !diasDisponibles) return;
-    const week = createWeek(parseInt(numero), rangoTexto, newWeek.fechaInicio, newWeek.fechaFin, parseInt(diasDisponibles));
-    setData(prev => ({ ...prev, weeks: [...prev.weeks, week].sort((a, b) => a.numero - b.numero) }));
-    setShowNewWeek(false);
-    setNewWeek({ numero: '', rangoTexto: '', fechaInicio: '', fechaFin: '', diasDisponibles: '' });
+    setSaving(true);
+    try {
+      const week = createWeek(parseInt(numero), rangoTexto, newWeek.fechaInicio, newWeek.fechaFin, parseInt(diasDisponibles));
+      const saved = await addWeek(week);
+      setData(prev => ({ ...prev, weeks: [...prev.weeks, saved].sort((a, b) => a.numero - b.numero) }));
+      setShowNewWeek(false);
+      setNewWeek({ numero: '', rangoTexto: '', fechaInicio: '', fechaFin: '', diasDisponibles: '' });
+    } catch (e) { console.error('Error adding week', e); }
+    setSaving(false);
   };
+
+  // ── Consolidado handlers ──
+  const handleUpdateConsolidado = useCallback(async (i, updated) => {
+    const row = data.consolidado[i];
+    if (!row?.id) return;
+    setSaving(true);
+    try {
+      await updateConsolidadoRow(row.id, updated);
+      setData(prev => {
+        const cons = [...prev.consolidado];
+        cons[i] = { ...cons[i], ...updated };
+        return { ...prev, consolidado: cons };
+      });
+    } catch (e) { console.error('Error updating', e); }
+    setSaving(false);
+  }, [data.consolidado]);
+
+  const handleDeleteConsolidado = useCallback(async (i) => {
+    const row = data.consolidado[i];
+    if (!row?.id) return;
+    setSaving(true);
+    try {
+      await deleteConsolidadoRow(row.id);
+      setData(prev => ({ ...prev, consolidado: prev.consolidado.filter((_, idx) => idx !== i) }));
+    } catch (e) { console.error('Error deleting', e); }
+    setSaving(false);
+  }, [data.consolidado]);
+
+  const handleAddConsolidado = useCallback(async (row) => {
+    setSaving(true);
+    try {
+      const saved = await addConsolidadoRow(row);
+      setData(prev => ({ ...prev, consolidado: [...prev.consolidado, saved] }));
+    } catch (e) { console.error('Error adding', e); }
+    setSaving(false);
+  }, []);
+
+  const handleBulkPasteConsolidado = useCallback(async (rows) => {
+    setSaving(true);
+    try {
+      const saved = await bulkInsertConsolidado(rows);
+      setData(prev => ({ ...prev, consolidado: [...prev.consolidado, ...saved] }));
+    } catch (e) { console.error('Error bulk pasting', e); }
+    setSaving(false);
+  }, []);
+
+  // ── Resumen handlers ──
+  const handleUpdateResumen = useCallback(async (i, updated) => {
+    const row = data.resumen[i];
+    if (!row?.id) return;
+    setSaving(true);
+    try {
+      await updateResumenRow(row.id, updated);
+      setData(prev => {
+        const res = [...prev.resumen];
+        res[i] = { ...res[i], ...updated };
+        return { ...prev, resumen: res };
+      });
+    } catch (e) { console.error('Error updating', e); }
+    setSaving(false);
+  }, [data.resumen]);
+
+  const handleDeleteResumen = useCallback(async (i) => {
+    const row = data.resumen[i];
+    if (!row?.id) return;
+    setSaving(true);
+    try {
+      await deleteResumenRow(row.id);
+      setData(prev => ({ ...prev, resumen: prev.resumen.filter((_, idx) => idx !== i) }));
+    } catch (e) { console.error('Error deleting', e); }
+    setSaving(false);
+  }, [data.resumen]);
+
+  const handleAddResumen = useCallback(async (row) => {
+    setSaving(true);
+    try {
+      const saved = await addResumenRow(row);
+      setData(prev => ({ ...prev, resumen: [...prev.resumen, saved] }));
+    } catch (e) { console.error('Error adding', e); }
+    setSaving(false);
+  }, []);
+
+  const handleBulkPasteResumen = useCallback(async (rows) => {
+    setSaving(true);
+    try {
+      const saved = await bulkInsertResumen(rows);
+      setData(prev => ({ ...prev, resumen: [...prev.resumen, ...saved] }));
+    } catch (e) { console.error('Error bulk pasting', e); }
+    setSaving(false);
+  }, []);
 
   // Filtered data for spreadsheets
   const filteredConsolidado = crewFilter === 'Todas' ? data.consolidado : data.consolidado.filter(r => r.cuadrilla === crewFilter);
   const filteredResumen = crewFilter === 'Todas' ? data.resumen : data.resumen.filter(r => r.cuadrilla === crewFilter);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 size={32} className="text-emerald-400 animate-spin" />
+          <p className="text-sm text-slate-400">Cargando datos...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950">
+      {/* Saving indicator */}
+      {saving && (
+        <div className="fixed top-2 right-2 z-50 bg-blue-600/90 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-lg">
+          <Loader2 size={12} className="animate-spin" /> Guardando...
+        </div>
+      )}
+
       {/* Header */}
       <header className="border-b border-slate-800/50 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-30">
         <div className="max-w-[1600px] mx-auto px-4 py-3">
@@ -69,9 +188,9 @@ export default function ResumenPage() {
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors">
                 <CalendarPlus size={14} /> Nueva Semana
               </button>
-              <button onClick={handleReset}
+              <button onClick={reload}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-colors">
-                <RotateCcw size={14} /> Reset
+                <RotateCcw size={14} /> Recargar
               </button>
             </div>
           </div>
@@ -140,8 +259,8 @@ export default function ResumenPage() {
                     className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-xs text-white" />
                 </div>
               </div>
-              <button onClick={handleAddWeek}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded-lg transition-colors mt-2">
+              <button onClick={handleAddWeek} disabled={saving}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded-lg transition-colors mt-2 disabled:opacity-50">
                 <Check size={14} /> Crear Semana
               </button>
             </div>
@@ -162,15 +281,10 @@ export default function ResumenPage() {
             <ResumenSpreadsheet
               data={filteredConsolidado}
               weeks={data.weeks}
-              onUpdate={(i, updated) => {
-                const realIdx = crewFilter === 'Todas' ? i : data.consolidado.indexOf(filteredConsolidado[i]);
-                setData(prev => updateConsolidadoRow(prev, realIdx, updated));
-              }}
-              onDelete={(i) => {
-                const realIdx = crewFilter === 'Todas' ? i : data.consolidado.indexOf(filteredConsolidado[i]);
-                setData(prev => deleteConsolidadoRow(prev, realIdx));
-              }}
-              onAdd={(row) => setData(prev => addConsolidadoRow(prev, row))}
+              onUpdate={handleUpdateConsolidado}
+              onDelete={handleDeleteConsolidado}
+              onAdd={handleAddConsolidado}
+              onBulkPaste={handleBulkPasteConsolidado}
             />
           </div>
         )}
@@ -179,15 +293,10 @@ export default function ResumenPage() {
             <ResumenSummarySheet
               data={filteredResumen}
               weeks={data.weeks}
-              onUpdate={(i, updated) => {
-                const realIdx = crewFilter === 'Todas' ? i : data.resumen.indexOf(filteredResumen[i]);
-                setData(prev => updateResumenRow(prev, realIdx, updated));
-              }}
-              onDelete={(i) => {
-                const realIdx = crewFilter === 'Todas' ? i : data.resumen.indexOf(filteredResumen[i]);
-                setData(prev => deleteResumenRow(prev, realIdx));
-              }}
-              onAdd={(row) => setData(prev => addResumenRow(prev, row))}
+              onUpdate={handleUpdateResumen}
+              onDelete={handleDeleteResumen}
+              onAdd={handleAddResumen}
+              onBulkPaste={handleBulkPasteResumen}
             />
           </div>
         )}

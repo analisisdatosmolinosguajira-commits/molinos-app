@@ -1,73 +1,199 @@
-import initialData from './initialData.json';
+import { supabase } from '../../services/supabase';
 
-const STORAGE_KEY = 'resumen_module_data';
+// ── Map DB rows to frontend format ──────────────────────────
 
-export function loadData() {
+function mapConsolidadoFromDB(row) {
+  return {
+    id: row.id,
+    cuadrilla: row.cuadrilla,
+    municipio: row.municipio,
+    comunidad: row.comunidad,
+    comunidadFull: row.comunidad_full,
+    coordenadas: row.coordenadas || '',
+    semana: row.semana,
+    categoria: row.categoria,
+    actividades: row.actividades || '',
+    fechaInicio: row.fecha_inicio || '',
+    fechaFin: row.fecha_fin || '',
+    fechaPrimeraIntervencion: row.fecha_primera_intervencion || '',
+    observaciones: row.observaciones || '',
+    diferenciaMeses: row.diferencia_meses || '',
+  };
+}
+
+function mapResumenFromDB(row) {
+  return {
+    id: row.id,
+    cuadrilla: row.cuadrilla,
+    semana: row.semana,
+    comunidad: row.comunidad,
+    actividades: row.actividades,
+    diasUtilizados: parseFloat(row.dias_utilizados) || 0,
+    observaciones: row.observaciones || '',
+  };
+}
+
+function mapWeekFromDB(row) {
+  return {
+    id: row.id,
+    label: row.label,
+    numero: row.numero,
+    rango: row.rango,
+    diasDisponibles: row.dias_disponibles,
+    raw: row.raw,
+  };
+}
+
+// ── Load all data from Supabase ────────────────────────────
+
+export async function loadData() {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
-  } catch (e) { console.warn('Error loading saved data', e); }
-  return {
-    consolidado: initialData.consolidado,
-    resumen: initialData.resumen,
-    weeks: initialData.weeks,
-  };
+    const [consRes, sumRes, weeksRes] = await Promise.all([
+      supabase.from('resumen_consolidado').select('*').order('id'),
+      supabase.from('resumen_summary').select('*').order('id'),
+      supabase.from('resumen_weeks').select('*').order('numero'),
+    ]);
+
+    return {
+      consolidado: (consRes.data || []).map(mapConsolidadoFromDB),
+      resumen: (sumRes.data || []).map(mapResumenFromDB),
+      weeks: (weeksRes.data || []).map(mapWeekFromDB),
+    };
+  } catch (e) {
+    console.error('Error loading data from Supabase', e);
+    return { consolidado: [], resumen: [], weeks: [] };
+  }
 }
 
-export function saveData(data) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (e) { console.warn('Error saving data', e); }
+// ── CRUD Operations ────────────────────────────────────────
+
+export async function addConsolidadoRow(row) {
+  const { data, error } = await supabase.from('resumen_consolidado').insert({
+    cuadrilla: row.cuadrilla || '',
+    municipio: row.municipio || '',
+    comunidad: row.comunidad || '',
+    comunidad_full: row.comunidadFull || row.comunidad || '',
+    coordenadas: row.coordenadas || '',
+    semana: row.semana || '',
+    categoria: row.categoria || 'MANTENIMIENTO GENERAL',
+    actividades: row.actividades || '',
+    fecha_inicio: row.fechaInicio || '',
+    fecha_fin: row.fechaFin || '',
+    fecha_primera_intervencion: row.fechaPrimeraIntervencion || '',
+    observaciones: row.observaciones || '',
+    diferencia_meses: row.diferenciaMeses || '',
+  }).select().single();
+  if (error) throw error;
+  return mapConsolidadoFromDB(data);
 }
 
-export function resetData() {
-  localStorage.removeItem(STORAGE_KEY);
-  return {
-    consolidado: initialData.consolidado,
-    resumen: initialData.resumen,
-    weeks: initialData.weeks,
-  };
+export async function addResumenRow(row) {
+  const { data, error } = await supabase.from('resumen_summary').insert({
+    cuadrilla: row.cuadrilla || '',
+    semana: row.semana || '',
+    comunidad: row.comunidad || '',
+    actividades: row.actividades || 'MANTENIMIENTO GENERAL',
+    dias_utilizados: parseFloat(row.diasUtilizados) || 0,
+    observaciones: row.observaciones || '',
+  }).select().single();
+  if (error) throw error;
+  return mapResumenFromDB(data);
 }
 
-export function createWeek(numero, rangoTexto, fechaInicio, fechaFin, diasDisponibles) {
-  return {
-    label: `Semana ${numero} (${rangoTexto})`,
-    numero,
-    rango: rangoTexto,
-    diasDisponibles,
-    raw: `Semana ${numero} (${rangoTexto})\r\n${diasDisponibles} Dias`,
-  };
+export async function updateConsolidadoRow(id, updates) {
+  const dbUpdates = {};
+  if (updates.cuadrilla !== undefined) dbUpdates.cuadrilla = updates.cuadrilla;
+  if (updates.municipio !== undefined) dbUpdates.municipio = updates.municipio;
+  if (updates.comunidad !== undefined) dbUpdates.comunidad = updates.comunidad;
+  if (updates.comunidadFull !== undefined) dbUpdates.comunidad_full = updates.comunidadFull;
+  if (updates.coordenadas !== undefined) dbUpdates.coordenadas = updates.coordenadas;
+  if (updates.semana !== undefined) dbUpdates.semana = updates.semana;
+  if (updates.categoria !== undefined) dbUpdates.categoria = updates.categoria;
+  if (updates.actividades !== undefined) dbUpdates.actividades = updates.actividades;
+  if (updates.fechaInicio !== undefined) dbUpdates.fecha_inicio = updates.fechaInicio;
+  if (updates.fechaFin !== undefined) dbUpdates.fecha_fin = updates.fechaFin;
+  if (updates.fechaPrimeraIntervencion !== undefined) dbUpdates.fecha_primera_intervencion = updates.fechaPrimeraIntervencion;
+  if (updates.observaciones !== undefined) dbUpdates.observaciones = updates.observaciones;
+  if (updates.diferenciaMeses !== undefined) dbUpdates.diferencia_meses = updates.diferenciaMeses;
+
+  const { error } = await supabase.from('resumen_consolidado').update(dbUpdates).eq('id', id);
+  if (error) throw error;
 }
 
-export function addConsolidadoRow(data, row) {
-  return { ...data, consolidado: [...data.consolidado, row] };
+export async function updateResumenRow(id, updates) {
+  const dbUpdates = {};
+  if (updates.cuadrilla !== undefined) dbUpdates.cuadrilla = updates.cuadrilla;
+  if (updates.semana !== undefined) dbUpdates.semana = updates.semana;
+  if (updates.comunidad !== undefined) dbUpdates.comunidad = updates.comunidad;
+  if (updates.actividades !== undefined) dbUpdates.actividades = updates.actividades;
+  if (updates.diasUtilizados !== undefined) dbUpdates.dias_utilizados = parseFloat(updates.diasUtilizados) || 0;
+  if (updates.observaciones !== undefined) dbUpdates.observaciones = updates.observaciones;
+
+  const { error } = await supabase.from('resumen_summary').update(dbUpdates).eq('id', id);
+  if (error) throw error;
 }
 
-export function addResumenRow(data, row) {
-  return { ...data, resumen: [...data.resumen, row] };
+export async function deleteConsolidadoRow(id) {
+  const { error } = await supabase.from('resumen_consolidado').delete().eq('id', id);
+  if (error) throw error;
 }
 
-export function updateConsolidadoRow(data, index, updated) {
-  const consolidado = [...data.consolidado];
-  consolidado[index] = { ...consolidado[index], ...updated };
-  return { ...data, consolidado };
+export async function deleteResumenRow(id) {
+  const { error } = await supabase.from('resumen_summary').delete().eq('id', id);
+  if (error) throw error;
 }
 
-export function updateResumenRow(data, index, updated) {
-  const resumen = [...data.resumen];
-  resumen[index] = { ...resumen[index], ...updated };
-  return { ...data, resumen };
+export async function addWeek(week) {
+  const { data, error } = await supabase.from('resumen_weeks').insert({
+    numero: week.numero,
+    label: week.label,
+    rango: week.rango || '',
+    dias_disponibles: week.diasDisponibles || 0,
+    raw: week.raw || '',
+  }).select().single();
+  if (error) throw error;
+  return mapWeekFromDB(data);
 }
 
-export function deleteConsolidadoRow(data, index) {
-  return { ...data, consolidado: data.consolidado.filter((_, i) => i !== index) };
+// ── Bulk paste support ─────────────────────────────────────
+
+export async function bulkInsertConsolidado(rows) {
+  const dbRows = rows.map(r => ({
+    cuadrilla: r.cuadrilla || '',
+    municipio: r.municipio || '',
+    comunidad: r.comunidad || '',
+    comunidad_full: r.comunidadFull || r.comunidad || '',
+    coordenadas: r.coordenadas || '',
+    semana: r.semana || '',
+    categoria: r.categoria || 'MANTENIMIENTO GENERAL',
+    actividades: r.actividades || '',
+    fecha_inicio: r.fechaInicio || '',
+    fecha_fin: r.fechaFin || '',
+    fecha_primera_intervencion: r.fechaPrimeraIntervencion || '',
+    observaciones: r.observaciones || '',
+    diferencia_meses: r.diferenciaMeses || '',
+  }));
+  const { data, error } = await supabase.from('resumen_consolidado').insert(dbRows).select();
+  if (error) throw error;
+  return (data || []).map(mapConsolidadoFromDB);
 }
 
-export function deleteResumenRow(data, index) {
-  return { ...data, resumen: data.resumen.filter((_, i) => i !== index) };
+export async function bulkInsertResumen(rows) {
+  const dbRows = rows.map(r => ({
+    cuadrilla: r.cuadrilla || '',
+    semana: r.semana || '',
+    comunidad: r.comunidad || '',
+    actividades: r.actividades || 'MANTENIMIENTO GENERAL',
+    dias_utilizados: parseFloat(r.diasUtilizados) || 0,
+    observaciones: r.observaciones || '',
+  }));
+  const { data, error } = await supabase.from('resumen_summary').insert(dbRows).select();
+  if (error) throw error;
+  return (data || []).map(mapResumenFromDB);
 }
 
-// AI Heuristic Classification
+// ── AI Heuristic Classification ────────────────────────────
+
 const DELAY_PATTERNS = [
   { key: 'viaje', label: 'Viaje largo', patterns: ['viaje', 'horas de viaje', 'dia de viaje', 'regreso', 'alta guajira'] },
   { key: 'estructural', label: 'Reparación estructural', patterns: ['estructural', 'pedestal', 'reconstruccion', 'ángulos de soporte', 'daño severo'] },
@@ -128,6 +254,8 @@ export function getMonthsDiff(first, current) {
   const c = new Date(current);
   return ((c - f) / (1000 * 60 * 60 * 24 * 30.44)).toFixed(1);
 }
+
+// ── Statistics (computed from loaded data) ──────────────────
 
 export function getStats(data, crewFilter) {
   let consolidado = data.consolidado;
@@ -244,4 +372,14 @@ export function getStats(data, crewFilter) {
 
 export function getCrews(data) {
   return [...new Set(data.consolidado.map(r => r.cuadrilla).concat(data.resumen.map(r => r.cuadrilla)).filter(Boolean))];
+}
+
+export function createWeek(numero, rangoTexto, fechaInicio, fechaFin, diasDisponibles) {
+  return {
+    label: `Semana ${numero} (${rangoTexto})`,
+    numero,
+    rango: rangoTexto,
+    diasDisponibles,
+    raw: `Semana ${numero} (${rangoTexto})\r\n${diasDisponibles} Dias`,
+  };
 }

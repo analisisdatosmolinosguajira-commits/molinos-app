@@ -18,7 +18,7 @@ const emptyRow = (weeks, crews) => ({
   comunidad: '', actividades: CATEGORIAS[0], diasUtilizados: '', observaciones: '',
 });
 
-export default function ResumenSummarySheet({ data, weeks, onUpdate, onDelete, onAdd }) {
+export default function ResumenSummarySheet({ data, weeks, onUpdate, onDelete, onAdd, onBulkPaste }) {
   const [editCell, setEditCell] = useState(null);
   const [editVal, setEditVal] = useState('');
   const crews = [...new Set(data.map(r => r.cuadrilla).filter(Boolean))];
@@ -41,12 +41,17 @@ export default function ResumenSummarySheet({ data, weeks, onUpdate, onDelete, o
     const rows = text.split('\n').map(r => r.split('\t'));
     if (rows.length <= 1 && rows[0]?.length <= 1) return;
     e.preventDefault();
-    rows.filter(r => r.some(c => c.trim())).forEach(cells => {
+    const newRows = rows.filter(r => r.some(c => c.trim())).map(cells => {
       const row = { ...emptyRow(weeks, crews) };
       COLUMNS.forEach((col, ci) => { if (cells[ci] !== undefined) row[col.key] = cells[ci].trim(); });
-      onAdd(row);
+      return row;
     });
-  }, [weeks, crews, onAdd]);
+    if (onBulkPaste && newRows.length > 1) {
+      onBulkPaste(newRows);
+    } else {
+      newRows.forEach(r => onAdd(r));
+    }
+  }, [weeks, crews, onAdd, onBulkPaste]);
 
   const exportCSV = () => {
     const header = COLUMNS.map(c => c.label).join(',');

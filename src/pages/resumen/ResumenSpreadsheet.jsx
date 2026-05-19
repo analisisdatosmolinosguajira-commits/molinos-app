@@ -25,7 +25,7 @@ const emptyRow = (weeks, crews) => ({
   fechaPrimeraIntervencion: '', observaciones: '', diferenciaMeses: '',
 });
 
-export default function ResumenSpreadsheet({ data, weeks, onUpdate, onDelete, onAdd }) {
+export default function ResumenSpreadsheet({ data, weeks, onUpdate, onDelete, onAdd, onBulkPaste }) {
   const [editCell, setEditCell] = useState(null);
   const [editVal, setEditVal] = useState('');
   const tableRef = useRef(null);
@@ -62,8 +62,12 @@ export default function ResumenSpreadsheet({ data, weeks, onUpdate, onDelete, on
       COLUMNS.forEach((col, ci) => { if (cells[ci] !== undefined) row[col.key] = cells[ci].trim(); });
       return row;
     });
-    newRows.forEach(r => onAdd(r));
-  }, [weeks, crews, onAdd]);
+    if (onBulkPaste && newRows.length > 1) {
+      onBulkPaste(newRows);
+    } else {
+      newRows.forEach(r => onAdd(r));
+    }
+  }, [weeks, crews, onAdd, onBulkPaste]);
 
   const exportCSV = () => {
     const header = COLUMNS.map(c => c.label).join(',');
