@@ -29,6 +29,7 @@ import PersonSSTDetail from './pages/sst/PersonSSTDetail';
 import NotificationsPage from './pages/notifications/NotificationsPage';
 import AlertsPage from './pages/dashboard/AlertsPage';
 import ResumenPage from './pages/resumen/ResumenPage';
+import PlanCIEAPage from './pages/planciea/PlanCIEAPage';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
         {/* Public routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/resumen" element={<ResumenPage />} />
+        <Route path="/planCIEA" element={<PlanCIEAPage />} />
 
         {/* Protected routes */}
         <Route path="/" element={
