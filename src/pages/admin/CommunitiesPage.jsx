@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import {
     Search, Plus, Users, MapPin, Factory, Trash2,
-    ChevronRight, Home, Edit2, User, Phone, FileText, Briefcase, Shield
+    ChevronRight, Home, Edit2, User, Phone, FileText, Briefcase, Shield,
+    Download, Upload
 } from 'lucide-react';
 import { CommunityService } from '../../services/communities';
 import CommunityDetail from './CommunityDetail';
 import MemberModal from '../../components/modals/MemberModal';
 import CreateCommunityModal from '../../components/modals/CreateCommunityModal';
+import BulkUploadModal from '../../components/modals/BulkUploadModal';
 
 import { PeopleService } from '../../services/people';
 import PersonModal from '../../components/modals/PersonModal';
@@ -38,6 +40,7 @@ const CommunitiesPage = () => {
     const [isCreateModalOpen, setCreateModalOpen] = useState(false);
     const [isPersonModalOpen, setPersonModalOpen] = useState(false); // For People View
     const [isMillModalOpen, setMillModalOpen] = useState(false); // For Mill Association
+    const [isBulkModalOpen, setBulkModalOpen] = useState(false); // For Bulk Upload
 
     const [editingMember, setEditingMember] = useState(null);
     const [editingPerson, setEditingPerson] = useState(null); // For Person Modal
@@ -318,6 +321,28 @@ const CommunitiesPage = () => {
                             <Plus size={20} />
                         </button>
                     </div>
+
+                    {/* Bulk actions — only for Communities view */}
+                    {activeView === 'communities' && (
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setBulkModalOpen(true)}
+                                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-brand-50 hover:text-brand-700 rounded-xl transition-all border border-slate-200 hover:border-brand-200"
+                                title="Descargar plantilla o cargar información masiva"
+                            >
+                                <Download size={14} />
+                                Plantilla
+                            </button>
+                            <button
+                                onClick={() => setBulkModalOpen(true)}
+                                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl transition-all border border-emerald-200"
+                                title="Cargar información masiva desde Excel"
+                            >
+                                <Upload size={14} />
+                                Cargar Masivo
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* List */}
@@ -617,6 +642,11 @@ const CommunitiesPage = () => {
                     onClose={() => setMillModalOpen(false)}
                 />
             )}
+            <BulkUploadModal
+                isOpen={isBulkModalOpen}
+                onClose={() => setBulkModalOpen(false)}
+                onSuccess={() => { setBulkModalOpen(false); loadCommunities(); }}
+            />
         </div>
     );
 };

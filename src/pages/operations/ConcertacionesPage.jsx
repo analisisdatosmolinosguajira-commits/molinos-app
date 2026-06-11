@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Users, FileSignature, Calendar, Plus, Search, Filter, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { Users, FileSignature, Calendar, Plus, Search, Filter, AlertCircle, CheckCircle, Clock, Download, Upload } from 'lucide-react';
 import { ConcertationService } from '../../services/concertations';
 import StatusBadge from '../../components/ui/StatusBadge';
 import ConcertationForm from './ConcertationForm';
+import ConcertationBulkModal from '../../components/modals/ConcertationBulkModal';
 import PermissionGate from '../../components/auth/PermissionGate';
 
 export default function ConcertacionesPage() {
@@ -15,6 +16,7 @@ export default function ConcertacionesPage() {
     // View State
     const [selectedConcertationId, setSelectedConcertationId] = useState(null);
     const [isCreateMode, setIsCreateMode] = useState(false);
+    const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
     const [searchParams] = useSearchParams();
 
     // Filters
@@ -98,15 +100,33 @@ export default function ConcertacionesPage() {
                     <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Concertaciones</h1>
                     <p className="text-slate-500 mt-1">Acuerdos comunitarios y actas de entrega</p>
                 </div>
-                <PermissionGate module="concertaciones" action="create">
+                <div className="flex items-center gap-2">
                     <button
-                        onClick={() => setIsCreateMode(true)}
-                        className="bg-social-600 hover:bg-social-700 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-social-500/30 transition-all font-bold active:scale-95"
+                        onClick={() => setIsBulkModalOpen(true)}
+                        className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 rounded-xl transition-all"
+                        title="Descargar plantilla de concertaciones"
                     >
-                        <Plus size={20} />
-                        Registrar Acta
+                        <Download size={14} />
+                        Plantilla
                     </button>
-                </PermissionGate>
+                    <button
+                        onClick={() => setIsBulkModalOpen(true)}
+                        className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-xl transition-all"
+                        title="Cargar información masiva desde Excel"
+                    >
+                        <Upload size={14} />
+                        Cargar Masivo
+                    </button>
+                    <PermissionGate module="concertaciones" action="create">
+                        <button
+                            onClick={() => setIsCreateMode(true)}
+                            className="bg-social-600 hover:bg-social-700 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-social-500/30 transition-all font-bold active:scale-95"
+                        >
+                            <Plus size={20} />
+                            Registrar Acta
+                        </button>
+                    </PermissionGate>
+                </div>
             </div>
 
             {/* Filters Bar */}
@@ -211,6 +231,11 @@ export default function ConcertacionesPage() {
                     </tbody>
                 </table>
             </div>
+            <ConcertationBulkModal
+                isOpen={isBulkModalOpen}
+                onClose={() => setIsBulkModalOpen(false)}
+                onSuccess={() => { setIsBulkModalOpen(false); loadConcertations(); }}
+            />
         </div>
     );
 }

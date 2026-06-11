@@ -3,7 +3,7 @@ import {
     Users, MapPin, Factory, History, Calendar,
     Phone, Award, Trash2, Edit2, Plus, Package,
     ChevronDown, ChevronUp, Hash, Home, Baby,
-    GraduationCap, Briefcase, Building2, BookOpen
+    GraduationCap, Briefcase, Building2, BookOpen, Save, X, Check
 } from 'lucide-react';
 import StatusBadge from '../../components/ui/StatusBadge';
 import SocialInfoSection from '../../components/social/SocialInfoSection';
@@ -21,6 +21,55 @@ const CommunityDetail = ({
     onSocialUpdate
 }) => {
     const [activeTab, setActiveTab] = useState('general'); // general, members, history, social_info, deliveries
+    const [editingImpact, setEditingImpact] = useState(false);
+    const [impactSaving, setImpactSaving] = useState(false);
+    const [impactForm, setImpactForm] = useState({
+        number_of_families: community?.number_of_families ?? '',
+        number_of_inhabitants: community?.number_of_inhabitants ?? '',
+        number_of_children: community?.number_of_children ?? '',
+        uca_school: community?.uca_school ?? '',
+        main_productive_activity: community?.main_productive_activity ?? '',
+        benefited_communities_count: community?.benefited_communities_count ?? '',
+        training_communities: community?.training_communities ?? '',
+    });
+
+    const handleEditImpact = () => {
+        setImpactForm({
+            number_of_families: community?.number_of_families ?? '',
+            number_of_inhabitants: community?.number_of_inhabitants ?? '',
+            number_of_children: community?.number_of_children ?? '',
+            uca_school: community?.uca_school ?? '',
+            main_productive_activity: community?.main_productive_activity ?? '',
+            benefited_communities_count: community?.benefited_communities_count ?? '',
+            training_communities: community?.training_communities ?? '',
+        });
+        setEditingImpact(true);
+    };
+
+    const handleCancelImpact = () => setEditingImpact(false);
+
+    const handleSaveImpact = async () => {
+        setImpactSaving(true);
+        try {
+            const payload = {
+                number_of_families: impactForm.number_of_families !== '' ? Number(impactForm.number_of_families) : null,
+                number_of_inhabitants: impactForm.number_of_inhabitants !== '' ? Number(impactForm.number_of_inhabitants) : null,
+                number_of_children: impactForm.number_of_children !== '' ? Number(impactForm.number_of_children) : null,
+                uca_school: impactForm.uca_school || null,
+                main_productive_activity: impactForm.main_productive_activity || null,
+                benefited_communities_count: impactForm.benefited_communities_count !== '' ? Number(impactForm.benefited_communities_count) : null,
+                training_communities: impactForm.training_communities || null,
+            };
+            await CommunityService.updateCommunity(community.community_id, payload);
+            setEditingImpact(false);
+            onSocialUpdate?.();
+        } catch (err) {
+            console.error('Error guardando información social:', err);
+            alert('Error al guardar. Verifique su conexión e intente de nuevo.');
+        } finally {
+            setImpactSaving(false);
+        }
+    };
 
     if (!community) return null;
 
@@ -150,60 +199,192 @@ const CommunityDetail = ({
 
                         {/* Social Impact Data */}
                         <section>
-                            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                <Users size={16} /> Información Social e Impacto
-                            </h3>
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600"><Home size={20} /></div>
-                                    <div>
-                                        <p className="text-blue-500 text-[10px] uppercase font-bold">Familias</p>
-                                        <p className="text-xl font-bold text-blue-800">{community.number_of_families ?? <span className="text-sm text-slate-400 italic">Sin info</span>}</p>
+                            <div className="flex items-center justify-between mb-3">
+                                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                                    <Users size={16} /> Información Social e Impacto
+                                </h3>
+                                {!editingImpact ? (
+                                    <button
+                                        onClick={handleEditImpact}
+                                        className="flex items-center gap-1.5 text-xs bg-brand-50 text-brand-600 hover:bg-brand-100 px-3 py-1.5 rounded-lg font-medium transition-colors"
+                                    >
+                                        <Edit2 size={13} /> Editar
+                                    </button>
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={handleCancelImpact}
+                                            className="flex items-center gap-1.5 text-xs bg-slate-100 text-slate-600 hover:bg-slate-200 px-3 py-1.5 rounded-lg font-medium transition-colors"
+                                        >
+                                            <X size={13} /> Cancelar
+                                        </button>
+                                        <button
+                                            onClick={handleSaveImpact}
+                                            disabled={impactSaving}
+                                            className="flex items-center gap-1.5 text-xs bg-emerald-500 text-white hover:bg-emerald-600 px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-60"
+                                        >
+                                            {impactSaving ? (
+                                                <><span className="animate-spin inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full" /> Guardando...</>
+                                            ) : (
+                                                <><Check size={13} /> Guardar</>
+                                            )}
+                                        </button>
                                     </div>
-                                </div>
-                                <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100 flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600"><Users size={20} /></div>
-                                    <div>
-                                        <p className="text-emerald-500 text-[10px] uppercase font-bold">Habitantes</p>
-                                        <p className="text-xl font-bold text-emerald-800">{community.number_of_inhabitants ?? <span className="text-sm text-slate-400 italic">Sin info</span>}</p>
-                                    </div>
-                                </div>
-                                <div className="bg-pink-50 p-4 rounded-xl border border-pink-100 flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center text-pink-600"><Baby size={20} /></div>
-                                    <div>
-                                        <p className="text-pink-500 text-[10px] uppercase font-bold">Niños</p>
-                                        <p className="text-xl font-bold text-pink-800">{community.number_of_children ?? <span className="text-sm text-slate-400 italic">Sin info</span>}</p>
-                                    </div>
-                                </div>
-                                <div className="bg-amber-50 p-4 rounded-xl border border-amber-100 flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600"><GraduationCap size={20} /></div>
-                                    <div>
-                                        <p className="text-amber-500 text-[10px] uppercase font-bold">UCA / Colegio</p>
-                                        <p className="text-sm font-semibold text-amber-800">{community.uca_school || <span className="text-slate-400 italic">Sin info</span>}</p>
-                                    </div>
-                                </div>
-                                <div className="bg-purple-50 p-4 rounded-xl border border-purple-100 flex items-center gap-3 col-span-2">
-                                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600"><Briefcase size={20} /></div>
-                                    <div>
-                                        <p className="text-purple-500 text-[10px] uppercase font-bold">Actividad Productiva Principal</p>
-                                        <p className="text-sm font-semibold text-purple-800">{community.main_productive_activity || <span className="text-slate-400 italic">Sin info</span>}</p>
-                                    </div>
-                                </div>
-                                <div className="bg-teal-50 p-4 rounded-xl border border-teal-100 flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center text-teal-600"><Building2 size={20} /></div>
-                                    <div>
-                                        <p className="text-teal-500 text-[10px] uppercase font-bold">Com. Beneficiadas</p>
-                                        <p className="text-xl font-bold text-teal-800">{community.benefited_communities_count ?? <span className="text-sm text-slate-400 italic">Sin info</span>}</p>
-                                    </div>
-                                </div>
-                                <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600"><BookOpen size={20} /></div>
-                                    <div>
-                                        <p className="text-indigo-500 text-[10px] uppercase font-bold">Com. p/ Formación</p>
-                                        <p className="text-sm font-semibold text-indigo-800">{community.training_communities || <span className="text-slate-400 italic">Sin info</span>}</p>
-                                    </div>
-                                </div>
+                                )}
                             </div>
+
+                            {!editingImpact ? (
+                                /* ── READ MODE ── */
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600"><Home size={20} /></div>
+                                        <div>
+                                            <p className="text-blue-500 text-[10px] uppercase font-bold">Familias</p>
+                                            <p className="text-xl font-bold text-blue-800">{community.number_of_families ?? <span className="text-sm text-slate-400 italic">Sin info</span>}</p>
+                                        </div>
+                                    </div>
+                                    <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100 flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600"><Users size={20} /></div>
+                                        <div>
+                                            <p className="text-emerald-500 text-[10px] uppercase font-bold">Habitantes</p>
+                                            <p className="text-xl font-bold text-emerald-800">{community.number_of_inhabitants ?? <span className="text-sm text-slate-400 italic">Sin info</span>}</p>
+                                        </div>
+                                    </div>
+                                    <div className="bg-pink-50 p-4 rounded-xl border border-pink-100 flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center text-pink-600"><Baby size={20} /></div>
+                                        <div>
+                                            <p className="text-pink-500 text-[10px] uppercase font-bold">Niños</p>
+                                            <p className="text-xl font-bold text-pink-800">{community.number_of_children ?? <span className="text-sm text-slate-400 italic">Sin info</span>}</p>
+                                        </div>
+                                    </div>
+                                    <div className="bg-amber-50 p-4 rounded-xl border border-amber-100 flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600"><GraduationCap size={20} /></div>
+                                        <div>
+                                            <p className="text-amber-500 text-[10px] uppercase font-bold">UCA / Colegio</p>
+                                            <p className="text-sm font-semibold text-amber-800">{community.uca_school || <span className="text-slate-400 italic">Sin info</span>}</p>
+                                        </div>
+                                    </div>
+                                    <div className="bg-purple-50 p-4 rounded-xl border border-purple-100 flex items-center gap-3 col-span-2">
+                                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600"><Briefcase size={20} /></div>
+                                        <div>
+                                            <p className="text-purple-500 text-[10px] uppercase font-bold">Actividad Productiva Principal</p>
+                                            <p className="text-sm font-semibold text-purple-800">{community.main_productive_activity || <span className="text-slate-400 italic">Sin info</span>}</p>
+                                        </div>
+                                    </div>
+                                    <div className="bg-teal-50 p-4 rounded-xl border border-teal-100 flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center text-teal-600"><Building2 size={20} /></div>
+                                        <div>
+                                            <p className="text-teal-500 text-[10px] uppercase font-bold">Com. Beneficiadas</p>
+                                            <p className="text-xl font-bold text-teal-800">{community.benefited_communities_count ?? <span className="text-sm text-slate-400 italic">Sin info</span>}</p>
+                                        </div>
+                                    </div>
+                                    <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600"><BookOpen size={20} /></div>
+                                        <div>
+                                            <p className="text-indigo-500 text-[10px] uppercase font-bold">Com. p/ Formación</p>
+                                            <p className="text-sm font-semibold text-indigo-800">{community.training_communities || <span className="text-slate-400 italic">Sin info</span>}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                /* ── EDIT MODE ── */
+                                <div className="bg-slate-50 border-2 border-brand-200 rounded-xl p-4 space-y-4 animate-in fade-in duration-200">
+                                    <p className="text-xs text-brand-600 font-semibold">✏️ Modo edición — Modifique los campos y pulse Guardar</p>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {/* Familias */}
+                                        <div>
+                                            <label className="flex items-center gap-1.5 text-xs font-bold text-blue-600 mb-1.5 uppercase">
+                                                <Home size={12} /> Familias
+                                            </label>
+                                            <input
+                                                type="number" min="0"
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-brand-400 outline-none"
+                                                value={impactForm.number_of_families}
+                                                onChange={e => setImpactForm(f => ({ ...f, number_of_families: e.target.value }))}
+                                                placeholder="Nro. de familias"
+                                            />
+                                        </div>
+                                        {/* Habitantes */}
+                                        <div>
+                                            <label className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 mb-1.5 uppercase">
+                                                <Users size={12} /> Habitantes
+                                            </label>
+                                            <input
+                                                type="number" min="0"
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-brand-400 outline-none"
+                                                value={impactForm.number_of_inhabitants}
+                                                onChange={e => setImpactForm(f => ({ ...f, number_of_inhabitants: e.target.value }))}
+                                                placeholder="Nro. de habitantes"
+                                            />
+                                        </div>
+                                        {/* Niños */}
+                                        <div>
+                                            <label className="flex items-center gap-1.5 text-xs font-bold text-pink-600 mb-1.5 uppercase">
+                                                <Baby size={12} /> Niños
+                                            </label>
+                                            <input
+                                                type="number" min="0"
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-brand-400 outline-none"
+                                                value={impactForm.number_of_children}
+                                                onChange={e => setImpactForm(f => ({ ...f, number_of_children: e.target.value }))}
+                                                placeholder="Nro. de niños"
+                                            />
+                                        </div>
+                                        {/* UCA / Colegio */}
+                                        <div>
+                                            <label className="flex items-center gap-1.5 text-xs font-bold text-amber-600 mb-1.5 uppercase">
+                                                <GraduationCap size={12} /> UCA / Colegio
+                                            </label>
+                                            <input
+                                                type="text"
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-brand-400 outline-none"
+                                                value={impactForm.uca_school}
+                                                onChange={e => setImpactForm(f => ({ ...f, uca_school: e.target.value }))}
+                                                placeholder="Ej: UCA, Colegio, Ambos"
+                                            />
+                                        </div>
+                                        {/* Actividad Productiva */}
+                                        <div className="col-span-2">
+                                            <label className="flex items-center gap-1.5 text-xs font-bold text-purple-600 mb-1.5 uppercase">
+                                                <Briefcase size={12} /> Actividad Productiva Principal
+                                            </label>
+                                            <input
+                                                type="text"
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-brand-400 outline-none"
+                                                value={impactForm.main_productive_activity}
+                                                onChange={e => setImpactForm(f => ({ ...f, main_productive_activity: e.target.value }))}
+                                                placeholder="Ej: Pastoreo y Artesanía, Agricultura"
+                                            />
+                                        </div>
+                                        {/* Com. Beneficiadas */}
+                                        <div>
+                                            <label className="flex items-center gap-1.5 text-xs font-bold text-teal-600 mb-1.5 uppercase">
+                                                <Building2 size={12} /> Com. Beneficiadas
+                                            </label>
+                                            <input
+                                                type="number" min="0"
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-brand-400 outline-none"
+                                                value={impactForm.benefited_communities_count}
+                                                onChange={e => setImpactForm(f => ({ ...f, benefited_communities_count: e.target.value }))}
+                                                placeholder="Nro. comunidades"
+                                            />
+                                        </div>
+                                        {/* Com. p/ Formación */}
+                                        <div>
+                                            <label className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 mb-1.5 uppercase">
+                                                <BookOpen size={12} /> Com. p/ Formación
+                                            </label>
+                                            <input
+                                                type="text"
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-brand-400 outline-none"
+                                                value={impactForm.training_communities}
+                                                onChange={e => setImpactForm(f => ({ ...f, training_communities: e.target.value }))}
+                                                placeholder="Ej: Sí, No, 3 comunidades"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </section>
 
                         {/* Recent Activity Summary */}
