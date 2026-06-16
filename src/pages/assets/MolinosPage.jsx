@@ -3,12 +3,13 @@ import { Plus, RefreshCw, Boxes, Edit2, Trash2 } from 'lucide-react';
 import MillSearchFilters from '../../components/mill/MillSearchFilters';
 import MillTable from '../../components/mill/MillTable';
 import MillFormModal from '../../components/mill/MillFormModal';
-import ComponentFormModal from '../../components/mill/ComponentFormModal';
 import ConfirmDeleteModal from '../../components/modals/ConfirmDeleteModal';
+import MillBulkModal from '../../components/modals/MillBulkModal';
+import MillAutoCreateModal from '../../components/modals/MillAutoCreateModal';
+import SystemsManager from '../../components/mill/SystemsManager';
 import Pagination from '../../components/ui/Pagination';
 import MillDetail from './MillDetail';
 import { MillService } from '../../services/mills';
-import { ComponentService } from '../../services/components';
 
 export default function MolinosPage() {
     // Tab state
@@ -29,9 +30,9 @@ export default function MolinosPage() {
 
     // Modal state
     const [showFormModal, setShowFormModal] = useState(false);
-    const [showComponentModal, setShowComponentModal] = useState(false);
+    const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+    const [isAutoCreateModalOpen, setIsAutoCreateModalOpen] = useState(false);
     const [editingMill, setEditingMill] = useState(null);
-    const [editingComponent, setEditingComponent] = useState(null);
     const [deleteModal, setDeleteModal] = useState({ open: false, mill: null });
 
     // Filter state
@@ -208,12 +209,9 @@ export default function MolinosPage() {
         await loadComponents();
     };
 
-    // Load data when tab changes
-    useEffect(() => {
-        if (activeTab === 'components' && components.length === 0) {
-            loadComponents();
-        }
-    }, [activeTab]);
+    // Load data when tab changes (components tab now auto-loads via SystemsManager)
+    useEffect(() => {}, [activeTab]);
+
 
     // Pagination calculations
     const totalPages = Math.ceil(filteredMills.length / itemsPerPage);
@@ -265,22 +263,41 @@ export default function MolinosPage() {
                         <RefreshCw size={18} className={(activeTab === 'mills' ? loading : componentsLoading) ? 'animate-spin' : ''} />
                         Actualizar
                     </button>
-                    {activeTab === 'mills' ? (
-                        <button
-                            onClick={handleAddMill}
-                            className="px-6 py-2.5 bg-brand-600 text-white rounded-xl hover:bg-brand-700 shadow-lg shadow-blue-600/30 transition-all font-bold flex items-center gap-2"
-                        >
-                            <Plus size={20} />
-                            Agregar Molino
-                        </button>
-                    ) : (
-                        <button
-                            onClick={handleAddComponent}
-                            className="px-6 py-2.5 bg-brand-600 text-white rounded-xl hover:bg-brand-700 shadow-lg shadow-purple-600/30 transition-all font-bold flex items-center gap-2"
-                        >
-                            <Plus size={20} />
-                            Agregar Componente
-                        </button>
+                    {activeTab === 'mills' && (
+                        <>
+                            <button
+                                onClick={() => setIsBulkModalOpen(true)}
+                                className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 rounded-xl transition-all"
+                                title="Descargar plantilla de molinos"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                Plantilla
+                            </button>
+                            <button
+                                onClick={() => setIsBulkModalOpen(true)}
+                                className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-xl transition-all"
+                                title="Cargar información masiva desde Excel"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                Cargar Masivo
+                            </button>
+                            <button
+                                onClick={() => setIsAutoCreateModalOpen(true)}
+                                className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-violet-50 text-violet-700 border border-violet-200 hover:bg-violet-100 hover:text-violet-800 rounded-xl transition-all"
+                                title="Crear molinos automáticamente desde comunidades sin molino"
+                            >
+                                {/* Varita mágica inline SVG */}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"></path><path d="m14 7 3 3"></path><path d="M5 6v4"></path><path d="M19 14v4"></path><path d="M10 2v2"></path><path d="M7 8H3"></path><path d="M21 16h-4"></path><path d="M11 3H9"></path></svg>
+                                Crear Masivamente
+                            </button>
+                            <button
+                                onClick={handleAddMill}
+                                className="px-6 py-2.5 bg-brand-600 text-white rounded-xl hover:bg-brand-700 shadow-lg shadow-blue-600/30 transition-all font-bold flex items-center gap-2"
+                            >
+                                <Plus size={20} />
+                                Agregar Molino
+                            </button>
+                        </>
                     )}
                 </div>
             </div>
@@ -361,114 +378,16 @@ export default function MolinosPage() {
                 </>
             )}
 
-            {/* Components Tab Content */}
+            {/* Components / Systems Tab Content */}
             {activeTab === 'components' && (
-                <div className="space-y-4">
-                    {/* Components Count */}
-                    {!componentsLoading && (
-                        <div className="flex items-center justify-between px-2">
-                            <p className="text-sm text-slate-600">
-                                <span className="font-bold text-slate-900">{components.length}</span> componente(s) registrado(s)
-                            </p>
-                        </div>
-                    )}
-
-                    {/* Components Table */}
-                    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead className="bg-slate-50 border-b border-slate-200">
-                                    <tr>
-                                        <th className="px-6 py-4 text-left text-sm font-bold text-slate-700">Código</th>
-                                        <th className="px-6 py-4 text-left text-sm font-bold text-slate-700">Nombre</th>
-                                        <th className="px-6 py-4 text-center text-sm font-bold text-slate-700">Molinos Usando</th>
-                                        <th className="px-6 py-4 text-right text-sm font-bold text-slate-700">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100">
-                                    {componentsLoading ? (
-                                        <tr>
-                                            <td colSpan="4" className="px-6 py-12 text-center">
-                                                <div className="flex items-center justify-center gap-2 text-slate-500">
-                                                    <RefreshCw size={18} className="animate-spin" />
-                                                    Cargando componentes...
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ) : components.length === 0 ? (
-                                        <tr>
-                                            <td colSpan="4" className="px-6 py-12 text-center text-slate-500">
-                                                No hay componentes registrados. Haz click en "Agregar Componente" para comenzar.
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        components.map((component) => (
-                                            <tr key={component.component_id} className="hover:bg-slate-50 transition-colors">
-                                                <td className="px-6 py-4">
-                                                    <span className="font-mono font-semibold text-slate-900">{component.code}</span>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <span className="text-slate-700">{component.name}</span>
-                                                </td>
-                                                <td className="px-6 py-4 text-center">
-                                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${component.mills_using > 0
-                                                        ? 'bg-green-100 text-green-700'
-                                                        : 'bg-slate-100 text-slate-600'
-                                                        }`}>
-                                                        {component.mills_using || 0}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center justify-end gap-2">
-                                                        <button
-                                                            onClick={() => handleEditComponent(component)}
-                                                            className="p-2 text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
-                                                            title="Editar"
-                                                        >
-                                                            <Edit2 size={18} />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDeleteComponent(component)}
-                                                            disabled={component.mills_using > 0}
-                                                            className={`p-2 rounded-lg transition-colors ${component.mills_using > 0
-                                                                ? 'text-slate-300 cursor-not-allowed'
-                                                                : 'text-red-600 hover:bg-red-50'
-                                                                }`}
-                                                            title={component.mills_using > 0 ? 'No se puede eliminar (en uso)' : 'Eliminar'}
-                                                        >
-                                                            <Trash2 size={18} />
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                <SystemsManager />
             )}
 
-            {/* Modals */}
             <MillFormModal
                 isOpen={showFormModal}
-                onClose={() => {
-                    setShowFormModal(false);
-                    setEditingMill(null);
-                }}
+                onClose={() => { setShowFormModal(false); setEditingMill(null); }}
                 onSuccess={handleFormSuccess}
                 millData={editingMill}
-            />
-
-            <ComponentFormModal
-                isOpen={showComponentModal}
-                onClose={() => {
-                    setShowComponentModal(false);
-                    setEditingComponent(null);
-                }}
-                onSuccess={handleComponentSuccess}
-                componentData={editingComponent}
             />
 
             <ConfirmDeleteModal
@@ -478,6 +397,18 @@ export default function MolinosPage() {
                 itemName={deleteModal.itemName}
                 itemType="molino"
                 dependencies={deleteModal.dependencies}
+            />
+
+            <MillBulkModal
+                isOpen={isBulkModalOpen}
+                onClose={() => setIsBulkModalOpen(false)}
+                onSuccess={() => { setIsBulkModalOpen(false); loadMills(); }}
+            />
+
+            <MillAutoCreateModal
+                isOpen={isAutoCreateModalOpen}
+                onClose={() => setIsAutoCreateModalOpen(false)}
+                onSuccess={() => { setIsAutoCreateModalOpen(false); loadMills(); }}
             />
         </div>
     );

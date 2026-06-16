@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap, GeoJSON } from 'react-leaflet';
 import L from 'leaflet';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -7,11 +7,11 @@ import {
     Stethoscope, Handshake, Filter, HelpCircle, Activity, Settings2, Users
 } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
+import guajiraData from '../../data/guajira.json';
 
 // Northern La Guajira center
 const DEFAULT_CENTER = [11.60, -72.50];
 const DEFAULT_ZOOM = 10;
-
 
 // Auto-fit bounds to visible mills
 function FitBounds({ mills }) {
@@ -34,11 +34,17 @@ export default function MillMap({ mills = [], height = '500px' }) {
     const navigate = useNavigate();
     const [activeFilter, setActiveFilter] = useState('ALL');
 
-    // All mills with valid coordinates
-    const geoMills = useMemo(() =>
+    // All mills with valid coordinates (regardless of intervention)
+    const allValidCoordMills = useMemo(() =>
         mills.filter(m => m.latitude && m.longitude &&
             !isNaN(parseFloat(m.latitude)) && !isNaN(parseFloat(m.longitude))),
         [mills]
+    );
+
+    // All mills with valid coordinates and interventions
+    const geoMills = useMemo(() =>
+        allValidCoordMills.filter(m => m.hasIntervention || m.hasReintervention),
+        [allValidCoordMills]
     );
 
     // Compute counts for each filter
@@ -120,7 +126,7 @@ export default function MillMap({ mills = [], height = '500px' }) {
         );
     }
 
-    const noCoordsMills = mills.length - geoMills.length;
+    const noCoordsMills = mills.length - allValidCoordMills.length;
 
     const toggleFilter = (f) => setActiveFilter(activeFilter === f ? 'ALL' : f);
 
@@ -174,6 +180,20 @@ export default function MillMap({ mills = [], height = '500px' }) {
                     <ZoomControl position="bottomright" />
                     <FitBounds mills={visibleMills} />
 
+                    <GeoJSON 
+                        data={{
+                            ...guajiraData,
+                            features: guajiraData.features.filter(f => f.geometry.type !== 'Point')
+                        }} 
+                        style={(feature) => ({
+                            color: feature.properties.color || '#94a3b8',
+                            weight: 2,
+                            fillColor: feature.properties.color || '#94a3b8',
+                            fillOpacity: 0.15,
+                            dashArray: '4, 4'
+                        })} 
+                    />
+
                     {visibleMills.map(mill => {
                         const lat = parseFloat(mill.latitude);
                         const lng = parseFloat(mill.longitude);
@@ -213,6 +233,15 @@ export default function MillMap({ mills = [], height = '500px' }) {
                                                 <span>{mill.community_name}</span>
                                             </div>
                                         )}
+
+                                        <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-2">
+                                            <MapPin size={12} className={mill.isInheritedCoords ? "text-amber-500" : ""} />
+                                            {mill.isInheritedCoords ? (
+                                                <span className="italic text-amber-600">Coordenadas de la comunidad</span>
+                                            ) : (
+                                                <span>{parseFloat(mill.latitude).toFixed(4)}, {parseFloat(mill.longitude).toFixed(4)}</span>
+                                            )}
+                                        </div>
 
                                         {/* Sin Info notice */}
                                         {isSinInfo && (

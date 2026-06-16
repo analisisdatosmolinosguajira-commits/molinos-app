@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Stethoscope, Plus, Search, Filter, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { Stethoscope, Plus, Search, Filter, AlertCircle, CheckCircle, Clock, FileText, Upload, ChevronLeft, ChevronRight } from 'lucide-react';
 import { DiagnosisService } from '../../services/diagnosis';
 import StatusBadge from '../../components/ui/StatusBadge';
 import DiagnosisForm from './DiagnosisForm';
+import DiagnosisExportModal from '../../components/export/DiagnosisExportModal';
+import DiagnosisBulkModal from '../../components/modals/DiagnosisBulkModal';
 import PermissionGate from '../../components/auth/PermissionGate';
 
 export default function DiagnosticosPage() {
@@ -19,6 +21,12 @@ export default function DiagnosticosPage() {
     // Filters
     const [statusFilter, setStatusFilter] = useState('ALL'); // ALL, PENDING, IN_PROGRESS, COMPLETED
     const [searchQuery, setSearchQuery] = useState('');
+    
+    // Modals & Pagination
+    const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+    const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 10;
 
     const [searchParams] = useSearchParams();
 
@@ -73,6 +81,7 @@ export default function DiagnosticosPage() {
         }
 
         setFilteredDiagnoses(result);
+        setCurrentPage(1);
     }
 
     // If editing a specific diagnosis
@@ -96,6 +105,9 @@ export default function DiagnosticosPage() {
         Cancelados: diagnoses.filter(d => d.status === 'CANCELLED').length
     };
 
+    const totalPages = Math.ceil(filteredDiagnoses.length / ITEMS_PER_PAGE);
+    const currentDiagnoses = filteredDiagnoses.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
     return (
         <div className="space-y-6 animate-slide-up pb-10">
             {/* Header */}
@@ -104,15 +116,33 @@ export default function DiagnosticosPage() {
                     <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Diagnósticos</h1>
                     <p className="text-slate-500 mt-1">Evaluaciones técnicas y análisis de componentes</p>
                 </div>
-                <PermissionGate module="diagnosticos" action="create">
+                <div className="flex flex-wrap gap-3">
                     <button
-                        onClick={() => setIsCreateMode(true)}
-                        className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-500/30 transition-all font-bold active:scale-95"
+                        onClick={() => setIsExportModalOpen(true)}
+                        className="bg-white border border-brand-200 text-brand-600 hover:bg-brand-50 px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-sm transition-all font-bold active:scale-95"
                     >
-                        <Plus size={20} />
-                        Nuevo Diagnóstico
+                        <FileText size={20} />
+                        <span className="hidden sm:inline">Formato Físico</span>
                     </button>
-                </PermissionGate>
+                    <PermissionGate module="diagnosticos" action="create">
+                        <button
+                            onClick={() => setIsBulkModalOpen(true)}
+                            className="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-sm transition-all font-bold active:scale-95"
+                        >
+                            <Upload size={20} />
+                            <span className="hidden sm:inline">Cargue Masivo</span>
+                        </button>
+                    </PermissionGate>
+                    <PermissionGate module="diagnosticos" action="create">
+                        <button
+                            onClick={() => setIsCreateMode(true)}
+                            className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-500/30 transition-all font-bold active:scale-95"
+                        >
+                            <Plus size={20} />
+                            Nuevo Diagnóstico
+                        </button>
+                    </PermissionGate>
+                </div>
             </div>
 
             {/* Stats Cards */}
@@ -213,7 +243,7 @@ export default function DiagnosticosPage() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                        {filteredDiagnoses.map(d => (
+                        {currentDiagnoses.map(d => (
                             <tr key={d.diagnosis_id} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => setSelectedDiagnosisId(d.diagnosis_id)}>
                                 <td className="px-6 py-4 font-mono font-bold text-slate-700 text-xs">{d.code}</td>
                                 <td className="px-6 py-4">
@@ -265,7 +295,61 @@ export default function DiagnosticosPage() {
                         )}
                     </tbody>
                 </table>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+                        <div className="text-sm text-slate-500">
+                            Mostrando <span className="font-medium text-slate-700">{((currentPage - 1) * ITEMS_PER_PAGE) + 1}</span> a <span className="font-medium text-slate-700">{Math.min(currentPage * ITEMS_PER_PAGE, filteredDiagnoses.length)}</span> de <span className="font-medium text-slate-700">{filteredDiagnoses.length}</span> resultados
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="p-2 border border-slate-200 rounded-lg hover:bg-white text-slate-600 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
+                            >
+                                <ChevronLeft size={18} />
+                            </button>
+                            <div className="flex items-center gap-1 px-2">
+                                {[...Array(totalPages)].map((_, i) => (
+                                    <button
+                                        key={i + 1}
+                                        onClick={() => setCurrentPage(i + 1)}
+                                        className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
+                                            currentPage === i + 1 
+                                                ? 'bg-brand-600 text-white' 
+                                                : 'text-slate-600 hover:bg-slate-200'
+                                        }`}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+                            </div>
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                className="p-2 border border-slate-200 rounded-lg hover:bg-white text-slate-600 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
+                            >
+                                <ChevronRight size={18} />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
+
+            <DiagnosisExportModal 
+                isOpen={isExportModalOpen} 
+                onClose={() => setIsExportModalOpen(false)} 
+            />
+
+            <DiagnosisBulkModal
+                isOpen={isBulkModalOpen}
+                onClose={() => setIsBulkModalOpen(false)}
+                onSuccess={() => {
+                    setIsBulkModalOpen(false);
+                    loadDiagnoses();
+                }}
+            />
         </div>
     );
 }

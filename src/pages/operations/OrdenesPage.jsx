@@ -6,21 +6,35 @@ import { WorkOrderService } from '../../services/work_orders';
 import OrdenDetail from './OrdenDetail';
 import WorkOrderForm from './WorkOrderForm';
 import PermissionGate from '../../components/auth/PermissionGate';
+import WorkOrderBulkModal from '../../components/modals/WorkOrderBulkModal';
 
 export default function OrdenesPage() {
     const [orders, setOrders] = useState([]);
     const [filteredOrders, setFilteredOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [globalStats, setGlobalStats] = useState({ PENDING: 0, IN_PROGRESS: 0, CANCELLED: 0, COMPLETED: 0 });
 
     // View State
     const [selectedOrderId, setSelectedOrderId] = useState(null);
     const [isCreateMode, setIsCreateMode] = useState(false);
+    const [showBulk, setShowBulk] = useState(false);
     const [searchParams] = useSearchParams();
+
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
+    const PAGE_SIZE = 10;
 
     // Filters
     const [statusFilter, setStatusFilter] = useState('ALL'); // ALL, PENDING, IN_PROGRESS, COMPLETED
     const [searchQuery, setSearchQuery] = useState('');
+
+    useEffect(() => {
+        // Reset page to 1 when filters change
+        setCurrentPage(1);
+    }, [statusFilter, searchQuery]);
 
     useEffect(() => {
         loadOrders();
@@ -33,46 +47,29 @@ export default function OrdenesPage() {
         if (targetId) {
             setSelectedOrderId(targetId);
         }
-    }, [searchParams]);
-
-    useEffect(() => {
-        filterOrders();
-    }, [orders, statusFilter, searchQuery]);
+    }, [searchParams, currentPage, statusFilter, searchQuery]);
 
     async function loadOrders() {
         try {
             setLoading(true);
-            const data = await WorkOrderService.getWorkOrders();
+            const filters = {
+                status: statusFilter,
+                search: searchQuery
+            };
+            const { data, count } = await WorkOrderService.getWorkOrders(filters, currentPage, PAGE_SIZE);
             setOrders(data || []);
-            setFilteredOrders(data || []);
+            setFilteredOrders(data || []); // Rendering consistency
+            setTotalCount(count || 0);
+            setTotalPages(Math.ceil((count || 0) / PAGE_SIZE) || 1);
+
+            const stats = await WorkOrderService.getGlobalStats();
+            setGlobalStats(stats || { PENDING: 0, IN_PROGRESS: 0, CANCELLED: 0, COMPLETED: 0 });
         } catch (err) {
             console.error("Error loading orders:", err);
             setError("No se pudieron cargar las órdenes de trabajo.");
         } finally {
             setLoading(false);
         }
-    }
-
-    function filterOrders() {
-        let result = orders;
-
-        // Status Filter
-        if (statusFilter !== 'ALL') {
-            result = result.filter(o => o.status === statusFilter);
-        }
-
-        // Search Filter
-        if (searchQuery) {
-            const q = searchQuery.toLowerCase();
-            result = result.filter(o =>
-                o.code?.toLowerCase().includes(q) ||
-                o.description?.toLowerCase().includes(q) ||
-                o.mill?.name?.toLowerCase().includes(q) ||
-                o.mill?.code?.toLowerCase().includes(q)
-            );
-        }
-
-        setFilteredOrders(result);
     }
 
     if (selectedOrderId) {
@@ -84,17 +81,8 @@ export default function OrdenesPage() {
         return <WorkOrderForm onBack={() => { setIsCreateMode(false); loadOrders(); }} />;
     }
 
-
     if (loading && orders.length === 0) return <div className="p-8 text-center text-slate-500">Cargando órdenes...</div>;
     if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
-
-    // Calculate generic stats based on loaded orders
-    const stats = {
-        Abiertas: orders.filter(o => o.status === 'PENDING').length,
-        'En Proceso': orders.filter(o => o.status === 'IN_PROGRESS').length,
-        Canceladas: orders.filter(o => o.status === 'CANCELLED').length,
-        Cerradas: orders.filter(o => o.status === 'COMPLETED').length
-    };
 
     return (
         <div className="space-y-6 animate-slide-up pb-10">
@@ -113,11 +101,18 @@ export default function OrdenesPage() {
                                 window.location.reload();
                             }
                         }}
-                        className="bg-slate-100 text-slate-600 px-3 py-2.5 rounded-xl hover:bg-slate-200 transition-all font-medium text-xs hidden md:block" // Hidden on mobile, visible on desktop
+                        className="bg-slate-100 text-slate-600 px-3 py-2.5 rounded-xl hover:bg-slate-200 transition-all font-medium text-xs hidden md:block"
                     >
                         🌱 Seed Data
                     </button>
                     <PermissionGate module="ordenes_trabajo" action="create">
+                        <button
+                            onClick={() => setShowBulk(true)}
+                            className="bg-slate-700 text-white px-4 py-2.5 rounded-xl flex items-center gap-2 hover:bg-slate-800 transition-all font-medium text-sm"
+                        >
+                            <span className="hidden sm:inline">📥</span>
+                            <span>Cargue Masivo</span>
+                        </button>
                         <button
                             onClick={() => setIsCreateMode(true)}
                             className="bg-brand-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-brand-700 shadow-lg shadow-indigo-500/30 transition-all font-medium"
@@ -131,12 +126,22 @@ export default function OrdenesPage() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {Object.entries(stats).map(([label, count]) => (
-                    <div key={label} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{label}</p>
-                        <p className="text-2xl font-bold text-slate-800">{count}</p>
-                    </div>
-                ))}
+                <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Abiertas (Global)</p>
+                    <p className="text-2xl font-bold text-slate-800">{globalStats?.PENDING || 0}</p>
+                </div>
+                <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">En Proceso (Global)</p>
+                    <p className="text-2xl font-bold text-slate-800">{globalStats?.IN_PROGRESS || 0}</p>
+                </div>
+                <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Canceladas (Global)</p>
+                    <p className="text-2xl font-bold text-slate-800">{globalStats?.CANCELLED || 0}</p>
+                </div>
+                <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Cerradas (Global)</p>
+                    <p className="text-2xl font-bold text-slate-800">{globalStats?.COMPLETED || 0}</p>
+                </div>
             </div>
 
             {/* Filters & Search */}
@@ -192,9 +197,12 @@ export default function OrdenesPage() {
                                         wo.priority === 'HIGH' ? 'bg-orange-500' : 'bg-brand-500'
                                         }`}></div>
                                     <div>
-                                        <div className="flex items-center gap-2 mb-1">
+                                        <div className="flex flex-wrap items-center gap-2 mb-1">
                                             <span className="font-mono text-xs font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
                                                 OT-{wo.code || wo.work_order_id}
+                                            </span>
+                                            <span className="font-semibold text-sm text-slate-700 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-100">
+                                                {wo.mill?.name || wo.mill?.code || (wo.mill_id ? `Molino ID: ${wo.mill_id}` : 'Sin Molino')}
                                             </span>
                                             <StatusBadge status={wo.status} />
                                         </div>
@@ -204,7 +212,7 @@ export default function OrdenesPage() {
                                         <div className="flex items-center gap-4 text-sm text-slate-500 mt-2">
                                             <div className="flex items-center gap-1.5">
                                                 <Factory size={14} />
-                                                <span className="font-medium text-slate-700">{wo.mill?.name || wo.mill?.code || 'Sin Molino'}</span>
+                                                <span className="font-medium text-slate-700">{wo.mill?.name || wo.mill?.code || (wo.mill_id ? `Molino ID: ${wo.mill_id}` : 'Sin Molino')}</span>
                                             </div>
                                             <div className="flex items-center gap-1.5">
                                                 <Briefcase size={14} />
@@ -223,7 +231,7 @@ export default function OrdenesPage() {
                                 <div className="flex flex-col items-end gap-2 text-right">
                                     <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg">
                                         <Clock size={14} />
-                                        {new Date(wo.created_at).toLocaleDateString()}
+                                        {new Date(wo.end_date || wo.start_date || wo.created_at).toLocaleDateString()}
                                     </div>
                                 </div>
                             </div>
@@ -245,9 +253,76 @@ export default function OrdenesPage() {
                     </div>
                 )}
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-between bg-white px-4 py-3 border border-slate-200 rounded-xl shadow-sm mt-6">
+                    <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p className="text-sm text-slate-700">
+                                Mostrando <span className="font-medium">{((currentPage - 1) * PAGE_SIZE) + 1}</span> a{' '}
+                                <span className="font-medium">
+                                    {Math.min(currentPage * PAGE_SIZE, totalCount)}
+                                </span>{' '}
+                                de <span className="font-medium">{totalCount}</span> resultados
+                            </p>
+                        </div>
+                        <div>
+                            <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <span className="sr-only">Anterior</span>
+                                    {/* Chevron Left */}
+                                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                </button>
+                                <span className="relative inline-flex items-center px-4 py-2 border border-slate-300 bg-white text-sm font-medium text-slate-700">
+                                    Página {currentPage} de {totalPages}
+                                </span>
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <span className="sr-only">Siguiente</span>
+                                    {/* Chevron Right */}
+                                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+                    {/* Mobile pagination */}
+                    <div className="flex items-center justify-between w-full sm:hidden">
+                        <button
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            className="relative inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50"
+                        >
+                            Anterior
+                        </button>
+                        <span className="text-sm text-slate-700">Pág. {currentPage} / {totalPages}</span>
+                        <button
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                            className="relative inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50"
+                        >
+                            Siguiente
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            <WorkOrderBulkModal
+                isOpen={showBulk}
+                onClose={() => setShowBulk(false)}
+                onSuccess={() => { setShowBulk(false); loadOrders(); }}
+            />
         </div>
     );
 }
-
-
-

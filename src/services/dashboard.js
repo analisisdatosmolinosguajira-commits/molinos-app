@@ -5,8 +5,8 @@ export const DashboardService = {
      * Core KPIs — all queries run in parallel for speed
      */
     async getStats(year = 2026) {
-        const startOfYear = `${year}-01-01T00:00:00`;
-        const endOfYear = `${year}-12-31T23:59:59`;
+        const startOfYear = year === 'ALL' ? '2000-01-01T00:00:00' : `${year}-01-01T00:00:00`;
+        const endOfYear = year === 'ALL' ? '2100-12-31T23:59:59' : `${year}-12-31T23:59:59`;
 
         const [
             { count: totalMolinos },
@@ -36,8 +36,9 @@ export const DashboardService = {
             supabase.from('mill').select('*', { count: 'exact', head: true }).eq('status', 'WITHOUT_INFO'),
         ]);
 
-        // Meta 2026/2025: count non-reintervention completed OTs in the selected year
-        const metaGoal = year === 2025 ? 300 : 280;
+        let metaGoal = 280; // Default for 2026 and others
+        if (year === 2025) metaGoal = 300;
+        else if (year === 'ALL') metaGoal = 500;
 
         const { data: metaData } = await supabase
             .from('work_order')
@@ -94,8 +95,8 @@ export const DashboardService = {
      * Mills for map — with geolocation data
      */
     async getMapMills(year = 2026) {
-        const startOfYear = `${year}-01-01T00:00:00`;
-        const endOfYear = `${year}-12-31T23:59:59`;
+        const startOfYear = year === 'ALL' ? '2000-01-01T00:00:00' : `${year}-01-01T00:00:00`;
+        const endOfYear = year === 'ALL' ? '2100-12-31T23:59:59' : `${year}-12-31T23:59:59`;
 
         // Fetch mills + community social data, and work orders for the selected year
         const [millsRes, otsRes] = await Promise.all([
@@ -235,18 +236,11 @@ export const DashboardService = {
      * A failure is a mill that was intervened in `year` and re-intervened in `year` or `year+1`.
      */
     async getFailureStats(year = 2026) {
-        const startOfYear = `${year}-01-01T00:00:00`;
-        const endOfYear = `${year}-12-31T23:59:59`;
-        const endOfNextYear = `${year + 1}-12-31T23:59:59`;
-
-        // 1. Get all base interventions for the given year
-        const { data: baseInterventions, error: err1 } = await supabase
-            .from('work_order')
-            .select('mill_id')
-            .eq('status', 'COMPLETED')
-            .eq('is_reintervention', false)
-            .gte('start_date', startOfYear)
-            .lte('start_date', endOfYear);
+        let q1 = supabase.from('work_order').select('mill_id').eq('status', 'COMPLETED').eq('is_reintervention', false);
+        if (year !== 'ALL') {
+            q1 = q1.gte('start_date', `${year}-01-01T00:00:00`).lte('start_date', `${year}-12-31T23:59:59`);
+        }
+        const { data: baseInterventions, error: err1 } = await q1;
             
         if (err1) throw err1;
 
@@ -257,15 +251,11 @@ export const DashboardService = {
             return { totalIntervenedMills: 0, failedMills: 0, failureRate: 0 };
         }
 
-        // 2. Check for reinterventions in year or year+1 for these specific mills
-        const { data: reinterventions, error: err2 } = await supabase
-            .from('work_order')
-            .select('mill_id')
-            .eq('status', 'COMPLETED')
-            .eq('is_reintervention', true)
-            .gte('start_date', startOfYear)
-            .lte('start_date', endOfNextYear)
-            .in('mill_id', intervenedMillIds);
+        let q2 = supabase.from('work_order').select('mill_id').eq('status', 'COMPLETED').eq('is_reintervention', true).in('mill_id', intervenedMillIds);
+        if (year !== 'ALL') {
+            q2 = q2.gte('start_date', `${year}-01-01T00:00:00`).lte('start_date', `${year + 1}-12-31T23:59:59`);
+        }
+        const { data: reinterventions, error: err2 } = await q2;
             
         if (err2) throw err2;
 
@@ -281,16 +271,34 @@ export const DashboardService = {
      * Chart work orders for the selected year
      */
     async getChartWorkOrders(year = 2026) {
-        const startOfYear = `${year}-01-01T00:00:00`;
-        const endOfYear = `${year}-12-31T23:59:59`;
-
-        const { data, error } = await supabase
-            .from('work_order')
-            .select('start_date, status, is_reintervention')
-            .gte('start_date', startOfYear)
-            .lte('start_date', endOfYear);
+        let q = supabase.from('work_order').select('start_date, status, is_reintervention');
+        
+        if (year !== 'ALL') {
+            const startOfYear = `${year}-01-01T00:00:00`;
+            const endOfYear = `${year}-12-31T23:59:59`;
+            q = q.gte('start_date', startOfYear).lte('start_date', endOfYear);
+        }
+        
+        const { data, error } = await q;
 
         if (error) throw error;
+
+        if (year === 'ALL') {
+            const years = {};
+            (data || []).forEach(wo => {
+                if (!wo.start_date || wo.status !== 'COMPLETED') return;
+                const y = wo.start_date.substring(0, 4);
+                if (!years[y]) years[y] = { month: y, total: 0, intervention: 0, reintervention: 0 };
+                
+                years[y].total++;
+                if (wo.is_reintervention) years[y].reintervention++;
+                else years[y].intervention++;
+            });
+            return {
+                monthlyData: Object.keys(years).sort().map(k => years[k]),
+                rawOrders: data || []
+            };
+        }
 
         const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
         const months = {};

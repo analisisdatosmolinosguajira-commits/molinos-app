@@ -422,11 +422,37 @@ export const MillService = {
         }
     },
 
+    // ─── Utilidad interna: hereda lat/lon de la comunidad si faltan ───────────
+    async _fillCoordsFromCommunity(millData) {
+        const needsLat = millData.latitude  === null || millData.latitude  === undefined || millData.latitude  === '';
+        const needsLon = millData.longitude === null || millData.longitude === undefined || millData.longitude === '';
+
+        if ((needsLat || needsLon) && millData.community_id) {
+            try {
+                const { data: comm } = await supabase
+                    .from('community')
+                    .select('latitude, longitude')
+                    .eq('community_id', millData.community_id)
+                    .single();
+
+                if (comm) {
+                    if (needsLat  && comm.latitude  !== null && comm.latitude  !== undefined) millData.latitude  = comm.latitude;
+                    if (needsLon && comm.longitude !== null && comm.longitude !== undefined) millData.longitude = comm.longitude;
+                }
+            } catch (_) {
+                // Si falla el lookup no bloqueamos la operación
+            }
+        }
+        return millData;
+    },
+
     // CRUD Operations
     async createMill(millData) {
+        const enriched = await this._fillCoordsFromCommunity({ ...millData });
+
         const { data, error } = await supabase
             .from('mill')
-            .insert([millData])
+            .insert([enriched])
             .select()
             .single();
 
@@ -435,9 +461,11 @@ export const MillService = {
     },
 
     async updateMill(millId, millData) {
+        const enriched = await this._fillCoordsFromCommunity({ ...millData });
+
         const { data, error } = await supabase
             .from('mill')
-            .update(millData)
+            .update(enriched)
             .eq('mill_id', millId)
             .select()
             .single();

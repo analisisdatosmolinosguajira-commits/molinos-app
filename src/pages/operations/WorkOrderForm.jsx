@@ -4,11 +4,13 @@ import { useSearchParams } from 'react-router-dom';
 import {
     Save, X, Calendar, User, Briefcase, FileText,
     Package, Wrench, Shield, Activity, Plus, Trash2,
-    AlertTriangle, CheckCircle
+    AlertTriangle, CheckCircle, Download
 } from 'lucide-react';
 import { WorkOrderService } from '../../services/work_orders';
 import { MillService } from '../../services/mills';
 import { CrewService } from '../../services/crews';
+import { SystemService } from '../../services/systems';
+import { WorkOrderFormatGenerator } from '../../components/export/WorkOrderFormatGenerator';
 import AiAssistantPanel from '../../components/ai/AiAssistantPanel';
 
 export default function WorkOrderForm({ orderId, onBack }) {
@@ -16,7 +18,8 @@ export default function WorkOrderForm({ orderId, onBack }) {
     const isEditing = !!orderId;
 
     // View State
-    const [activeTab, setActiveTab] = useState('general'); // general, resources, safety, components
+    const [activeTab, setActiveTab] = useState('general'); // general, components
+    const [millSystems, setMillSystems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState(null);
@@ -60,8 +63,9 @@ export default function WorkOrderForm({ orderId, onBack }) {
         priority: 'MEDIUM', // LOW, MEDIUM, HIGH, CRITICAL
         status: 'PENDING', // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
         description: '',
-        diagnosis: '', // New field
+        diagnosis: '',
         notes: '',
+        final_observations: '',
         scheduled_date: '',
         start_date: '', // New field
         end_date: '',   // New field
@@ -71,6 +75,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
         // Pump Operations
         pump_id_to_install: null,
         pump_id_to_remove: null,
+        pump_procedure_type: '',
         pump_installation_notes: '',
 
         // Relations
@@ -78,7 +83,8 @@ export default function WorkOrderForm({ orderId, onBack }) {
         materials: [],  // { material_id, quantity_used, tempId? }
         tools: [],      // { tool_id, quantity, tempId? }
         safety: [],     // { safety_id, quantity_required, tempId? }
-        components: []  // { component_id, status, observation } (Loaded from mill)
+        components: [], // { component_id, status, observation } (Loaded from mill)
+        system_observations: {} // { [component_id]: 'text' } for system-level observations
     });
 
     const handleAiApplyFields = useCallback((fields) => {
@@ -86,10 +92,12 @@ export default function WorkOrderForm({ orderId, onBack }) {
             const updated = { ...prev };
             if (fields.description) updated.description = fields.description;
             if (fields.diagnosis) updated.diagnosis = fields.diagnosis;
+            if (fields.notes) updated.notes = fields.notes;
+            if (fields.final_observations) updated.final_observations = fields.final_observations;
+            if (fields.pump_status) updated.pump_status = fields.pump_status;
+            if (fields.scheduled_date) updated.scheduled_date = fields.scheduled_date;
             if (fields.type) updated.type = fields.type;
             if (fields.priority) updated.priority = fields.priority;
-            if (fields.scheduled_date) updated.scheduled_date = fields.scheduled_date;
-            if (fields.notes) updated.notes = fields.notes;
             if (fields.is_reintervention !== undefined) updated.is_reintervention = fields.is_reintervention;
             // Mill matching via fuzzy
             if (fields.mill_id) updated.mill_id = fields.mill_id;
@@ -157,8 +165,6 @@ export default function WorkOrderForm({ orderId, onBack }) {
         }
     }, [isEditing, searchParams]);
 
-
-    // Pump Logic: Auto-fill removed - DELETED per user request (manual only)
 
     // Pump Logic: Repair Same Pump Sync
     useEffect(() => {
@@ -257,8 +263,9 @@ export default function WorkOrderForm({ orderId, onBack }) {
                     description: order.description || '',
                     diagnosis: order.diagnosis || '',
                     notes: order.notes || '',
+                    final_observations: order.final_observations || '',
                     code: order.code || '',
-                    scheduled_date: order.scheduled_date ? order.scheduled_date.split('T')[0] : '', // Extract YYYY-MM-DD
+                    scheduled_date: order.scheduled_date ? new Date(order.scheduled_date).toISOString().split('T')[0] : '',
                     start_date: order.start_date ? order.start_date.split('T')[0] : '',
                     end_date: order.end_date ? order.end_date.split('T')[0] : '',
                     report_url: order.report_url || '',
@@ -266,20 +273,19 @@ export default function WorkOrderForm({ orderId, onBack }) {
                     // Pump Operations
                     pump_id_to_install: order.pump_id_to_install || null,
                     pump_id_to_remove: order.pump_id_to_remove || null,
+                    pump_procedure_type: order.pump_procedure_type || '',
                     pump_installation_notes: order.pump_installation_notes || '',
 
                     pieces: order.resources.pieces.map(p => ({ ...p, tempId: Math.random() })),
                     materials: order.resources.materials.map(m => ({ ...m, tempId: Math.random() })),
                     tools: order.resources.tools.map(t => ({ ...t, tempId: Math.random() })),
                     safety: order.safety.requirements.map(s => ({ ...s, tempId: Math.random() })),
-                    components: order.components.map(c => ({ ...c }))
-                    // Note: If components list is empty in DB (old orders), we might want to fetch from mill
+                    components: order.components.map(c => ({ ...c })),
+                    system_observations: order.system_observations || {}
                 });
 
-                // If existing order has no component status rows, fetch default from mill
-                if (!order.components || order.components.length === 0) {
-                    await loadMillComponents(order.mill_id);
-                }
+                // Always load mill systems hierarchy (required for UI grouping)
+                await loadMillComponents(order.mill_id);
 
             }
 
@@ -294,21 +300,20 @@ export default function WorkOrderForm({ orderId, onBack }) {
     async function loadMillComponents(millId) {
         if (!millId) return;
         try {
-            const comps = await WorkOrderService.getMillComponents(millId);
-            // Merge with existing logic? For now just reset list if clean
-            // If editing, we only want to ADD missing components, not overwrite existing status
-            setFormData(prev => {
-                // If we already have tracked components, keep them (handles editing case partly)
-                // But for new orders, just map
-                if (prev.components.length > 0 && isEditing) return prev;
+            // Always load mill systems hierarchy for UI grouping
+            const systems = await SystemService.getMillSystemStatus(millId);
+            setMillSystems(systems);
 
+            const comps = await WorkOrderService.getMillComponents(millId);
+            setFormData(prev => {
+                if (prev.components.length > 0 && isEditing) return prev;
                 return {
                     ...prev,
                     components: comps.map(c => ({
                         component_id: c.component_id,
-                        name: c.name, // Display only
-                        code: c.code, // Display only
-                        status: 'FUNCIONAL', // Default
+                        name: c.name,
+                        code: c.code,
+                        status: 'FUNCIONAL',
                         observation: ''
                     }))
                 };
@@ -364,6 +369,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
                 status: formData.status,
                 description: formData.description,
                 notes: formData.notes,
+                final_observations: formData.final_observations,
                 scheduled_date: formData.scheduled_date || null,
                 start_date: formData.start_date || null,
                 end_date: formData.end_date || null,
@@ -375,6 +381,7 @@ export default function WorkOrderForm({ orderId, onBack }) {
                 // Add Pump Operations
                 pump_id_to_install: formData.pump_id_to_install,
                 pump_id_to_remove: formData.pump_id_to_remove,
+                pump_procedure_type: formData.pump_procedure_type || null,
                 pump_installation_notes: formData.pump_installation_notes
             },
             pieces: uniquePieces.map(p => ({
@@ -399,7 +406,8 @@ export default function WorkOrderForm({ orderId, onBack }) {
                 status: c.status,
                 observation: c.observation,
                 damage_description: c.damage_description
-            }))
+            })),
+            system_observations: formData.system_observations || {}
         };
 
         if (isEditing) {
@@ -425,9 +433,67 @@ export default function WorkOrderForm({ orderId, onBack }) {
             onBack(); // Go back to list on success
         } catch (err) {
             console.error("Error saving work order:", err);
-            setError(err.message || "Error al guardar la orden");
+            setError(err.message || "Error al guardar la orden.");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleDownloadPDF = async () => {
+        try {
+            const mill = options.mills.find(m => m.mill_id === formData.mill_id) || {};
+            const crew = options.crews.find(c => String(c.crew_id) === String(formData.crew_id)) || {};
+            
+            // Get pump info if exists
+            let pumpInfo = null;
+            if (formData.pump_id_to_install || formData.pump_id_to_remove || formData.pump_procedure_type) {
+                const pumpIds = [];
+                if (formData.pump_id_to_install) pumpIds.push(formData.pump_id_to_install);
+                if (formData.pump_id_to_remove && formData.pump_id_to_remove !== formData.pump_id_to_install) pumpIds.push(formData.pump_id_to_remove);
+                
+                let pumpInstall = null;
+                let pumpRemove = null;
+
+                if (pumpIds.length > 0) {
+                    const { data: pumps } = await supabase.from('pump').select('pump_id, serial_number, model').in('pump_id', pumpIds);
+                    if (pumps) {
+                        pumpInstall = pumps.find(p => String(p.pump_id) === String(formData.pump_id_to_install));
+                        pumpRemove = pumps.find(p => String(p.pump_id) === String(formData.pump_id_to_remove));
+                    }
+                }
+
+                let operation = '';
+                if (formData.pump_id_to_install && formData.pump_id_to_remove && formData.pump_id_to_install === formData.pump_id_to_remove) {
+                    operation = 'Reparación de Misma Bomba';
+                } else if (formData.pump_id_to_install && formData.pump_id_to_remove) {
+                    operation = 'Cambio de Bomba';
+                } else if (formData.pump_id_to_install) {
+                    operation = 'Instalación de Bomba';
+                } else if (formData.pump_id_to_remove) {
+                    operation = 'Desinstalación de Bomba';
+                } else if (formData.pump_procedure_type === 'reparacion_bomba') {
+                    operation = 'Reparación de Bomba';
+                } else if (formData.pump_procedure_type === 'bomba_nueva') {
+                    operation = 'Instalación de Bomba Nueva';
+                } else if (formData.pump_procedure_type === 'bomba_sena') {
+                    operation = 'Instalación Bomba SENA';
+                } else {
+                    operation = 'Operación de Bomba';
+                }
+
+                pumpInfo = {
+                    operation,
+                    install: pumpInstall,
+                    remove: pumpRemove,
+                    procedure_type: formData.pump_procedure_type
+                };
+            }
+
+            await WorkOrderFormatGenerator.generatePDF(mill, millSystems, { ...formData, pumpInfo }, crew);
+        } catch (err) {
+            console.error("Error generating PDF:", err);
+            alert("Hubo un error al generar el PDF.");
         }
     };
 
@@ -671,6 +737,16 @@ export default function WorkOrderForm({ orderId, onBack }) {
                         </button>
                     )}
 
+                    {isEditing && (
+                        <button
+                            onClick={handleDownloadPDF}
+                            className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-2.5 rounded-xl font-bold border border-slate-300 flex items-center gap-2 transition-all active:scale-95"
+                        >
+                            <Download size={20} />
+                            Descargar PDF
+                        </button>
+                    )}
+
                     <button
                         onClick={handleSubmit}
                         disabled={saving}
@@ -685,8 +761,10 @@ export default function WorkOrderForm({ orderId, onBack }) {
             {/* Tabs Navigation */}
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex overflow-x-auto">
                 <TabButton id="general" icon={FileText} label="Información General" />
+                {/* Recursos y EPP ocultos temporalmente
                 <TabButton id="resources" icon={Package} label="Recursos y Materiales" count={stats.resources} />
                 <TabButton id="safety" icon={Shield} label="Seguridad (EPP)" count={stats.safety} />
+                */}
                 <TabButton id="components" icon={Activity} label="Estado de Componentes" />
             </div>
 
@@ -849,12 +927,22 @@ export default function WorkOrderForm({ orderId, onBack }) {
                         </div>
 
                         <div className="col-span-2">
-                            <label className="block text-sm font-bold text-slate-700 mb-2">Notas Adicionales</label>
+                            <label className="block text-sm font-bold text-slate-700 mb-2">Reporte Final</label>
                             <textarea
                                 className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none min-h-[100px]"
-                                placeholder="Detalles extra, observaciones iniciales..."
+                                placeholder="Resumen de labores realizadas, hallazgos, conclusiones y recomendaciones..."
                                 value={formData.notes}
                                 onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                            />
+                        </div>
+
+                        <div className="col-span-2">
+                            <label className="block text-sm font-bold text-slate-700 mb-2">Observaciones Finales</label>
+                            <textarea
+                                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none min-h-[100px]"
+                                placeholder="Observaciones o notas de cierre de la OT..."
+                                value={formData.final_observations}
+                                onChange={e => setFormData({ ...formData, final_observations: e.target.value })}
                             />
                         </div>
 
@@ -1003,6 +1091,22 @@ export default function WorkOrderForm({ orderId, onBack }) {
                                             </option>
                                         ))}
                                     </select>
+                                </div>
+
+                                <div className="col-span-2 md:col-span-1">
+                                    <label className="block text-sm font-bold text-slate-700 mb-2">Procedimiento (Si no hay bomba asignada)</label>
+                                    <select
+                                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none"
+                                        value={formData.pump_procedure_type || ''}
+                                        onChange={e => setFormData({ ...formData, pump_procedure_type: e.target.value })}
+                                        disabled={repairSamePump || !!formData.pump_id_to_install || !!formData.pump_id_to_remove}
+                                    >
+                                        <option value="">Ninguno / No Aplica</option>
+                                        <option value="reparacion_bomba">Reparación de bomba</option>
+                                        <option value="bomba_nueva">Instalación de bomba nueva</option>
+                                        <option value="bomba_sena">Instalación bomba fabricación SENA</option>
+                                    </select>
+                                    <p className="text-xs text-slate-500 mt-1">Úselo cuando el molino no tiene bomba en sistema pero se realizó una labor.</p>
                                 </div>
 
                                 <div className="col-span-2">
@@ -1307,88 +1411,133 @@ export default function WorkOrderForm({ orderId, onBack }) {
                     </div>
                 )}
 
-                {/* 4. COMPONENTS TAB */}
+                {/* 4. COMPONENTS TAB — identical structure to DiagnosisForm */}
                 {activeTab === 'components' && (
                     <div className="space-y-6">
-                        {formData.status !== 'COMPLETED' && (
-                            <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl flex gap-3 text-slate-600 text-sm mb-6">
-                                <Activity className="shrink-0" size={20} />
-                                <p>Este reporte de estado de componentes se guardará permanentemente al marcar la orden como <strong>COMPLETADA</strong>. Utilícelo para actualizar el estado del molino post-mantenimiento.</p>
+                        <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl flex gap-3 text-slate-600 text-sm mb-6">
+                            <Activity className="shrink-0" size={20} />
+                            <p>Reporte de estado agrupado por sistemas. Revise las imágenes de referencia e indique el estado de cada componente. Se guardará al presionar <strong>Guardar Cambios</strong>.</p>
+                        </div>
+
+                        {millSystems.length === 0 && (
+                            <div className="p-8 text-center text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                                {formData.mill_id ? 'Cargando sistemas...' : 'Seleccione un molino para cargar componentes.'}
                             </div>
                         )}
 
-                        <div className="overflow-hidden border border-slate-200 rounded-xl">
-                            <table className="w-full text-sm text-left">
-                                <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-xs">
-                                    <tr>
-                                        <th className="px-4 py-3">Componente</th>
-                                        <th className="px-4 py-3">Estado Reportado</th>
-                                        <th className="px-4 py-3">Observaciones</th>
-                                        <th className="px-4 py-3">Descripción Falla</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100">
-                                    {formData.components.length > 0 ? (
-                                        formData.components.map((comp, idx) => (
-                                            <tr key={comp.component_id} className="hover:bg-slate-50">
-                                                <td className="px-4 py-3 font-medium text-slate-700">
-                                                    {comp.name || `Componente ${comp.component_id} `}
-                                                    {comp.code && <span className="ml-2 text-xs text-slate-400 font-mono">{comp.code}</span>}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <select
-                                                        className={`px-3 py-1 rounded-lg border text-xs font-bold uppercase ${{
-                                                            'FUNCIONAL': 'bg-green-50 border-green-200 text-green-700',
-                                                            'DESGASTADO': 'bg-yellow-50 border-yellow-200 text-yellow-700',
-                                                            'REQUIERE_REVISION': 'bg-brand-50 border-brand-200 text-brand-700',
-                                                            'DANADO': 'bg-red-50 border-red-200 text-red-700',
-                                                            'REQUIERE_CAMBIO': 'bg-orange-50 border-orange-200 text-orange-700',
-                                                            'FALTANTE': 'bg-slate-200 border-slate-300 text-slate-600'
-                                                        }[comp.status] || 'bg-slate-50 border-slate-200 text-slate-700'
-                                                            }`}
-                                                        value={comp.status}
-                                                        onChange={(e) => updateListItem('components', idx, 'status', e.target.value)}
-                                                    >
-                                                        <option value="FUNCIONAL">Funcional</option>
-                                                        <option value="DESGASTADO">Desgastado (Leve)</option>
-                                                        <option value="REQUIERE_REVISION">Requiere Revisión</option>
-                                                        <option value="DANADO">Dañado</option>
-                                                        <option value="REQUIERE_CAMBIO">Requiere Cambio</option>
-                                                        <option value="FALTANTE">Faltante</option>
-                                                    </select>
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <input
-                                                        type="text"
-                                                        className="w-full bg-transparent border-b border-transparent focus:border-brand-300 outline-none text-slate-600 placeholder:text-slate-300"
-                                                        placeholder="Observación..."
-                                                        value={comp.observation || ''}
-                                                        onChange={(e) => updateListItem('components', idx, 'observation', e.target.value)}
-                                                    />
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <input
-                                                        type="text"
-                                                        className="w-full bg-transparent border-b border-transparent focus:border-red-300 outline-none text-slate-600 placeholder:text-slate-300"
-                                                        placeholder="Descripción de Falla..."
-                                                        value={comp.damage_description || ''}
-                                                        onChange={(e) => updateListItem('components', idx, 'damage_description', e.target.value)}
-                                                    />
-                                                </td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan="3" className="px-4 py-8 text-center text-slate-400">
-                                                {formData.mill_id ? 'Cargando componentes...' : 'Seleccione un molino para cargar componentes.'}
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                        <div className="space-y-8">
+                            {millSystems.map((sys) => (
+                                <div key={sys.component_id} className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
+                                    {/* System Header */}
+                                    <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <span className="font-bold font-mono text-brand-600 bg-brand-50 px-2 py-0.5 rounded">{sys.code}</span>
+                                            <h3 className="font-bold text-slate-800 text-lg">{sys.name}</h3>
+                                        </div>
+                                    </div>
+
+                                    {/* Split layout: table left, images right (same as DiagnosisForm) */}
+                                    <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-slate-200">
+                                        <div className="flex-1 overflow-x-auto">
+                                            <table className="w-full text-sm text-left">
+                                                <thead className="bg-white text-slate-500 font-bold uppercase text-xs border-b border-slate-200">
+                                                    <tr>
+                                                        <th className="px-6 py-3 w-1/3">Componente</th>
+                                                        <th className="px-6 py-3 w-1/4">Estado</th>
+                                                        <th className="px-6 py-3">Observaciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-slate-100">
+                                                    {sys.components?.map((sysComp) => {
+                                                        const idx = formData.components.findIndex(c => c.component_id === sysComp.component_id);
+                                                        if (idx === -1) return null;
+                                                        const comp = formData.components[idx];
+                                                        return (
+                                                            <tr key={comp.component_id} className="hover:bg-slate-50">
+                                                                <td className="px-6 py-4 font-medium text-slate-700">
+                                                                    {comp.name || sysComp.name}
+                                                                    {(comp.code || sysComp.code) && <span className="ml-2 text-xs text-slate-400 font-mono">{comp.code || sysComp.code}</span>}
+                                                                </td>
+                                                                <td className="px-6 py-4">
+                                                                    <select
+                                                                        className={`w-full px-3 py-2 rounded-lg border text-sm font-bold uppercase ${{
+                                                                            'FUNCIONAL':         'bg-green-50 border-green-200 text-green-700',
+                                                                            'DESGASTADO':        'bg-yellow-50 border-yellow-200 text-yellow-700',
+                                                                            'REQUIERE_REVISION': 'bg-brand-50 border-brand-200 text-brand-700',
+                                                                            'DANADO':            'bg-red-50 border-red-200 text-red-700',
+                                                                            'FALTANTE':          'bg-slate-200 border-slate-300 text-slate-600',
+                                                                            'NO_REVISADO':       'bg-slate-100 border-slate-200 text-slate-500'
+                                                                        }[comp.status] || 'bg-slate-50 border-slate-200 text-slate-700'}`}
+                                                                        value={comp.status || 'NO_REVISADO'}
+                                                                        onChange={(e) => updateListItem('components', idx, 'status', e.target.value)}
+                                                                    >
+                                                                        <option value="FUNCIONAL">Funcional</option>
+                                                                        <option value="DESGASTADO">Desgastado</option>
+                                                                        <option value="REQUIERE_REVISION">Req. Revisión</option>
+                                                                        <option value="DANADO">Dañado</option>
+                                                                        <option value="FALTANTE">Faltante</option>
+                                                                        <option value="NO_REVISADO">No Revisado</option>
+                                                                    </select>
+                                                                </td>
+                                                                <td className="px-6 py-4">
+                                                                    <textarea
+                                                                        className="w-full bg-slate-50 border border-slate-200 focus:border-brand-300 rounded-lg outline-none text-slate-600 placeholder:text-slate-300 text-sm px-3 py-2 min-h-[60px]"
+                                                                        placeholder="Observación..."
+                                                                        value={comp.observation || ''}
+                                                                        onChange={(e) => updateListItem('components', idx, 'observation', e.target.value)}
+                                                                    />
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                    {(!sys.components || sys.components.length === 0) && (
+                                                        <tr>
+                                                            <td colSpan="3" className="px-6 py-4 text-sm text-slate-400 italic">No hay componentes en este sistema.</td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+
+                                            {/* Observación general del sistema — red border */}
+                                            <div className="p-4 border-t border-slate-200 bg-slate-50">
+                                                <label className="block text-xs font-bold text-slate-600 mb-2 uppercase">Observación general del sistema ({sys.name})</label>
+                                                <textarea
+                                                    className="w-full bg-white border-4 border-red-500 focus:border-red-600 focus:ring-2 focus:ring-red-500/20 rounded-lg outline-none text-slate-700 text-sm px-4 py-3 min-h-[80px]"
+                                                    placeholder="Escriba aquí las observaciones generales sobre el estado de todo el sistema..."
+                                                    value={formData.system_observations?.[sys.component_id] || ''}
+                                                    onChange={(e) => setFormData(prev => ({
+                                                        ...prev,
+                                                        system_observations: {
+                                                            ...prev.system_observations,
+                                                            [sys.component_id]: e.target.value
+                                                        }
+                                                    }))}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Reference images panel — identical to DiagnosisForm */}
+                                        {sys.photo_urls && sys.photo_urls.length > 0 && (
+                                            <div className="w-full lg:w-1/3 p-6 bg-slate-50/50">
+                                                <h4 className="text-xs font-bold text-slate-500 uppercase flex items-center gap-2 mb-4">
+                                                    Imágenes de Referencia
+                                                </h4>
+                                                <div className="flex flex-col gap-4">
+                                                    {sys.photo_urls.map((url, i) => (
+                                                        <a href={url} target="_blank" rel="noopener noreferrer" key={i} className="block bg-slate-900 rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                                                            <img src={url} alt={`Referencia ${i}`} className="w-full h-auto max-h-[600px] object-contain hover:scale-[1.02] transition-transform duration-300" />
+                                                        </a>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 )}
+
 
             </div>
             {/* Completion Modal */}

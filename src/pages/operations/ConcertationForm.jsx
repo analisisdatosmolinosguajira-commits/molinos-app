@@ -35,7 +35,8 @@ export default function ConcertationForm({ concertationId, onBack }) {
         conditions: '',
         notes: '',
         closing_note: '',
-        act_url: '',
+        concertation_act_url: '',
+        delivery_act_url: '',
         conclusions: '',
         related_activity_id: null
     });
@@ -122,7 +123,8 @@ export default function ConcertationForm({ concertationId, onBack }) {
                 conditions: data.conditions || '',
                 notes: data.notes || '',
                 closing_note: data.closing_note || '',
-                act_url: data.act_url || '',
+                concertation_act_url: data.concertation_act_url || '',
+                delivery_act_url: data.delivery_act_url || '',
                 conclusions: data.notes || '',
                 related_activity_id: data.related_activity_id || null
             });
@@ -155,8 +157,10 @@ export default function ConcertationForm({ concertationId, onBack }) {
         try {
             const payload = { ...formData };
             if (!payload.diagnosis_id) payload.diagnosis_id = null;
-            if (!payload.act_url || payload.act_url.trim() === '') payload.act_url = null;
-            else payload.act_url = payload.act_url.trim();
+            if (!payload.concertation_act_url || payload.concertation_act_url.trim() === '') payload.concertation_act_url = null;
+            else payload.concertation_act_url = payload.concertation_act_url.trim();
+            if (!payload.delivery_act_url || payload.delivery_act_url.trim() === '') payload.delivery_act_url = null;
+            else payload.delivery_act_url = payload.delivery_act_url.trim();
             if (!payload.related_activity_id) payload.related_activity_id = null;
             delete payload.code;        // Read only
             delete payload.conclusions;
@@ -179,18 +183,21 @@ export default function ConcertationForm({ concertationId, onBack }) {
         }
     };
 
-    // Save act_url independently without reloading the full form
-    const handleSaveActUrl = async () => {
+    // Save act urls independently without reloading the full form
+    const handleSaveUrls = async () => {
         if (!concertationId) return;
         setSaving(true);
         try {
-            const urlValue = formData.act_url?.trim() || null;
-            await ConcertationService.updateConcertation(concertationId, { act_url: urlValue });
-            setFormData(prev => ({ ...prev, act_url: urlValue || '' }));
-            alert('Link del acta guardado correctamente.');
+            const updates = {
+                concertation_act_url: formData.concertation_act_url?.trim() || null,
+                delivery_act_url: formData.delivery_act_url?.trim() || null
+            };
+            await ConcertationService.updateConcertation(concertationId, updates);
+            setFormData(prev => ({ ...prev, ...updates }));
+            alert('Links de las actas guardados correctamente.');
         } catch (err) {
-            console.error('Error guardando act_url:', err);
-            alert('Error al guardar el link del acta.');
+            console.error('Error guardando links:', err);
+            alert('Error al guardar los links de las actas.');
         } finally {
             setSaving(false);
         }
@@ -346,14 +353,14 @@ export default function ConcertationForm({ concertationId, onBack }) {
                     <button
                         onClick={handleDownloadPDF}
                         className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all ${
-                            formData.act_url
+                            formData.concertation_act_url || formData.delivery_act_url
                                 ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
                                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                         }`}
-                        title={formData.act_url ? 'Descarga el resumen PDF + abre el acta firmada de Drive en una pestaña nueva' : 'Descargar resumen del acta (sin PDF de Drive vinculado)'}
+                        title={(formData.concertation_act_url || formData.delivery_act_url) ? 'Descarga el resumen PDF + abre el/las actas firmadas de Drive' : 'Descargar resumen del acta (sin PDFs vinculados)'}
                     >
                         <Download size={18} />
-                        Acta {formData.act_url ? '✓' : ''}
+                        Acta {(formData.concertation_act_url || formData.delivery_act_url) ? '✓' : ''}
                     </button>
 
                     {isEditing && formData.status === 'pendiente' && (
@@ -522,65 +529,112 @@ export default function ConcertationForm({ concertationId, onBack }) {
                                 />
                             </div>
 
-                            {/* Google Drive Link */}
-                            <div className="border-t border-slate-100 pt-5">
-                                <label className="block text-sm font-bold text-slate-700 mb-1 flex items-center gap-2">
-                                    <Link2 size={15} className="text-blue-500" />
-                                    Acta Firmada — Link de Google Drive
-                                </label>
-                                <p className="text-xs text-slate-400 mb-2">
-                                    Pegue el link del PDF firmado alojado en Google Drive. El archivo debe estar compartido como
-                                    <span className="font-semibold"> "Cualquier persona con el enlace"</span> para que la descarga funcione.
-                                </p>
-                                <div className="flex items-center gap-2">
-                                    <div className="relative flex-1">
-                                        <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                                            {/* Google Drive color icon */}
-                                            <svg viewBox="0 0 87.3 78" className="w-4 h-4" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
-                                                <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/>
-                                                <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/>
-                                                <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
-                                                <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
-                                                <path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 27h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
-                                            </svg>
-                                        </div>
-                                        <input
-                                            type="url"
-                                            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 text-sm transition-all"
-                                            value={formData.act_url || ''}
-                                            onChange={(e) => setFormData({ ...formData, act_url: e.target.value })}
-                                            placeholder="https://drive.google.com/file/d/..."
-                                        />
+                            {/* Google Drive Links */}
+                            <div className="border-t border-slate-100 pt-5 space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 flex items-center gap-2">
+                                            <Link2 size={15} className="text-blue-500" />
+                                            Actas Firmadas — Links de Google Drive
+                                        </label>
+                                        <p className="text-xs text-slate-400 mt-1">
+                                            Pegue el link del PDF firmado alojado en Google Drive. El archivo debe estar compartido como
+                                            <span className="font-semibold"> "Cualquier persona con el enlace"</span>.
+                                        </p>
                                     </div>
-                                    {/* Save act_url button — saves only this field */}
                                     {isEditing && (
                                         <button
                                             type="button"
-                                            onClick={handleSaveActUrl}
+                                            onClick={handleSaveUrls}
                                             disabled={saving}
-                                            className="flex items-center gap-1.5 px-3 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-60 flex-shrink-0"
-                                            title="Guardar link en la base de datos"
+                                            className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-60 flex-shrink-0"
+                                            title="Guardar links en la base de datos"
                                         >
                                             <Save size={14} />
-                                            Guardar link
+                                            Guardar links
                                         </button>
                                     )}
-                                    {formData.act_url && (
-                                        <a
-                                            href={formData.act_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="p-2.5 bg-slate-100 text-slate-600 rounded-lg hover:bg-blue-100 hover:text-blue-600 transition-colors flex-shrink-0"
-                                            title="Abrir en Google Drive"
-                                        >
-                                            <ExternalLink size={18} />
-                                        </a>
-                                    )}
                                 </div>
-                                {formData.act_url && (
-                                    <p className="text-xs text-emerald-600 mt-1.5 flex items-center gap-1">
-                                        <span>✓</span> Link configurado. Al descargar el acta se generará el resumen más el PDF de Drive.
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* Acta de Concertación */}
+                                    <div>
+                                        <label className="block text-xs font-semibold text-slate-600 mb-1">URL Acta de Concertación</label>
+                                        <div className="flex items-center gap-2">
+                                            <div className="relative flex-1">
+                                                <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                                                    <svg viewBox="0 0 87.3 78" className="w-4 h-4" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+                                                        <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/>
+                                                        <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/>
+                                                        <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
+                                                        <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
+                                                        <path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 27h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
+                                                    </svg>
+                                                </div>
+                                                <input
+                                                    type="url"
+                                                    className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 text-sm transition-all"
+                                                    value={formData.concertation_act_url || ''}
+                                                    onChange={(e) => setFormData({ ...formData, concertation_act_url: e.target.value })}
+                                                    placeholder="https://drive.google.com/file/d/..."
+                                                />
+                                            </div>
+                                            {formData.concertation_act_url && (
+                                                <a
+                                                    href={formData.concertation_act_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-blue-100 hover:text-blue-600 transition-colors flex-shrink-0"
+                                                    title="Abrir en Google Drive"
+                                                >
+                                                    <ExternalLink size={16} />
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Acta de Entrega */}
+                                    <div>
+                                        <label className="block text-xs font-semibold text-slate-600 mb-1">URL Acta de Entrega</label>
+                                        <div className="flex items-center gap-2">
+                                            <div className="relative flex-1">
+                                                <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                                                    <svg viewBox="0 0 87.3 78" className="w-4 h-4" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+                                                        <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/>
+                                                        <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/>
+                                                        <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
+                                                        <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
+                                                        <path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 27h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
+                                                    </svg>
+                                                </div>
+                                                <input
+                                                    type="url"
+                                                    className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 text-sm transition-all"
+                                                    value={formData.delivery_act_url || ''}
+                                                    onChange={(e) => setFormData({ ...formData, delivery_act_url: e.target.value })}
+                                                    placeholder="https://drive.google.com/file/d/..."
+                                                />
+                                            </div>
+                                            {formData.delivery_act_url && (
+                                                <a
+                                                    href={formData.delivery_act_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-blue-100 hover:text-blue-600 transition-colors flex-shrink-0"
+                                                    title="Abrir en Google Drive"
+                                                >
+                                                    <ExternalLink size={16} />
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {(formData.concertation_act_url || formData.delivery_act_url) && (
+                                    <p className="text-xs text-emerald-600 mt-2 flex items-center gap-1">
+                                        <span>✓</span> Link(s) configurado(s). Al descargar el acta se generará el resumen más lo(s) PDF(s) de Drive.
                                     </p>
                                 )}
                             </div>

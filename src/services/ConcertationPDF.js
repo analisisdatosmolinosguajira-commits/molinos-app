@@ -245,10 +245,17 @@ export const ConcertationPDF = {
 
             // 2. Si hay URL de Drive, abrir en pestaña nueva (pequeño delay para que el
             //    navegador no bloquee las dos acciones como popups simultáneos)
-            if (data.act_url) {
+            let delay = 400;
+            if (data.concertation_act_url) {
                 setTimeout(() => {
-                    window.open(data.act_url, '_blank', 'noopener,noreferrer');
-                }, 400);
+                    window.open(data.concertation_act_url, '_blank', 'noopener,noreferrer');
+                }, delay);
+                delay += 200;
+            }
+            if (data.delivery_act_url) {
+                setTimeout(() => {
+                    window.open(data.delivery_act_url, '_blank', 'noopener,noreferrer');
+                }, delay);
             }
 
         } catch (err) {

@@ -103,6 +103,44 @@ export const CrewService = {
         if (error) throw error;
         return data;
     },
+
+    // Update crew signature and leader info
+    async updateCrewSignature(id, signatureData, imageFile) {
+        let signature_url = signatureData.signature_url;
+
+        if (imageFile) {
+            const fileExt = imageFile.name.split('.').pop();
+            const fileName = `signatures/crew_${id}_${Date.now()}.${fileExt}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('system-photos')
+                .upload(fileName, imageFile, { upsert: true });
+
+            if (uploadError) throw uploadError;
+
+            const { data } = supabase.storage
+                .from('system-photos')
+                .getPublicUrl(fileName);
+
+            signature_url = data.publicUrl;
+        }
+
+        const { data, error } = await supabase
+            .from('crew')
+            .update({
+                leader_name: signatureData.leader_name,
+                leader_document: signatureData.leader_document,
+                leader_role: signatureData.leader_role,
+                signature_url: signature_url
+            })
+            .eq('crew_id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    },
+
     // Member Management
     // Member Management
     async addMember(crewId, personId, role, startDate = new Date().toISOString().split('T')[0]) {

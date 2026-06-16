@@ -2,25 +2,49 @@ import { supabase } from './supabase.js';
 
 export const WorkOrderService = {
     // 1. List View
-    async getWorkOrders(filters = {}) {
+    async getWorkOrders(filters = {}, page = 1, limit = 10) {
         let query = supabase
             .from('work_order')
             .select(`
                 *,
-                mill (code, name),
+                mill (code, name, community!fk_mill_community (name)),
                 crew (name),
                 related_activity:planned_activity!work_order_related_activity_id_fkey (
                     activity_id,
                     title,
                     activity_type (name)
                 )
-            `)
+            `, { count: 'exact' })
             .order('created_at', { ascending: false });
 
-        if (filters.status) query = query.eq('status', filters.status);
+        if (filters.status && filters.status !== 'ALL') query = query.eq('status', filters.status);
         if (filters.mill_id) query = query.eq('mill_id', filters.mill_id);
+        
+        if (filters.search) {
+            const term = `%${filters.search}%`;
+            // Get IDs from the search view
+            const { data: searchHits } = await supabase
+                .from('v_work_order_search')
+                .select('work_order_id')
+                .or(`description.ilike.${term},wo_code.ilike.${term},mill_name.ilike.${term},community_name.ilike.${term}`);
+            const ids = searchHits ? searchHits.map(h => h.work_order_id) : [];
+            query = query.in('work_order_id', ids.length ? ids : [-1]);
+        }
 
-        const { data, error } = await query;
+        // Pagination
+        if (limit > 0) {
+            const from = (page - 1) * limit;
+            const to = from + limit - 1;
+            query = query.range(from, to);
+        }
+
+        const { data, error, count } = await query;
+        if (error) throw error;
+        return { data, count };
+    },
+
+    async getGlobalStats() {
+        const { data, error } = await supabase.rpc('get_work_orders_stats');
         if (error) throw error;
         return data;
     },
@@ -245,8 +269,7 @@ export const WorkOrderService = {
             if (rpcError) throw rpcError;
         }
 
-        // 4.3 Component Status Reporting (Usually only on completion)
-        // Kept separate as it's often a distinct step, but could be integrated if needed.
+        // 4.3 Component Status Reporting
         if (woData.components && woData.components.length > 0) {
             const payload = woData.components.map(c => ({
                 work_order_id: id,
@@ -256,13 +279,21 @@ export const WorkOrderService = {
                 damage_description: c.damage_description || null
             }));
 
-            // Upsert to handle existing records
             const { error } = await supabase
                 .from('work_order_component_status')
                 .upsert(payload, {
                     onConflict: 'work_order_id,component_id'
                 });
 
+            if (error) throw error;
+        }
+
+        // 4.4 Save system_observations (JSONB column on work_order)
+        if (woData.system_observations !== undefined) {
+            const { error } = await supabase
+                .from('work_order')
+                .update({ system_observations: woData.system_observations })
+                .eq('work_order_id', id);
             if (error) throw error;
         }
     },

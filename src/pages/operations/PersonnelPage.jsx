@@ -12,6 +12,7 @@ import CrewModal from '../../components/personnel/CrewModal';
 import CrewMemberModal from '../../components/operations/CrewMemberModal';
 import OperationalStaffModal from '../../components/operations/OperationalStaffModal';
 import CrewAssignmentBoard from '../../components/personnel/CrewAssignmentBoard';
+import CrewSignatureEditor from './CrewSignatureEditor';
 import SupplyBoxPanel from '../../components/supplyBox/SupplyBoxPanel';
 import SupplyBoxManagerModal from '../../components/supplyBox/SupplyBoxManagerModal';
 import { SupplyBoxService } from '../../services/supplyBox';
@@ -469,6 +470,14 @@ function CrewsView({ crews, selectedCrew, onSelectCrew, onEditCrew, activities =
                                 />
                             )}
                         </div>
+
+                        {/* Crew Signature */}
+                        <CrewSignatureEditor 
+                            crew={selectedCrew} 
+                            onUpdated={(updatedCrew) => {
+                                onSelectCrew(selectedCrew.crew_id); // reload crew details
+                            }} 
+                        />
                     </div>
                 ) : (
                     <div className="bg-slate-50 rounded-2xl border border-dashed border-slate-200 h-96 flex flex-col items-center justify-center text-slate-400">

@@ -3,14 +3,16 @@ import { useSearchParams } from 'react-router-dom';
 import {
     Save, X, Calendar, User, Briefcase, FileText,
     Package, Wrench, Shield, Activity, Plus, Trash2,
-    AlertTriangle, CheckCircle, Search, Thermometer, Zap
+    AlertTriangle, CheckCircle, Search, Thermometer, Zap, FileSpreadsheet, ExternalLink, Download
 } from 'lucide-react';
 import { DiagnosisService } from '../../services/diagnosis';
 import { MillService } from '../../services/mills';
 import { CrewService } from '../../services/crews';
 import { WorkOrderService } from '../../services/work_orders';
+import { SystemService } from '../../services/systems';
 import { supabase } from '../../services/supabase';
 import AiAssistantPanel from '../../components/ai/AiAssistantPanel';
+import { DiagnosisFormatGenerator } from '../../components/export/DiagnosisFormatGenerator';
 
 export default function DiagnosisForm({ diagnosisId, onBack }) {
     // Mode
@@ -48,11 +50,22 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
         safety: {}     // { safety_id: { quantity_available, name } }
     });
 
+    const [millSystems, setMillSystems] = useState([]);
+
     // Form Stats (for badge counts)
     const [stats, setStats] = useState({
         resources: 0,
         safety: 0
     });
+
+    const PREDEFINED_MATERIALS = [
+        "Tubos arriba",
+        "Tubos abajo",
+        "Flanche",
+        "Tubería PVC",
+        "Unión universal",
+        "Llave de paso 2\" PVC"
+    ].map((item, idx) => ({ item, quantity: '', is_custom: false, tempId: `pref-${idx}` }));
 
     // Form Data
     const [formData, setFormData] = useState({
@@ -88,7 +101,8 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
         safety: [],     // { safety_id, quantity_required, tempId? }
 
         // Enhanced Component Status (Tab 5)
-        components: []  // { component_id, status, observation, wear_percentage, vibration_level, etc. }
+        components: [], // { component_id, status, observation, wear_percentage, vibration_level, etc. }
+        maintenance_materials: PREDEFINED_MATERIALS // { item, quantity }
     });
 
     const handleAiApplyFields = useCallback((fields) => {
@@ -195,13 +209,16 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                     materials: diagnosis.materials?.map(m => ({ ...m, tempId: Math.random() })) || [],
                     tools: diagnosis.tools?.map(t => ({ ...t, tempId: Math.random() })) || [],
                     safety: diagnosis.safety?.map(s => ({ ...s, tempId: Math.random() })) || [],
-                    components: diagnosis.components?.map(c => ({ ...c })) || []
+                    components: diagnosis.components?.map(c => ({ ...c })) || [],
+                    maintenance_materials: (diagnosis.maintenance_materials && diagnosis.maintenance_materials.length > 0)
+                        ? diagnosis.maintenance_materials.map(m => ({ ...m, tempId: Math.random() }))
+                        : PREDEFINED_MATERIALS,
+                    system_observations: diagnosis.system_observations || {}
                 });
 
-                // If no component status rows, fetch default from mill
-                if (!diagnosis.components || diagnosis.components.length === 0) {
-                    await loadMillComponents(diagnosis.mill_id);
-                }
+                // Always load mill components (this sets millSystems which is required for UI)
+                // loadMillComponents already has a safety check to not overwrite existing components when editing
+                await loadMillComponents(diagnosis.mill_id);
             }
         } catch (err) {
             console.error('Error loading data:', err);
@@ -305,6 +322,10 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
     async function loadMillComponents(millId) {
         if (!millId) return;
         try {
+            // Load hierarchy for UI grouping
+            const systems = await SystemService.getMillSystemStatus(millId);
+            setMillSystems(systems);
+
             const comps = await WorkOrderService.getMillComponents(millId);
             setFormData(prev => {
                 if (prev.components.length > 0 && isEditing) return prev;
@@ -316,16 +337,7 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                         name: c.name,
                         code: c.code,
                         status: 'FUNCIONAL',
-                        observation: '',
-                        // Enhanced fields for diagnosis
-                        wear_percentage: null,
-                        vibration_level: null,
-                        temperature_status: null,
-                        noise_level: null,
-                        lubrication_status: null,
-                        requires_immediate_action: false,
-                        estimated_remaining_life_days: null,
-                        priority_for_replacement: null
+                        observation: ''
                     }))
                 };
             });
@@ -333,6 +345,16 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
             console.error("Error loading mill components", e);
         }
     }
+
+    const handleSaveDriveLink = async () => {
+        try {
+            await DiagnosisService.updateDiagnosis(diagnosisId, { drive_link: formData.drive_link });
+            alert("Enlace guardado correctamente en la base de datos.");
+        } catch (err) {
+            console.error("Error saving drive link:", err);
+            alert("Error al guardar el enlace: " + err.message);
+        }
+    };
 
     const handleSubmit = async () => {
         try {
@@ -499,17 +521,10 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                 components: formData.components.map(c => ({
                     component_id: c.component_id,
                     status: c.status,
-                    observation: c.observation || null,
-                    deterioration_notes: c.deterioration_notes || null,
-                    wear_percentage: c.wear_percentage || null,
-                    vibration_level: c.vibration_level || null,
-                    temperature_status: c.temperature_status || null,
-                    noise_level: c.noise_level || null,
-                    lubrication_status: c.lubrication_status || null,
-                    requires_immediate_action: c.requires_immediate_action || false,
-                    estimated_remaining_life_days: c.estimated_remaining_life_days || null,
-                    priority_for_replacement: c.priority_for_replacement || null
-                }))
+                    observation: c.observation || null
+                })),
+                maintenance_materials: formData.maintenance_materials || [],
+                system_observations: formData.system_observations || {}
             };
 
             // === 4. SAVE ===
@@ -593,17 +608,10 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                 components: formData.components.map(c => ({
                     component_id: c.component_id,
                     status: c.status,
-                    observation: c.observation || null,
-                    deterioration_notes: c.deterioration_notes || null,
-                    wear_percentage: c.wear_percentage || null,
-                    vibration_level: c.vibration_level || null,
-                    temperature_status: c.temperature_status || null,
-                    noise_level: c.noise_level || null,
-                    lubrication_status: c.lubrication_status || null,
-                    requires_immediate_action: c.requires_immediate_action || false,
-                    estimated_remaining_life_days: c.estimated_remaining_life_days || null,
-                    priority_for_replacement: c.priority_for_replacement || null
-                }))
+                    observation: c.observation || null
+                })),
+                maintenance_materials: formData.maintenance_materials || [],
+                system_observations: formData.system_observations || {}
             };
 
             // Save first (without navigation)
@@ -643,6 +651,33 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
             setError(err.message || "Error al completar el diagnóstico");
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleExport = async (format) => {
+        try {
+            const mill = options.mills.find(m => m.mill_id === formData.mill_id);
+            if (!mill) {
+                alert("Debe seleccionar un molino primero.");
+                return;
+            }
+
+            const exportData = {
+                ...formData,
+                crew_name: options.crews.find(c => String(c.crew_id) === String(formData.crew_id))?.name || '',
+                pump_name: options.pumps.find(p => String(p.pump_id) === String(formData.pump_id))?.serial_number || ''
+            };
+
+            const crew = options.crews.find(c => String(c.crew_id) === String(formData.crew_id)) || {};
+
+            if (format === 'pdf') {
+                await DiagnosisFormatGenerator.generatePDF(mill, millSystems, exportData, crew);
+            } else {
+                await DiagnosisFormatGenerator.generateExcel(mill, millSystems, exportData);
+            }
+        } catch (err) {
+            console.error("Error exporting:", err);
+            alert("Error al exportar el diagnóstico.");
         }
     };
 
@@ -808,6 +843,28 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                     )}
 
                     <button
+                        onClick={() => handleExport('pdf')}
+                        className="bg-white border border-red-200 text-red-600 hover:bg-red-50 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 transition-all active:scale-95"
+                        title="Exportar reporte diligenciado en PDF"
+                    >
+                        <Download size={20} />
+                        <span className="hidden md:inline">PDF</span>
+                    </button>
+
+                    <button
+                        onClick={async () => {
+                            if (!formData.mill_id || millSystems.length === 0) return;
+                            const mill = options.mills.find(m => m.mill_id == formData.mill_id);
+                            await DiagnosisFormatGenerator.generateExcel(mill, millSystems);
+                        }}
+                        className="bg-white border border-green-200 text-green-600 hover:bg-green-50 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 transition-all active:scale-95"
+                        title="Descargar plantilla de Excel vacía"
+                    >
+                        <FileSpreadsheet size={20} />
+                        <span className="hidden md:inline">Excel</span>
+                    </button>
+
+                    <button
                         onClick={handleSubmit}
                         disabled={saving}
                         className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-500/30 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
@@ -822,8 +879,10 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex overflow-x-auto">
                 <TabButton id="general" icon={FileText} label="Información General" />
                 <TabButton id="findings" icon={Search} label="Hallazgos Técnicos" />
+                {/* Temporarily hidden as requested
                 <TabButton id="resources" icon={Package} label="Recursos & Materiales" count={stats.resources} />
                 <TabButton id="safety" icon={Shield} label="Seguridad (EPP)" count={stats.safety} />
+                */}
                 <TabButton id="components" icon={Activity} label="Estado de Componentes" />
                 <TabButton id="pump" icon={Zap} label="Condición de Bomba" />
             </div>
@@ -1011,6 +1070,39 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                                 readOnly
                             />
                             <p className="text-xs text-slate-500 mt-1">La bomba se selecciona automáticamente del molino</p>
+                        </div>
+
+                        <div className="col-span-2">
+                            <label className="block text-sm font-bold text-slate-700 mb-2">Enlace de Reporte (Drive)</label>
+                            <div className="flex gap-2 items-center">
+                                <input
+                                    type="url"
+                                    className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all text-sm"
+                                    placeholder="https://drive.google.com/..."
+                                    value={formData.drive_link || ''}
+                                    onChange={e => setFormData({ ...formData, drive_link: e.target.value })}
+                                />
+                                {diagnosisId && (
+                                    <button
+                                        onClick={handleSaveDriveLink}
+                                        type="button"
+                                        className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm transition-colors"
+                                    >
+                                        Guardar Link
+                                    </button>
+                                )}
+                                {formData.drive_link && (
+                                    <a
+                                        href={formData.drive_link.startsWith('http') ? formData.drive_link : `https://${formData.drive_link}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="bg-slate-100 hover:bg-slate-200 text-brand-600 p-2 rounded-xl transition-colors flex items-center justify-center"
+                                        title="Mostrar Reporte"
+                                    >
+                                        <ExternalLink size={20} />
+                                    </a>
+                                )}
+                            </div>
                         </div>
 
                         <div className="col-span-2">
@@ -1329,134 +1421,207 @@ export default function DiagnosisForm({ diagnosisId, onBack }) {
                     <div className="space-y-6">
                         <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl flex gap-3 text-slate-600 text-sm mb-6">
                             <Activity className="shrink-0" size={20} />
-                            <p>Reporte detallado del estado de cada componente con métricas avanzadas para diagnóstico.</p>
+                            <p>Reporte de estado agrupado por sistemas. Revise las imágenes de referencia e indique el estado de cada componente.</p>
                         </div>
 
-                        <div className="overflow-x-auto border border-slate-200 rounded-xl">
-                            <table className="w-full text-sm text-left">
-                                <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-xs">
-                                    <tr>
-                                        <th className="px-4 py-3">Componente</th>
-                                        <th className="px-4 py-3">Estado</th>
-                                        <th className="px-4 py-3">Desgaste %</th>
-                                        <th className="px-4 py-3">Vibración</th>
-                                        <th className="px-4 py-3">Temperatura</th>
-                                        <th className="px-4 py-3">Ruido</th>
-                                        <th className="px-4 py-3">Lubricación</th>
-                                        <th className="px-4 py-3">Observaciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100">
-                                    {formData.components.length > 0 ? (
-                                        formData.components.map((comp, idx) => (
-                                            <tr key={comp.component_id} className="hover:bg-slate-50">
-                                                <td className="px-4 py-3 font-medium text-slate-700">
-                                                    {comp.name || `Componente ${comp.component_id}`}
-                                                    {comp.code && <span className="ml-2 text-xs text-slate-400 font-mono">{comp.code}</span>}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <select
-                                                        className={`px-3 py-1 rounded-lg border text-xs font-bold uppercase ${{
-                                                            'FUNCIONAL': 'bg-green-50 border-green-200 text-green-700',
-                                                            'DESGASTADO': 'bg-yellow-50 border-yellow-200 text-yellow-700',
-                                                            'REQUIERE_REVISION': 'bg-brand-50 border-brand-200 text-brand-700',
-                                                            'DANADO': 'bg-red-50 border-red-200 text-red-700',
-                                                            'REQUIERE_CAMBIO': 'bg-orange-50 border-orange-200 text-orange-700',
-                                                            'FALTANTE': 'bg-slate-200 border-slate-300 text-slate-600'
-                                                        }[comp.status] || 'bg-slate-50 border-slate-200 text-slate-700'
-                                                            }`}
-                                                        value={comp.status}
-                                                        onChange={(e) => updateListItem('components', idx, 'status', e.target.value)}
-                                                    >
-                                                        <option value="FUNCIONAL">Funcional</option>
-                                                        <option value="DESGASTADO">Desgastado</option>
-                                                        <option value="REQUIERE_REVISION">Req. Revisión</option>
-                                                        <option value="DANADO">Dañado</option>
-                                                        <option value="REQUIERE_CAMBIO">Req. Cambio</option>
-                                                        <option value="FALTANTE">Faltante</option>
-                                                    </select>
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        max="100"
-                                                        className="w-20 bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs"
-                                                        placeholder="%"
-                                                        value={comp.wear_percentage || ''}
-                                                        onChange={(e) => updateListItem('components', idx, 'wear_percentage', e.target.value)}
-                                                    />
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <select
-                                                        className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs"
-                                                        value={comp.vibration_level || ''}
-                                                        onChange={(e) => updateListItem('components', idx, 'vibration_level', e.target.value)}
-                                                    >
-                                                        <option value="">-</option>
-                                                        <option value="NORMAL">Normal</option>
-                                                        <option value="LEVE">Leve</option>
-                                                        <option value="MODERADO">Moderado</option>
-                                                        <option value="ALTO">Alto</option>
-                                                    </select>
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <select
-                                                        className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs"
-                                                        value={comp.temperature_status || ''}
-                                                        onChange={(e) => updateListItem('components', idx, 'temperature_status', e.target.value)}
-                                                    >
-                                                        <option value="">-</option>
-                                                        <option value="NORMAL">Normal</option>
-                                                        <option value="ELEVADO">Elevado</option>
-                                                        <option value="CRITICO">Crítico</option>
-                                                    </select>
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <select
-                                                        className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs"
-                                                        value={comp.noise_level || ''}
-                                                        onChange={(e) => updateListItem('components', idx, 'noise_level', e.target.value)}
-                                                    >
-                                                        <option value="">-</option>
-                                                        <option value="NORMAL">Normal</option>
-                                                        <option value="LEVE">Leve</option>
-                                                        <option value="MODERADO">Moderado</option>
-                                                        <option value="ALTO">Alto</option>
-                                                    </select>
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <select
-                                                        className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs"
-                                                        value={comp.lubrication_status || ''}
-                                                        onChange={(e) => updateListItem('components', idx, 'lubrication_status', e.target.value)}
-                                                    >
-                                                        <option value="">-</option>
-                                                        <option value="BUENO">Bueno</option>
-                                                        <option value="REGULAR">Regular</option>
-                                                        <option value="MALO">Malo</option>
-                                                    </select>
-                                                </td>
-                                                <td className="px-4 py-3">
+                        {millSystems.length === 0 && (
+                            <div className="p-8 text-center text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                                {formData.mill_id ? 'Cargando sistemas...' : 'Seleccione un molino para cargar componentes.'}
+                            </div>
+                        )}
+
+                        <div className="space-y-8">
+                            {millSystems.map((sys) => (
+                                <div key={sys.component_id} className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
+                                    <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <span className="font-bold font-mono text-brand-600 bg-brand-50 px-2 py-0.5 rounded">{sys.code}</span>
+                                            <h3 className="font-bold text-slate-800 text-lg">{sys.name}</h3>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-slate-200">
+                                        <div className="flex-1 overflow-x-auto">
+                                            <table className="w-full text-sm text-left">
+                                                <thead className="bg-white text-slate-500 font-bold uppercase text-xs border-b border-slate-200">
+                                                    <tr>
+                                                        <th className="px-6 py-3 w-1/3">Componente</th>
+                                                        <th className="px-6 py-3 w-1/4">Estado</th>
+                                                        <th className="px-6 py-3">Observaciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-slate-100">
+                                                    {sys.components.map((sysComp) => {
+                                                        const idx = formData.components.findIndex(c => c.component_id === sysComp.component_id);
+                                                        if (idx === -1) return null;
+                                                        const comp = formData.components[idx];
+
+                                                        return (
+                                                            <tr key={comp.component_id} className="hover:bg-slate-50">
+                                                                <td className="px-6 py-4 font-medium text-slate-700">
+                                                                    {comp.name || sysComp.name}
+                                                                    {(comp.code || sysComp.code) && <span className="ml-2 text-xs text-slate-400 font-mono">{comp.code || sysComp.code}</span>}
+                                                                </td>
+                                                                <td className="px-6 py-4">
+                                                                    <select
+                                                                        className={`w-full px-3 py-2 rounded-lg border text-sm font-bold uppercase ${{
+                                                                            'FUNCIONAL': 'bg-green-50 border-green-200 text-green-700',
+                                                                            'DESGASTADO': 'bg-yellow-50 border-yellow-200 text-yellow-700',
+                                                                            'REQUIERE_REVISION': 'bg-brand-50 border-brand-200 text-brand-700',
+                                                                            'DANADO': 'bg-red-50 border-red-200 text-red-700',
+                                                                            'FALTANTE': 'bg-slate-200 border-slate-300 text-slate-600',
+                                                                            'NO_REVISADO': 'bg-slate-100 border-slate-200 text-slate-500'
+                                                                        }[comp.status] || 'bg-slate-50 border-slate-200 text-slate-700'
+                                                                            }`}
+                                                                        value={comp.status}
+                                                                        onChange={(e) => updateListItem('components', idx, 'status', e.target.value)}
+                                                                    >
+                                                                        <option value="FUNCIONAL">Funcional</option>
+                                                                        <option value="DESGASTADO">Desgastado</option>
+                                                                        <option value="REQUIERE_REVISION">Req. Revisión</option>
+                                                                        <option value="DANADO">Dañado</option>
+                                                                        <option value="FALTANTE">Faltante</option>
+                                                                        <option value="NO_REVISADO">No Revisado</option>
+                                                                    </select>
+                                                                </td>
+                                                                <td className="px-6 py-4">
+                                                                    <textarea
+                                                                        className="w-full bg-slate-50 border border-slate-200 focus:border-brand-300 rounded-lg outline-none text-slate-600 placeholder:text-slate-300 text-sm px-3 py-2 min-h-[60px]"
+                                                                        placeholder="Observación..."
+                                                                        value={comp.observation || ''}
+                                                                        onChange={(e) => updateListItem('components', idx, 'observation', e.target.value)}
+                                                                    />
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                            
+                                            {/* Observación general del sistema */}
+                                            <div className="p-4 border-t border-slate-200 bg-slate-50">
+                                                <label className="block text-xs font-bold text-slate-600 mb-2 uppercase">Observación general del sistema ({sys.name})</label>
+                                                <textarea
+                                                    className="w-full bg-white border-4 border-red-500 focus:border-red-600 focus:ring-2 focus:ring-red-500/20 rounded-lg outline-none text-slate-700 text-sm px-4 py-3 min-h-[80px]"
+                                                    placeholder="Escriba aquí las observaciones generales sobre el estado de todo el sistema..."
+                                                    value={formData.system_observations?.[sys.component_id] || ''}
+                                                    onChange={(e) => setFormData(prev => ({
+                                                        ...prev,
+                                                        system_observations: {
+                                                            ...prev.system_observations,
+                                                            [sys.component_id]: e.target.value
+                                                        }
+                                                    }))}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {sys.photo_urls && sys.photo_urls.length > 0 && (
+                                            <div className="w-full lg:w-1/3 p-6 bg-slate-50/50">
+                                                <h4 className="text-xs font-bold text-slate-500 uppercase flex items-center gap-2 mb-4">
+                                                    Imágenes de Referencia
+                                                </h4>
+                                                <div className="flex flex-col gap-4">
+                                                    {sys.photo_urls.map((url, i) => (
+                                                        <a href={url} target="_blank" rel="noopener noreferrer" key={i} className="block bg-slate-900 rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                                                            <img src={url} alt={`Referencia ${i}`} className="w-full h-auto max-h-[600px] object-contain hover:scale-[1.02] transition-transform duration-300" />
+                                                        </a>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Materiales requeridos para mantenimiento */}
+                        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mt-8">
+                            <div className="flex justify-between items-center mb-6">
+                                <div>
+                                    <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2">
+                                        <Wrench size={20} className="text-brand-500" />
+                                        Materiales Requeridos para Mantenimiento
+                                    </h3>
+                                    <p className="text-sm text-slate-500 mt-1">Especifique tuberías, accesorios y otros materiales necesarios para la reparación.</p>
+                                </div>
+                                <button
+                                    onClick={() => addListItem('maintenance_materials', { item: '', quantity: 1, is_custom: false })}
+                                    className="text-sm font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 px-4 py-2 rounded-xl transition-colors flex items-center gap-2"
+                                >
+                                    <Plus size={16} /> Agregar Material
+                                </button>
+                            </div>
+
+                            {(!formData.maintenance_materials || formData.maintenance_materials.length === 0) && (
+                                <div className="text-sm text-slate-400 italic text-center py-4 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+                                    No hay materiales de mantenimiento registrados.
+                                </div>
+                            )}
+
+                            <div className="grid gap-3">
+                                {formData.maintenance_materials?.map((mat, idx) => (
+                                    <div key={mat.tempId || idx} className="flex gap-4 items-center bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-sm">
+                                        <div className="flex-1 flex gap-2">
+                                            {mat.is_custom ? (
+                                                <div className="flex-1 flex gap-2">
                                                     <input
                                                         type="text"
-                                                        className="w-full bg-transparent border-b border-transparent focus:border-brand-300 outline-none text-slate-600 placeholder:text-slate-300 text-xs"
-                                                        placeholder="Observación..."
-                                                        value={comp.observation || ''}
-                                                        onChange={(e) => updateListItem('components', idx, 'observation', e.target.value)}
+                                                        className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm"
+                                                        placeholder="Descripción del material personalizado..."
+                                                        value={mat.item}
+                                                        onChange={(e) => updateListItem('maintenance_materials', idx, 'item', e.target.value)}
                                                     />
-                                                </td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan="8" className="px-4 py-8 text-center text-slate-400">
-                                                {formData.mill_id ? 'Cargando componentes...' : 'Seleccione un molino para cargar componentes.'}
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                                                    <button 
+                                                        onClick={() => {
+                                                            updateListItem('maintenance_materials', idx, 'is_custom', false);
+                                                            updateListItem('maintenance_materials', idx, 'item', '');
+                                                        }}
+                                                        className="text-xs text-slate-400 hover:text-brand-600 px-2"
+                                                    >
+                                                        Volver a lista
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <select
+                                                    className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm"
+                                                    value={
+                                                        ['Tubos arriba', 'Tubos abajo', 'Flanche', 'Tubería PVC', 'Unión universal', 'Llave de paso 2" PVC', ''].includes(mat.item) 
+                                                        ? mat.item 
+                                                        : (mat.item ? 'CUSTOM' : '')
+                                                    }
+                                                    onChange={(e) => {
+                                                        if (e.target.value === 'CUSTOM') {
+                                                            updateListItem('maintenance_materials', idx, 'is_custom', true);
+                                                            updateListItem('maintenance_materials', idx, 'item', '');
+                                                        } else {
+                                                            updateListItem('maintenance_materials', idx, 'item', e.target.value);
+                                                            updateListItem('maintenance_materials', idx, 'is_custom', false);
+                                                        }
+                                                    }}
+                                                >
+                                                    <option value="">Seleccione material...</option>
+                                                    {['Tubos arriba', 'Tubos abajo', 'Flanche', 'Tubería PVC', 'Unión universal', 'Llave de paso 2" PVC'].map(opt => (
+                                                        <option key={opt} value={opt}>{opt}</option>
+                                                    ))}
+                                                    <option value="CUSTOM" className="font-bold text-brand-600">+ Otro material (Personalizado)</option>
+                                                </select>
+                                            )}
+                                        </div>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            className="w-24 bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm"
+                                            placeholder="Cant."
+                                            value={mat.quantity !== undefined && mat.quantity !== null ? mat.quantity : ''}
+                                            onChange={(e) => updateListItem('maintenance_materials', idx, 'quantity', e.target.value)}
+                                        />
+                                        <button onClick={() => removeListItem('maintenance_materials', idx)} className="text-slate-400 hover:text-red-500 p-1 transition-colors">
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 )}

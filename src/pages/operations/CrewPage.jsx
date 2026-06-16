@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Users, Plus, Shield, Wrench, UserCheck } from 'lucide-react';
 import StatusBadge from '../../components/ui/StatusBadge';
 import { CrewService } from '../../services/crews';
+import CrewSignatureEditor from './CrewSignatureEditor';
 
 export default function CrewPage() {
     const [crews, setCrews] = useState([]);
@@ -141,6 +142,14 @@ export default function CrewPage() {
                                     )}
                                 </div>
                             </div>
+
+                            {/* Crew Signature */}
+                            <CrewSignatureEditor 
+                                crew={selectedCrew} 
+                                onUpdated={(updatedCrew) => {
+                                    setSelectedCrew({ ...selectedCrew, ...updatedCrew });
+                                }} 
+                            />
                         </div>
                     ) : (
                         <div className="h-full flex items-center justify-center p-8 text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">

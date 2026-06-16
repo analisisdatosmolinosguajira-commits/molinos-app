@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import {
     Wind, Droplets, ClipboardList, Stethoscope, Users, MapPin,
     AlertTriangle, CheckCircle, Activity, ArrowRight, Clock,
-    ChevronRight, ChevronLeft, Wrench, Handshake, XCircle, BarChart3, Zap, Target, HelpCircle
+    ChevronRight, ChevronLeft, Wrench, Handshake, XCircle, BarChart3, Zap, Target, HelpCircle, BarChart2
 } from 'lucide-react';
 import {
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 import MillMap from '../../components/dashboard/MillMap';
 import { DashboardService } from '../../services/dashboard';
@@ -106,17 +106,7 @@ export default function DashboardPage() {
                 let normalizedAct = act && act.trim() !== '' ? act.trim() : 'Sin Información';
                 
                 if (normalizedAct !== 'Sin Información') {
-                    const lowerAct = normalizedAct.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                    if ((lowerAct.includes('artesania') || lowerAct.includes('aretesania')) && lowerAct.includes('pastoreo')) {
-                        normalizedAct = 'Artesanías y Pastoreo';
-                    } else if (lowerAct === 'pastoreo') {
-                        normalizedAct = 'Pastoreo';
-                    } else if (lowerAct.includes('artesania') || lowerAct.includes('aretesania')) {
-                        normalizedAct = 'Artesanías';
-                    } else {
-                        // Title Case
-                        normalizedAct = normalizedAct.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-                    }
+                    // Capitalize the first letter for better display if needed, but DB is already standardized
                 }
 
                 activities[normalizedAct] = (activities[normalizedAct] || 0) + 1;
@@ -196,9 +186,14 @@ export default function DashboardPage() {
         );
     }
 
+    function getGreeting() {
+        const hour = new Date().getHours();
+        if (hour < 12) return 'Buenos días';
+        if (hour < 18) return 'Buenas tardes';
+        return 'Buenas noches';
+    }
+
     const greeting = getGreeting();
-
-
 
     return (
         <div className="space-y-8 animate-slide-up">
@@ -217,6 +212,18 @@ export default function DashboardPage() {
                     </div>
                     {/* Year Selector */}
                     <div className="flex bg-slate-100 p-1 rounded-lg">
+                        <button 
+                            onClick={() => setSelectedYear('ALL')}
+                            className={`px-3 py-1.5 rounded-md font-semibold transition-all ${selectedYear === 'ALL' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                            Histórico Global
+                        </button>
+                        <button 
+                            onClick={() => setSelectedYear(2024)}
+                            className={`px-3 py-1.5 rounded-md font-semibold transition-all ${selectedYear === 2024 ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                            Año 2024
+                        </button>
                         <button 
                             onClick={() => setSelectedYear(2025)}
                             className={`px-3 py-1.5 rounded-md font-semibold transition-all ${selectedYear === 2025 ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
@@ -242,8 +249,8 @@ export default function DashboardPage() {
                                 <Target size={18} className="text-white" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-slate-800 text-sm">Meta {selectedYear} — Nuevas Intervenciones</h3>
-                                <p className="text-xs text-slate-400">Intervenciones nuevas (sin reintervención) completadas en {selectedYear}</p>
+                                <h3 className="font-bold text-slate-800 text-sm">Meta {selectedYear === 'ALL' ? 'Total' : selectedYear} — Nuevas Intervenciones</h3>
+                                <p className="text-xs text-slate-400">Intervenciones nuevas (sin reintervención) completadas en {selectedYear === 'ALL' ? 'total' : selectedYear}</p>
                             </div>
                         </div>
                         <div className="text-right">
@@ -272,8 +279,6 @@ export default function DashboardPage() {
                 </div>
             )}
 
-
-
             {/* Social & Productive Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl p-6 shadow-sm text-white relative overflow-hidden">
@@ -282,7 +287,7 @@ export default function DashboardPage() {
                         <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
                             <Users size={20} className="text-white" />
                         </div>
-                        <h3 className="font-bold text-lg">Impacto Social {selectedYear}</h3>
+                        <h3 className="font-bold text-lg">Impacto Social {selectedYear === 'ALL' ? 'Global' : selectedYear}</h3>
                     </div>
                     
                     <div className="grid grid-cols-3 gap-4 mb-4">
@@ -316,40 +321,49 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                {/* Productive Activity Pie Chart */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 bg-brand-50 rounded-xl">
-                            <BarChart3 size={20} className="text-brand-600" />
+                        <div className="p-2 bg-emerald-50 rounded-xl">
+                            <BarChart2 size={20} className="text-emerald-600" />
                         </div>
-                        <h3 className="font-bold text-slate-800 text-lg">Actividad Productiva {selectedYear}</h3>
+                        <h3 className="font-bold text-slate-800">Actividad Productiva {selectedYear === 'ALL' ? 'Global' : selectedYear}</h3>
                     </div>
-                    
-                    <div className="space-y-4 mt-6 max-h-[160px] overflow-y-auto pr-2 custom-scrollbar">
-                        {socialStats.topActivities.length > 0 ? socialStats.topActivities
-                            .filter(([activity, count]) => Math.round((count / socialStats.activeMills) * 100) > 0)
-                            .map(([activity, count], idx) => (
-                            <div key={idx} className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <span className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500 shrink-0">
-                                        {idx + 1}
-                                    </span>
-                                    <span className="font-medium text-slate-700 capitalize truncate" title={activity.toLowerCase()}>{activity.toLowerCase()}</span>
-                                </div>
-                                <div className="flex items-center gap-2 shrink-0">
-                                    <div className="w-24 md:w-32 h-2 bg-slate-100 rounded-full overflow-hidden">
-                                        <div 
-                                            className="h-full bg-brand-500 rounded-full" 
-                                            style={{ width: `${(count / socialStats.activeMills) * 100}%` }}
-                                        />
-                                    </div>
-                                    <span className="text-sm font-bold text-brand-600 w-9 text-right">
-                                        {Math.round((count / socialStats.activeMills) * 100)}%
-                                    </span>
-                                </div>
-                            </div>
-                        )) : (
-                            <div className="text-center py-6 text-slate-400 text-sm">
-                                No hay datos de actividad para {selectedYear}
+                    <div className="flex-1 flex items-center justify-center">
+                        {socialStats.topActivities.length > 0 ? (
+                            <ResponsiveContainer width="100%" height={220}>
+                                <BarChart
+                                    data={socialStats.topActivities.map(([name, value]) => ({ name, value }))}
+                                    layout="vertical"
+                                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                                >
+                                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+                                    <XAxis type="number" hide />
+                                    <YAxis 
+                                        type="category" 
+                                        dataKey="name" 
+                                        axisLine={false} 
+                                        tickLine={false} 
+                                        tick={{ fill: '#64748b', fontSize: 12 }} 
+                                        width={100}
+                                    />
+                                    <Tooltip 
+                                        cursor={{ fill: '#f8fafc' }}
+                                        formatter={(value) => [`${value} molinos`, 'Cantidad']}
+                                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                    />
+                                    <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={16}>
+                                        {socialStats.topActivities.map(([name, value], index) => {
+                                            const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#64748b'];
+                                            const color = name === 'Sin Información' ? '#cbd5e1' : COLORS[index % COLORS.length];
+                                            return <Cell key={`cell-${index}`} fill={color} />;
+                                        })}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="flex items-center justify-center h-full w-full text-slate-400 text-sm">
+                                No hay datos de actividades productivas.
                             </div>
                         )}
                     </div>
@@ -385,7 +399,7 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                             <Activity size={18} className="text-slate-400" />
-                            <h3 className="font-bold text-slate-800">Tasa de Falla {selectedYear}</h3>
+                            <h3 className="font-bold text-slate-800">Tasa de Falla {selectedYear === 'ALL' ? 'Global' : selectedYear}</h3>
                         </div>
                     </div>
                     {failureStats ? (

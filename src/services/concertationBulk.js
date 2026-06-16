@@ -6,7 +6,7 @@ import { supabase } from './supabase';
 // Índices (0-based en vals[]): coinciden exactamente con el orden de columnas
 // 0=concertation_id  1=code  2=community_id  3=community_name(info)
 // 4=meeting_date  5=status  6=decision  7=conditions
-// 8=notes  9=act_url  10=closing_note
+// 8=notes  9=concertation_act_url  10=delivery_act_url  11=closing_note
 // ─────────────────────────────────────────────────────────
 const CONCERTATION_COLS = [
     { key: 'concertation_id', header: 'ID Concertación',     hint: 'NO MODIFICAR – Clave única. Vacío = registro nuevo.', width: 16, locked: true },
@@ -18,7 +18,8 @@ const CONCERTATION_COLS = [
     { key: 'decision',        header: 'Decisión',             hint: 'Valores: pending | approved | rejected | conditional', width: 16 },
     { key: 'conditions',      header: 'Condiciones',          hint: 'Condiciones o compromisos acordados.', width: 40 },
     { key: 'notes',           header: 'Notas',                hint: 'Observaciones generales de la reunión.', width: 40 },
-    { key: 'act_url',         header: 'Link Acta Drive',      hint: 'URL del PDF firmado en Google Drive (opcional).', width: 40 },
+    { key: 'concertation_act_url', header: 'Link Acta Concert.',  hint: 'URL del PDF firmado en Google Drive (opcional).', width: 40 },
+    { key: 'delivery_act_url',     header: 'Link Acta Entrega',   hint: 'URL del PDF de entrega firmado en Google Drive.', width: 40 },
     { key: 'closing_note',    header: 'Nota de Cierre',       hint: 'Conclusiones al finalizar el acta.', width: 40 },
 ];
 
@@ -126,7 +127,7 @@ export const ConcertationBulkService = {
         const [{ data: concertations }, { data: communities }] = await Promise.all([
             supabase.from('community_concertation').select(`
                 concertation_id, code, community_id, meeting_date,
-                status, decision, conditions, notes, act_url, closing_note,
+                status, decision, conditions, notes, concertation_act_url, delivery_act_url, closing_note,
                 community(name)
             `).order('meeting_date', { ascending: false }),
             supabase.from('community').select('community_id, name').order('name')
@@ -145,7 +146,8 @@ export const ConcertationBulkService = {
             decision:        c.decision || '',
             conditions:      c.conditions || '',
             notes:           c.notes || '',
-            act_url:         c.act_url || '',
+            concertation_act_url: c.concertation_act_url || '',
+            delivery_act_url: c.delivery_act_url || '',
             closing_note:    c.closing_note || '',
         }));
 
@@ -237,8 +239,9 @@ export const ConcertationBulkService = {
             const decision       = (vals[6] || '').toString().trim().toLowerCase();
             const conditions     = (vals[7] || '').toString().trim() || null;
             const notes          = (vals[8] || '').toString().trim() || null;
-            const actUrl         = (vals[9] || '').toString().trim() || null;
-            const closingNote    = (vals[10] || '').toString().trim() || null;
+            const concertationActUrl = (vals[9] || '').toString().trim() || null;
+            const deliveryActUrl = (vals[10] || '').toString().trim() || null;
+            const closingNote    = (vals[11] || '').toString().trim() || null;
 
             // Required: community_id
             if (!communityId) {
@@ -278,7 +281,8 @@ export const ConcertationBulkService = {
                 decision:      decision   || null,
                 conditions,
                 notes,
-                act_url:       actUrl,
+                concertation_act_url: concertationActUrl,
+                delivery_act_url: deliveryActUrl,
                 closing_note:  closingNote,
             };
 
