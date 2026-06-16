@@ -232,20 +232,19 @@ export const DashboardService = {
     },
 
     async getFailureStats(year = 2026) {
-        let q1 = supabase.from('work_order').select('mill_id').eq('status', 'COMPLETED').eq('is_reintervention', false);
-        if (year !== 'ALL') {
-            q1 = q1.gte('start_date', `${year}-01-01T00:00:00`).lte('start_date', `${year}-12-31T23:59:59`);
-        }
+        const startOfYear = year === 'ALL' ? '2000-01-01T00:00:00' : `${year}-01-01T00:00:00`;
+        const endOfYear = year === 'ALL' ? '2100-12-31T23:59:59' : `${year}-12-31T23:59:59`;
+
+        let q1 = supabase.from('work_order').select('mill_id').eq('status', 'COMPLETED').eq('is_reintervention', false)
+            .gte('start_date', startOfYear).lte('start_date', endOfYear);
         const { data: baseInterventions, error: err1 } = await q1;
             
         if (err1) throw err1;
 
         const totalIntervenedMills = baseInterventions.length;
 
-        let q2 = supabase.from('work_order').select('mill_id').eq('status', 'COMPLETED').eq('is_reintervention', true);
-        if (year !== 'ALL') {
-            q2 = q2.gte('start_date', `${year}-01-01T00:00:00`).lte('start_date', `${year}-12-31T23:59:59`);
-        }
+        let q2 = supabase.from('work_order').select('mill_id').eq('status', 'COMPLETED').eq('is_reintervention', true)
+            .gte('start_date', startOfYear).lte('start_date', endOfYear);
         const { data: reinterventions, error: err2 } = await q2;
             
         if (err2) throw err2;
