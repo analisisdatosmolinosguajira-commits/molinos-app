@@ -231,10 +231,6 @@ export const DashboardService = {
         return activities.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
     },
 
-    /**
-     * Failure statistics
-     * A failure is a mill that was intervened in `year` and re-intervened in `year` or `year+1`.
-     */
     async getFailureStats(year = 2026) {
         let q1 = supabase.from('work_order').select('mill_id').eq('status', 'COMPLETED').eq('is_reintervention', false);
         if (year !== 'ALL') {
@@ -245,22 +241,20 @@ export const DashboardService = {
         if (err1) throw err1;
 
         const totalIntervenedMills = baseInterventions.length;
-        const intervenedMillIds = [...new Set(baseInterventions.map(wo => wo.mill_id).filter(Boolean))];
 
-        if (totalIntervenedMills === 0) {
-            return { totalIntervenedMills: 0, failedMills: 0, failureRate: 0 };
-        }
-
-        let q2 = supabase.from('work_order').select('mill_id').eq('status', 'COMPLETED').eq('is_reintervention', true).in('mill_id', intervenedMillIds);
+        let q2 = supabase.from('work_order').select('mill_id').eq('status', 'COMPLETED').eq('is_reintervention', true);
         if (year !== 'ALL') {
-            q2 = q2.gte('start_date', `${year}-01-01T00:00:00`).lte('start_date', `${year + 1}-12-31T23:59:59`);
+            q2 = q2.gte('start_date', `${year}-01-01T00:00:00`).lte('start_date', `${year}-12-31T23:59:59`);
         }
         const { data: reinterventions, error: err2 } = await q2;
             
         if (err2) throw err2;
 
-        const failedMillIds = new Set(reinterventions.map(wo => wo.mill_id).filter(Boolean));
-        const failedMills = failedMillIds.size;
+        const failedMills = reinterventions.length;
+
+        if (totalIntervenedMills === 0) {
+            return { totalIntervenedMills: 0, failedMills, failureRate: 0 };
+        }
 
         const failureRate = (failedMills / totalIntervenedMills) * 100;
 
