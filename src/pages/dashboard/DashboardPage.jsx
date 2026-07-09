@@ -280,95 +280,151 @@ export default function DashboardPage() {
             )}
 
             {/* Social & Productive Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl p-6 shadow-sm text-white relative overflow-hidden">
-                    <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
-                    <div className="flex items-center gap-3 mb-4">
+            {selectedYear === 'ALL' ? (
+                /* ── HISTÓRICO GLOBAL: tabla estática de impacto por municipio ── */
+                <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-2xl p-6 shadow-sm text-white relative overflow-hidden">
+                    <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
+                    <div className="flex items-center gap-3 mb-5">
                         <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
                             <Users size={20} className="text-white" />
                         </div>
-                        <h3 className="font-bold text-lg">Impacto Social {selectedYear === 'ALL' ? 'Global' : selectedYear}</h3>
-                    </div>
-                    
-                    <div className="grid grid-cols-3 gap-4 mb-4">
-                        <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm border border-white/10">
-                            <p className="text-white/70 text-xs font-medium mb-1">Molinos Intervenidos</p>
-                            <p className="text-2xl font-bold">{socialStats.activeMills}</p>
-                        </div>
-                        <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm border border-white/10">
-                            <p className="text-white/70 text-xs font-medium mb-1">Intervenciones</p>
-                            <p className="text-2xl font-bold">{socialStats.interventions}</p>
-                        </div>
-                        <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm border border-white/10">
-                            <p className="text-white/70 text-xs font-medium mb-1">Reintervenciones</p>
-                            <p className="text-2xl font-bold">{socialStats.reinterventions}</p>
+                        <div>
+                            <h3 className="font-bold text-lg leading-tight">Impacto del Proyecto Molinos</h3>
+                            <p className="text-white/70 text-xs">Vigencia 2024 – 2026</p>
                         </div>
                     </div>
-
-                    <div className="flex gap-6 pt-4 border-t border-white/20">
-                        <div>
-                            <p className="text-white/70 text-xs font-medium">Familias</p>
-                            <p className="text-lg font-bold">{socialStats.families.toLocaleString('es-CO')}</p>
-                        </div>
-                        <div>
-                            <p className="text-white/70 text-xs font-medium">Habitantes</p>
-                            <p className="text-lg font-bold">{socialStats.inhabitants.toLocaleString('es-CO')}</p>
-                        </div>
-                        <div>
-                            <p className="text-white/70 text-xs font-medium">Niños</p>
-                            <p className="text-lg font-bold">{socialStats.children.toLocaleString('es-CO')}</p>
-                        </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="border-b border-white/20">
+                                    <th className="text-left py-2 pr-4 text-white/60 font-medium text-xs w-6">#</th>
+                                    <th className="text-left py-2 pr-4 text-white/60 font-medium text-xs">MUNICIPIO</th>
+                                    <th className="text-right py-2 pr-4 text-white/60 font-medium text-xs">COMUNIDADES<br/>IMPACTADAS</th>
+                                    <th className="text-right py-2 pr-4 text-white/60 font-medium text-xs">FAMILIAS<br/>IMPACTADAS</th>
+                                    <th className="text-right py-2 pr-4 text-white/60 font-medium text-xs">HABITANTES<br/>IMPACTADOS</th>
+                                    <th className="text-right py-2 text-white/60 font-medium text-xs">NIÑOS 0–14<br/>IMPACTADOS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {[
+                                    { municipio: 'MAICAO',   comunidades: 90,  familias: 4445,  habitantes: 19805, ninos: 5353 },
+                                    { municipio: 'MANAURE',  comunidades: 178, familias: 8312,  habitantes: 29910, ninos: 8815 },
+                                    { municipio: 'URIBIA',   comunidades: 42,  familias: 2407,  habitantes: 8340,  ninos: 2576 },
+                                    { municipio: 'RIOHACHA', comunidades: 44,  familias: 3747,  habitantes: 11253, ninos: 4070 },
+                                ].map((row, idx) => (
+                                    <tr key={row.municipio} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                                        <td className="py-3 pr-4 text-white/50 text-xs">{idx + 1}</td>
+                                        <td className="py-3 pr-4 font-semibold tracking-wide">{row.municipio}</td>
+                                        <td className="py-3 pr-4 text-right tabular-nums">{row.comunidades.toLocaleString('es-CO')}</td>
+                                        <td className="py-3 pr-4 text-right tabular-nums">{row.familias.toLocaleString('es-CO')}</td>
+                                        <td className="py-3 pr-4 text-right tabular-nums">{row.habitantes.toLocaleString('es-CO')}</td>
+                                        <td className="py-3 text-right tabular-nums">{row.ninos.toLocaleString('es-CO')}</td>
+                                    </tr>
+                                ))}
+                                <tr className="bg-white/10 rounded-xl">
+                                    <td className="py-3 pr-4"></td>
+                                    <td className="py-3 pr-4 font-bold text-white text-xs tracking-widest uppercase">Impacto Total</td>
+                                    <td className="py-3 pr-4 text-right font-bold text-white tabular-nums">354</td>
+                                    <td className="py-3 pr-4 text-right font-bold text-white tabular-nums">18.911</td>
+                                    <td className="py-3 pr-4 text-right font-bold text-white tabular-nums">69.308</td>
+                                    <td className="py-3 text-right font-bold text-white tabular-nums">20.814</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-
-                {/* Productive Activity Pie Chart */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 bg-emerald-50 rounded-xl">
-                            <BarChart2 size={20} className="text-emerald-600" />
-                        </div>
-                        <h3 className="font-bold text-slate-800">Actividad Productiva {selectedYear === 'ALL' ? 'Global' : selectedYear}</h3>
-                    </div>
-                    <div className="flex-1 flex items-center justify-center">
-                        {socialStats.topActivities.length > 0 ? (
-                            <ResponsiveContainer width="100%" height={220}>
-                                <BarChart
-                                    data={socialStats.topActivities.map(([name, value]) => ({ name, value }))}
-                                    layout="vertical"
-                                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                                >
-                                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-                                    <XAxis type="number" hide />
-                                    <YAxis 
-                                        type="category" 
-                                        dataKey="name" 
-                                        axisLine={false} 
-                                        tickLine={false} 
-                                        tick={{ fill: '#64748b', fontSize: 12 }} 
-                                        width={100}
-                                    />
-                                    <Tooltip 
-                                        cursor={{ fill: '#f8fafc' }}
-                                        formatter={(value) => [`${value} molinos`, 'Cantidad']}
-                                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                    />
-                                    <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={16}>
-                                        {socialStats.topActivities.map(([name, value], index) => {
-                                            const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#64748b'];
-                                            const color = name === 'Sin Información' ? '#cbd5e1' : COLORS[index % COLORS.length];
-                                            return <Cell key={`cell-${index}`} fill={color} />;
-                                        })}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        ) : (
-                            <div className="flex items-center justify-center h-full w-full text-slate-400 text-sm">
-                                No hay datos de actividades productivas.
+            ) : (
+                /* ── AÑO ESPECÍFICO: tarjetas dinámicas desde BD ── */
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl p-6 shadow-sm text-white relative overflow-hidden">
+                        <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                                <Users size={20} className="text-white" />
                             </div>
-                        )}
+                            <h3 className="font-bold text-lg">Impacto Social {selectedYear}</h3>
+                        </div>
+                        
+                        <div className="grid grid-cols-3 gap-4 mb-4">
+                            <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm border border-white/10">
+                                <p className="text-white/70 text-xs font-medium mb-1">Molinos Intervenidos</p>
+                                <p className="text-2xl font-bold">{socialStats.activeMills}</p>
+                            </div>
+                            <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm border border-white/10">
+                                <p className="text-white/70 text-xs font-medium mb-1">Intervenciones</p>
+                                <p className="text-2xl font-bold">{socialStats.interventions}</p>
+                            </div>
+                            <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm border border-white/10">
+                                <p className="text-white/70 text-xs font-medium mb-1">Reintervenciones</p>
+                                <p className="text-2xl font-bold">{socialStats.reinterventions}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-6 pt-4 border-t border-white/20">
+                            <div>
+                                <p className="text-white/70 text-xs font-medium">Familias</p>
+                                <p className="text-lg font-bold">{socialStats.families.toLocaleString('es-CO')}</p>
+                            </div>
+                            <div>
+                                <p className="text-white/70 text-xs font-medium">Habitantes</p>
+                                <p className="text-lg font-bold">{socialStats.inhabitants.toLocaleString('es-CO')}</p>
+                            </div>
+                            <div>
+                                <p className="text-white/70 text-xs font-medium">Niños</p>
+                                <p className="text-lg font-bold">{socialStats.children.toLocaleString('es-CO')}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Productive Activity Bar Chart */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-emerald-50 rounded-xl">
+                                <BarChart2 size={20} className="text-emerald-600" />
+                            </div>
+                            <h3 className="font-bold text-slate-800">Actividad Productiva {selectedYear}</h3>
+                        </div>
+                        <div className="flex-1 flex items-center justify-center">
+                            {socialStats.topActivities.length > 0 ? (
+                                <ResponsiveContainer width="100%" height={220}>
+                                    <BarChart
+                                        data={socialStats.topActivities.map(([name, value]) => ({ name, value }))}
+                                        layout="vertical"
+                                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+                                        <XAxis type="number" hide />
+                                        <YAxis 
+                                            type="category" 
+                                            dataKey="name" 
+                                            axisLine={false} 
+                                            tickLine={false} 
+                                            tick={{ fill: '#64748b', fontSize: 12 }} 
+                                            width={100}
+                                        />
+                                        <Tooltip 
+                                            cursor={{ fill: '#f8fafc' }}
+                                            formatter={(value) => [`${value} molinos`, 'Cantidad']}
+                                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                        />
+                                        <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={16}>
+                                            {socialStats.topActivities.map(([name, value], index) => {
+                                                const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#64748b'];
+                                                const color = name === 'Sin Información' ? '#cbd5e1' : COLORS[index % COLORS.length];
+                                                return <Cell key={`cell-${index}`} fill={color} />;
+                                            })}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="flex items-center justify-center h-full w-full text-slate-400 text-sm">
+                                    No hay datos de actividades productivas.
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* Map Section */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
